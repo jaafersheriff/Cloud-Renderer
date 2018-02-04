@@ -1,5 +1,11 @@
 
+#include "Window.hpp"
 
-int main() { 
-    return 0;
+int main() {
+    Window window;
+    window.init("Clouds");
+
+    while (!window.shouldClose()) {
+        window.update();
+    }
 }
