@@ -1,4 +1,5 @@
 #include "Mesh.hpp"
+
 #include <GL/glew.h>
 #include <cassert>
 

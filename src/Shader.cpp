@@ -5,8 +5,6 @@
 #include <iostream>
 
 bool Shader::init() {
-    this->type = MasterRenderer::ShaderTypes::ERROR;
-
     GLint rc;
 
     std::ifstream v(vShaderName.c_str());
