@@ -5,6 +5,22 @@
 Window window;
 Camera camera;
 
+/* Timing */
+double timeStep, lastFpsTime, lastFrameTime, runTime;
+int nFrames, FPS;
+
+void updateTiming() {
+    runTime = (float)window.getTime();
+    timeStep = runTime - lastFrameTime;
+    lastFrameTime = runTime;
+    nFrames++;
+    if (runTime - lastFpsTime >= 1.0) {
+        FPS = nFrames;
+        nFrames = 0;
+        lastFpsTime = runTime;
+    }
+}
+
 void takeInput() {
     if (Mouse::isDown(0)) {
         camera.takeMouseInput(Mouse::dx, Mouse::dy);
@@ -13,30 +29,34 @@ void takeInput() {
         camera.takeMouseInput(0.0, 0.0);
     }
     if (Keyboard::isKeyPressed(GLFW_KEY_W)) {
-        camera.moveForward(1.f);
+        camera.moveForward(timeStep);
     }
     if (Keyboard::isKeyPressed(GLFW_KEY_S)) {
-        camera.moveBackward(1.f);
+        camera.moveBackward(timeStep);
     }
     if (Keyboard::isKeyPressed(GLFW_KEY_A)) {
-        camera.moveLeft(1.f);
+        camera.moveLeft(timeStep);
     }
     if (Keyboard::isKeyPressed(GLFW_KEY_D)) {
-        camera.moveRight(1.f);
+        camera.moveRight(timeStep);
     }
     if (Keyboard::isKeyPressed(GLFW_KEY_E)) {
-        camera.moveUp(1.f);
+        camera.moveUp(timeStep);
     }
     if (Keyboard::isKeyPressed(GLFW_KEY_R)) {
-        camera.moveDown(1.f);
+        camera.moveDown(timeStep);
     }   
 }
 
 int main() {
+    /* Timing */
+    timeStep = lastFpsTime = lastFrameTime = runTime = 0.0;
+    nFrames = FPS = 0;
+
     window.init("Clouds");
     
-
     while (!window.shouldClose()) {
+        updateTiming();
         window.update();
         takeInput();
         camera.update();
