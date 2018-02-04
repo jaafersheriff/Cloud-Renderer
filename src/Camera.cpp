@@ -1,13 +1,14 @@
 #include "Camera.hpp"
 
+#include "Window.hpp"
+#include "glm/gtc/matrix_transform.hpp"
+
 Camera::Camera(const glm::vec3 position) {
     /* Init */
     this->position = position;
     phi = theta = 0.0;
 
-    /* Set UVW vector and lookAt */
-    updateUVW();
-    updateLookAt();
+    update();
 }
 
 /* Update look at point
@@ -20,6 +21,8 @@ void Camera::takeMouseInput(const double dx, const double dy) {
 void Camera::update() {
     updateUVW();
     updateLookAt();
+    this->P = glm::perspective(45.f, (float) (Window::width / Window::height), 0.01f, 2500.f);
+    this->V = glm::lookAt(position, lookAt, glm::vec3(0, 1, 0));
 }
 
 void Camera::updateUVW() {

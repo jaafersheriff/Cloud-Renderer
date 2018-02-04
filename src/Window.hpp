@@ -18,9 +18,9 @@
 
 class Window {
 public:
-    /* Default window size */
-    int width = DEFAULT_WIDTH;
-    int height = DEFAULT_HEIGHT;
+    /* Window size */
+    static int width;
+    static int height;
 
     /* Reference to GLFW window, mouse, keyboard */
     GLFWwindow *window;

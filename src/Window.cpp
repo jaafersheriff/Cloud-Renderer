@@ -2,6 +2,9 @@
 
 #include <iostream> /* cout, cerr */
 
+int Window::width = DEFAULT_WIDTH;
+int Window::height = DEFAULT_HEIGHT;
+
 void Window::errorCallback(int error, const char *desc) {
     std::cerr << "Error " << error << ": " << desc << std::endl;
 }

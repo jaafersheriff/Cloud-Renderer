@@ -20,6 +20,10 @@ class Camera {
         Camera(const glm::vec3);
         Camera() : Camera(glm::vec3(0.f)) { }
 
+        /* Matrices */
+        glm::mat4 P;
+        glm::mat4 V;
+
         /* Update */
         virtual void update();
         virtual void takeMouseInput(const double, const double);
