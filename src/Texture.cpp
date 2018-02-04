@@ -49,15 +49,12 @@ void Texture::copyToGPU(const uint8_t *data, GLenum mode) {
     /* Bind new texture buffer object to active texture */
     glBindTexture(GL_TEXTURE_2D, textureId);
 
-    /* Load texture data to GPU */
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, this->width, this->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-
     /* Generate image pyramid */
     glGenerateMipmap(GL_TEXTURE_2D);
     
     /* Set filtering mode for magnification and minimification */
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
     /* Set wrap mode */
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, mode);
@@ -65,6 +62,9 @@ void Texture::copyToGPU(const uint8_t *data, GLenum mode) {
 
     /* LOD */
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_LOD_BIAS, -1.5f); 
+
+    /* Load texture data to GPU */
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, this->width, this->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 
     /* Unbind */
     glBindTexture(GL_TEXTURE_2D, 0);
