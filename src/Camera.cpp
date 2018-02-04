@@ -1,6 +1,8 @@
 #include "Camera.hpp"
 
 #include "Window.hpp"
+#include "Util.hpp"
+
 #include "glm/gtc/matrix_transform.hpp"
 
 Camera::Camera(const glm::vec3 position) {
@@ -35,7 +37,7 @@ void Camera::updateLookAt() {
     glm::vec3 sphere(
             glm::cos(phi)*glm::cos(theta),
             glm::sin(phi),
-            glm::cos(phi)*glm::cos((3.1415f/2.f)-theta));
+            glm::cos(phi)*glm::cos((Util::PI/2.f)-theta));
     lookAt = position + glm::normalize(sphere);
 }
 
