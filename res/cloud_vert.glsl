@@ -6,9 +6,11 @@ uniform mat4 P;
 uniform mat4 M;
 uniform mat4 V;
 
-out vec3 fragCol;
+out vec3 fragPos;
+out vec2 fragTex;
 
 void main() {
+    fragPos = vertPos;
+    fragTex = vertTex;
     gl_Position = P * V * M * vec4(vertPos, 1.0);
-     fragCol = vertPos;
 }

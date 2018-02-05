@@ -1,7 +1,7 @@
-#include "Window.hpp"
+#include "IO/Window.hpp"
 #include "Camera.hpp"
-#include "GLSL.hpp"
-#include "Shader.hpp"
+#include "GL/GLSL.hpp"
+#include "GL/Shader.hpp"
 #include "Util.hpp"
 
 #include "Cloud.hpp"
@@ -49,10 +49,10 @@ void takeInput() {
     if (Keyboard::isKeyPressed(GLFW_KEY_D)) {
         camera.moveRight(timeStep);
     }
-    if (Keyboard::isKeyPressed(GLFW_KEY_E)) {
+    if (Keyboard::isKeyPressed(GLFW_KEY_R)) {
         camera.moveUp(timeStep);
     }
-    if (Keyboard::isKeyPressed(GLFW_KEY_R)) {
+    if (Keyboard::isKeyPressed(GLFW_KEY_E)) {
         camera.moveDown(timeStep);
     }   
 }
@@ -64,13 +64,16 @@ void createShader() {
     cloudShader->addUniform("P");
     cloudShader->addUniform("M");
     cloudShader->addUniform("V");
+
     cloudShader->addAttribute("vertPos");
     cloudShader->addAttribute("vertTex");
+
+    cloudShader->addUniform("diffuseTex");
 }
 
 void createClouds() {
     /* Create textures */
-    Texture *cloudTexture = new Texture(RESOURCE_DIR + "smoke.png");
+    Texture *cloudTexture = new Texture(RESOURCE_DIR + "world.bmp");
     Texture *normalMap = new Texture(RESOURCE_DIR + "NormalMap.png");
 
     for (int i = 0; i < 30; i++) {
@@ -93,20 +96,35 @@ void render() {
 
     cloudShader->loadMat4(cloudShader->getUniform("P"), &camera.P);
     cloudShader->loadMat4(cloudShader->getUniform("V"), &camera.V);
-
-
     glm::mat4 M;
     for (auto cloud : clouds) {
-        glBindVertexArray(clouds[0]->mesh->vaoId);
+
+        // TODO : all clouds use the same mesh and textures
+        // TODO : we should only need to load this once, not per cloud
+        /* VAO */
+        glBindVertexArray(cloud->mesh->vaoId);
+
+        /* Vertices VBO */
         int pos = cloudShader->getAttribute("vertPos");
         glEnableVertexAttribArray(pos);
         glBindBuffer(GL_ARRAY_BUFFER, cloud->mesh->vertBufId);
         glVertexAttribPointer(pos, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+
+        /* Texture coords VBO */
         pos = cloudShader->getAttribute("vertTex");
         glEnableVertexAttribArray(pos);
         glBindBuffer(GL_ARRAY_BUFFER, cloud->mesh->texBufId);
         glVertexAttribPointer(pos, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, clouds[0]->mesh->eleBufId);
+
+        /* IBO */
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cloud->mesh->eleBufId);
+
+        /* Textures */
+        cloudShader->loadInt(cloudShader->getUniform("diffuseTex"), cloud->texture->textureId);
+        glActiveTexture(GL_TEXTURE0 + cloud->texture->textureId);
+        glBindTexture(GL_TEXTURE_2D, cloud->texture->textureId);
+
+        /* Model matrix */
         M = glm::mat4(1.f);
         M *= glm::translate(glm::mat4(1.f), cloud->position);
         M *= glm::rotate(glm::mat4(1.f), glm::radians(cloud->rotation.x), glm::vec3(1, 0, 0));
@@ -138,15 +156,20 @@ int main() {
 
     /* Init rendering */
     GLSL::checkVersion();
-    glClearColor(0.f, 0.f, 0.1f, 1.f);
+    glClearColor(0.f, 0.8f, 0.9f, 1.f);
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     while (!window.shouldClose()) {
+        /* Update context */
         updateTiming();
         window.update();
+
+        /* Update camera */
         takeInput();
         camera.update();
+
+        /* Render clouds*/
         render();
     }
 }
