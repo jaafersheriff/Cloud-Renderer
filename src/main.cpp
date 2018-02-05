@@ -64,6 +64,7 @@ void createShader() {
     cloudShader->addUniform("P");
     cloudShader->addUniform("M");
     cloudShader->addUniform("V");
+    cloudShader->addUniform("iV");
 
     cloudShader->addAttribute("vertPos");
     cloudShader->addAttribute("vertTex");
@@ -73,14 +74,14 @@ void createShader() {
 
 void createClouds() {
     /* Create textures */
-    Texture *cloudTexture = new Texture(RESOURCE_DIR + "world.bmp");
+    Texture *cloudTexture = new Texture(RESOURCE_DIR + "smoke.png");
     Texture *normalMap = new Texture(RESOURCE_DIR + "NormalMap.png");
 
     for (int i = 0; i < 30; i++) {
         Cloud *cloud = new Cloud;
 
-        cloud->position =  Util::genRandomVec3(-5.f, 5.f);
-        cloud->rotation =  Util::genRandomVec3(0.f, 360.f);
+        cloud->position = Util::genRandomVec3(-5.f, 5.f);
+        cloud->rotation = glm::vec3(0.f);// glm::vec3(0.f, 0.f, Util::genRandom(0.f, 360.f));
         cloud->scale = glm::vec3(10.f);
 
         cloud->texture = cloudTexture;
@@ -91,11 +92,17 @@ void createClouds() {
 
 void render() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glDisable(GL_DEPTH_TEST);
 
     cloudShader->bind();
 
     cloudShader->loadMat4(cloudShader->getUniform("P"), &camera.P);
     cloudShader->loadMat4(cloudShader->getUniform("V"), &camera.V);
+    glm::mat4 iV = camera.V;
+    iV[3][0] = iV[3][1] = iV[3][2] = 0.f;
+    iV = glm::transpose(iV);
+    cloudShader->loadMat4(cloudShader->getUniform("iV"), &iV);
+        
     glm::mat4 M;
     for (auto cloud : clouds) {
 
