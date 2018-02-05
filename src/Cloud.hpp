@@ -2,8 +2,8 @@
 #ifndef _CLOUD_HPP_
 #define _CLOUD_HPP_
 
-#include "Mesh.hpp";
-#include "Texture.hpp"
+#include "Model/Mesh.hpp";
+#include "Model/Texture.hpp"
 
 class Cloud {
     public:

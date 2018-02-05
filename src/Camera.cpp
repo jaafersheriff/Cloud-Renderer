@@ -1,6 +1,6 @@
 #include "Camera.hpp"
 
-#include "Window.hpp"
+#include "IO/Window.hpp"
 #include "Util.hpp"
 
 #include "glm/gtc/matrix_transform.hpp"
