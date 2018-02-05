@@ -22,27 +22,27 @@ void Mesh::init() {
     /* Copy vertex array */
     glGenBuffers(1, &vertBufId);
     glBindBuffer(GL_ARRAY_BUFFER, vertBufId);
-    glBufferData(GL_ARRAY_BUFFER, vertBuf.size() * sizeof(float), &vertBuf[0], GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, vertBuf.size() * sizeof(float), &vertBuf[0], GL_DYNAMIC_DRAW);
 
     /* Copy element array if it exists */
     if (!eleBuf.empty()) {
         glGenBuffers(1, &eleBufId);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, eleBufId);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, eleBuf.size() * sizeof(unsigned int), &eleBuf[0], GL_STATIC_DRAW);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, eleBuf.size() * sizeof(unsigned int), &eleBuf[0], GL_DYNAMIC_DRAW);
     }
 
     /* Copy normal array if it exists */
     if (!norBuf.empty()) {
         glGenBuffers(1, &norBufId);
         glBindBuffer(GL_ARRAY_BUFFER, norBufId);
-        glBufferData(GL_ARRAY_BUFFER, norBuf.size() * sizeof(float), &norBuf[0], GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, norBuf.size() * sizeof(float), &norBuf[0], GL_DYNAMIC_DRAW);
     }
 
     /* Copy texture array if it exists */
     if (!texBuf.empty()) {
         glGenBuffers(1, &texBufId);
         glBindBuffer(GL_ARRAY_BUFFER, texBufId);
-        glBufferData(GL_ARRAY_BUFFER, texBuf.size() * sizeof(float), &texBuf[0], GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, texBuf.size() * sizeof(float), &texBuf[0], GL_DYNAMIC_DRAW);
     }
 
     /* Unbind  */

@@ -16,7 +16,6 @@ class Texture {
         GLuint textureId = 0;
 
         Texture(std::string);
-        Texture(std::string, GLenum);
 
         int width;
         int height;
@@ -25,7 +24,7 @@ class Texture {
 
     private:
         uint8_t* loadImageData(const std::string);
-        void copyToGPU(const uint8_t *, GLenum);
+        void copyToGPU(const uint8_t *);
 };
 
 #endif
