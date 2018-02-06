@@ -5,6 +5,7 @@
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 
+#include <iostream>
 #include <algorithm>
 
 class Util {
@@ -51,6 +52,17 @@ class Util {
         static inline glm::vec3 genRandomVec3(const float min, const float max) {
             return glm::vec3(genRandom(min, max), genRandom(min, max), genRandom(min, max));
         }
+
+        //////////////////////////////////////////////
+        //                 PRINTING                 //
+        //////////////////////////////////////////////
+        static inline void printVec3(std::string label, glm::vec3 vec) {
+            std::cout << label << ": <" <<
+                vec.x << ", " << vec.y << ", " << vec.z
+                << ">" << std::endl;
+        }
+
+
     private:
         /* Timing/FPS */
         static double lastFpsTime;
