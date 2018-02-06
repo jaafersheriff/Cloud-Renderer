@@ -40,10 +40,9 @@ void createShader() {
     cloudShader->addUniform("V");
     cloudShader->addUniform("Vi");
 
-    cloudShader->addUniform("center");
-    cloudShader->addUniform("size");
-
     cloudShader->addUniform("diffuseTex");
+
+    cloudShader->addUniform("lightPos");
 }
 
 void createClouds() {
@@ -86,6 +85,9 @@ void render() {
     Vi = glm::transpose(Vi);
     cloudShader->loadMat4(cloudShader->getUniform("Vi"), &Vi);
 
+    /* Bind light position */
+    cloudShader->loadVec3(cloudShader->getUniform("lightPos"), glm::vec3(100.f, 100.f, 100.f));
+
     /* Bind mesh */
     /* VAO */
     glBindVertexArray(quad->vaoId);
@@ -106,9 +108,6 @@ void render() {
 
     glm::mat4 M;
     for (auto cloud : clouds) {
-        cloudShader->loadVec3(cloudShader->getUniform("center"), cloud->position);
-        cloudShader->loadVec2(cloudShader->getUniform("size"), cloud->size);
-
         M  = glm::mat4(1.f);
         M *= glm::translate(glm::mat4(1.f), cloud->position);
         // M *= glm::rotate(glm::mat4(1.f), glm::radians(cloud->rotation), glm::vec3(0, 0, 1));
