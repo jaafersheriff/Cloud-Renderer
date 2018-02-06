@@ -38,6 +38,7 @@ void createShader() {
     cloudShader->addUniform("P");
     cloudShader->addUniform("M");
     cloudShader->addUniform("V");
+    cloudShader->addUniform("Vi");
 
     cloudShader->addUniform("center");
     cloudShader->addUniform("size");
@@ -76,10 +77,15 @@ void render() {
     glDisable(GL_DEPTH_TEST);
 
     cloudShader->bind();
-
+    
+    /* Bind projeciton, view, inverise view matrices */
     cloudShader->loadMat4(cloudShader->getUniform("P"), &camera.P);
     cloudShader->loadMat4(cloudShader->getUniform("V"), &camera.V);
-        
+    glm::mat4 Vi = camera.V;
+    Vi[3][0] = Vi[3][1] = Vi[3][2] = 0.f;
+    Vi = glm::transpose(Vi);
+    cloudShader->loadMat4(cloudShader->getUniform("Vi"), &Vi);
+
     /* Bind mesh */
     /* VAO */
     glBindVertexArray(quad->vaoId);
@@ -98,11 +104,15 @@ void render() {
     glActiveTexture(GL_TEXTURE0 + diffuseTex->textureId);
     glBindTexture(GL_TEXTURE_2D, diffuseTex->textureId);
 
+    glm::mat4 M;
     for (auto cloud : clouds) {
         cloudShader->loadVec3(cloudShader->getUniform("center"), cloud->position);
         cloudShader->loadVec2(cloudShader->getUniform("size"), cloud->size);
 
-        glm::mat4 M = glm::rotate(glm::mat4(1.f), glm::radians(cloud->rotation), glm::vec3(0, 0, 1));
+        M  = glm::mat4(1.f);
+        M *= glm::translate(glm::mat4(1.f), cloud->position);
+        // M *= glm::rotate(glm::mat4(1.f), glm::radians(cloud->rotation), glm::vec3(0, 0, 1));
+        // M *= glm::scale(glm::mat4(1.f), glm::vec3(cloud->size, 0.f));
         cloudShader->loadMat4(cloudShader->getUniform("M"), &M);
 
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
