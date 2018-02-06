@@ -37,33 +37,6 @@ void updateTiming() {
     }
 }
 
-void takeInput() {
-    if (Mouse::isDown(0)) {
-        camera.takeMouseInput(Mouse::dx, Mouse::dy);
-    }
-    else {
-        camera.takeMouseInput(0.0, 0.0);
-    }
-    if (Keyboard::isKeyPressed(GLFW_KEY_W)) {
-        camera.moveForward(timeStep);
-    }
-    if (Keyboard::isKeyPressed(GLFW_KEY_S)) {
-        camera.moveBackward(timeStep);
-    }
-    if (Keyboard::isKeyPressed(GLFW_KEY_A)) {
-        camera.moveLeft(timeStep);
-    }
-    if (Keyboard::isKeyPressed(GLFW_KEY_D)) {
-        camera.moveRight(timeStep);
-    }
-    if (Keyboard::isKeyPressed(GLFW_KEY_R)) {
-        camera.moveUp(timeStep);
-    }
-    if (Keyboard::isKeyPressed(GLFW_KEY_E)) {
-        camera.moveDown(timeStep);
-    }   
-}
-
 void createShader() {
     /* Create shader */
     cloudShader = new Shader(RESOURCE_DIR + "cloud_vert.glsl", RESOURCE_DIR + "cloud_frag.glsl");
@@ -174,8 +147,7 @@ int main() {
         window.update();
 
         /* Update camera */
-        takeInput();
-        camera.update();
+        camera.update(timeStep);
 
         /* Render clouds*/
         render();
