@@ -4,7 +4,10 @@
 #include "GL/Shader.hpp"
 #include "Util.hpp"
 
+#include "Model/Mesh.hpp"
 #include "Cloud.hpp"
+
+#include <vector>
 
 std::string RESOURCE_DIR = "../res/";
 
@@ -13,6 +16,10 @@ Camera camera;
 
 std::vector<Cloud *> clouds;
 Shader *cloudShader;
+
+Mesh *quad;
+Texture *diffuseTex;
+Texture *normalTex;
 
 /* Timing */
 double lastFpsTime, lastFrameTime, runTime;
@@ -61,31 +68,41 @@ void createShader() {
     /* Create shader */
     cloudShader = new Shader(RESOURCE_DIR + "cloud_vert.glsl", RESOURCE_DIR + "cloud_frag.glsl");
     cloudShader->init();
+
+    cloudShader->addAttribute("vertPos");
+
     cloudShader->addUniform("P");
     cloudShader->addUniform("M");
     cloudShader->addUniform("V");
-    cloudShader->addUniform("iV");
 
-    cloudShader->addAttribute("vertPos");
-    cloudShader->addAttribute("vertTex");
+    cloudShader->addUniform("center");
+    cloudShader->addUniform("size");
 
     cloudShader->addUniform("diffuseTex");
 }
 
 void createClouds() {
+    /* Create quad mesh */
+    quad = new Mesh;
+    quad->vertBuf = {
+        -1.f, -1.f,  0.f,
+         1.f, -1.f,  0.f,
+        -1.f,  1.f,  0.f,
+         1.f,  1.f,  0.f
+    };
+    quad->init();
+
     /* Create textures */
-    Texture *cloudTexture = new Texture(RESOURCE_DIR + "smoke.png");
-    Texture *normalMap = new Texture(RESOURCE_DIR + "NormalMap.png");
+    diffuseTex = new Texture(RESOURCE_DIR + "smoke.png");
+    normalTex = new Texture(RESOURCE_DIR + "NormalMap.png");
 
     for (int i = 0; i < 30; i++) {
         Cloud *cloud = new Cloud;
 
         cloud->position = Util::genRandomVec3(-5.f, 5.f);
-        cloud->rotation = glm::vec3(0.f);// glm::vec3(0.f, 0.f, Util::genRandom(0.f, 360.f));
-        cloud->scale = glm::vec3(10.f);
+        cloud->size = glm::normalize(glm::vec2(diffuseTex->width, diffuseTex->height));
+        cloud->rotation = 0.f;
 
-        cloud->texture = cloudTexture;
-        cloud->normalMap = normalMap;
         clouds.push_back(cloud);
     }
 }
@@ -98,49 +115,33 @@ void render() {
 
     cloudShader->loadMat4(cloudShader->getUniform("P"), &camera.P);
     cloudShader->loadMat4(cloudShader->getUniform("V"), &camera.V);
-    glm::mat4 iV = camera.V;
-    iV[3][0] = iV[3][1] = iV[3][2] = 0.f;
-    iV = glm::transpose(iV);
-    cloudShader->loadMat4(cloudShader->getUniform("iV"), &iV);
         
-    glm::mat4 M;
+    /* Bind mesh */
+    /* VAO */
+    glBindVertexArray(quad->vaoId);
+
+    /* Vertices VBO */
+    int pos = cloudShader->getAttribute("vertPos");
+    glEnableVertexAttribArray(pos);
+    glBindBuffer(GL_ARRAY_BUFFER, quad->vertBufId);
+    glVertexAttribPointer(pos, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+
+    /* IBO */
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, quad->eleBufId);
+
+    /* Bind textures */
+    cloudShader->loadInt(cloudShader->getUniform("diffuseTex"), diffuseTex->textureId);
+    glActiveTexture(GL_TEXTURE0 + diffuseTex->textureId);
+    glBindTexture(GL_TEXTURE_2D, diffuseTex->textureId);
+
     for (auto cloud : clouds) {
+        cloudShader->loadVec3(cloudShader->getUniform("center"), cloud->position);
+        cloudShader->loadVec2(cloudShader->getUniform("size"), cloud->size);
 
-        // TODO : all clouds use the same mesh and textures
-        // TODO : we should only need to load this once, not per cloud
-        /* VAO */
-        glBindVertexArray(cloud->mesh->vaoId);
-
-        /* Vertices VBO */
-        int pos = cloudShader->getAttribute("vertPos");
-        glEnableVertexAttribArray(pos);
-        glBindBuffer(GL_ARRAY_BUFFER, cloud->mesh->vertBufId);
-        glVertexAttribPointer(pos, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
-
-        /* Texture coords VBO */
-        pos = cloudShader->getAttribute("vertTex");
-        glEnableVertexAttribArray(pos);
-        glBindBuffer(GL_ARRAY_BUFFER, cloud->mesh->texBufId);
-        glVertexAttribPointer(pos, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
-
-        /* IBO */
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cloud->mesh->eleBufId);
-
-        /* Textures */
-        cloudShader->loadInt(cloudShader->getUniform("diffuseTex"), cloud->texture->textureId);
-        glActiveTexture(GL_TEXTURE0 + cloud->texture->textureId);
-        glBindTexture(GL_TEXTURE_2D, cloud->texture->textureId);
-
-        /* Model matrix */
-        M = glm::mat4(1.f);
-        M *= glm::translate(glm::mat4(1.f), cloud->position);
-        M *= glm::rotate(glm::mat4(1.f), glm::radians(cloud->rotation.x), glm::vec3(1, 0, 0));
-        M *= glm::rotate(glm::mat4(1.f), glm::radians(cloud->rotation.y), glm::vec3(0, 1, 0));
-        M *= glm::rotate(glm::mat4(1.f), glm::radians(cloud->rotation.z), glm::vec3(0, 0, 1));
-        M *= glm::scale(glm::mat4(1.f), cloud->scale);
+        glm::mat4 M = glm::rotate(glm::mat4(1.f), glm::radians(cloud->rotation), glm::vec3(0, 0, 1));
         cloudShader->loadMat4(cloudShader->getUniform("M"), &M);
 
-        glDrawElements(GL_TRIANGLES, (int)cloud->mesh->eleBuf.size(), GL_UNSIGNED_INT, nullptr);
+        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
     }
 
     glBindVertexArray(0);

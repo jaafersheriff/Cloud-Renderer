@@ -1,6 +1,5 @@
 #version 330 core
 
-in vec3 fragPos;
 in vec2 fragTex;
 
 uniform sampler2D diffuseTex;
@@ -8,5 +7,6 @@ uniform sampler2D diffuseTex;
 out vec4 color;
 
 void main() {
-    color = texture(diffuseTex, fragTex);
+    color = vec4(1.f, 0.f, 0.f, 1.f);
+    // color = texture(diffuseTex, fragTex);
 }
