@@ -9,6 +9,13 @@
 
 #include <vector>
 
+float Util::timeStep = 0.f;
+int Util::FPS = 0;
+double Util::lastFpsTime = 0.0;
+double Util::lastFrameTime = 0.0;
+double Util::runTime = 0.0;
+int Util::nFrames = 0;
+
 std::string RESOURCE_DIR = "../res/";
 
 Window window;
@@ -20,22 +27,6 @@ Shader *cloudShader;
 Mesh *quad;
 Texture *diffuseTex;
 Texture *normalTex;
-
-/* Timing */
-double lastFpsTime, lastFrameTime, runTime;
-float timeStep;
-int nFrames, FPS;
-void updateTiming() {
-    runTime = (float)window.getTime();
-    timeStep = (float) runTime - lastFrameTime;
-    lastFrameTime = runTime;
-    nFrames++;
-    if (runTime - lastFpsTime >= 1.0) {
-        FPS = nFrames;
-        nFrames = 0;
-        lastFpsTime = runTime;
-    }
-}
 
 void createShader() {
     /* Create shader */
@@ -122,10 +113,6 @@ void render() {
 }
 
 int main() {
-    /* Timing */
-    timeStep = lastFpsTime = lastFrameTime = runTime = 0.0;
-    nFrames = FPS = 0;
-
     /* Init window, keyboard, and mouse wrappers */
     window.init("Clouds");
 
@@ -143,11 +130,11 @@ int main() {
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     while (!window.shouldClose()) {
         /* Update context */
-        updateTiming();
+        Util::updateTiming(glfwGetTime());
         window.update();
 
         /* Update camera */
-        camera.update(timeStep);
+        camera.update(Util::timeStep);
 
         /* Render clouds*/
         render();

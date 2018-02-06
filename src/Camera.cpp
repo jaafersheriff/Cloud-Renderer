@@ -10,7 +10,7 @@ Camera::Camera(const glm::vec3 position) {
     this->position = position;
     phi = theta = 0.0;
 
-    update();
+    update(0.f);
 }
 
 void Camera::update(float dt) {
