@@ -21,6 +21,8 @@ std::string RESOURCE_DIR = "../res/";
 Window window;
 Camera camera;
 
+glm::vec3 lightPos;
+
 std::vector<Cloud *> clouds;
 Shader *cloudShader;
 
@@ -86,7 +88,7 @@ void render() {
     cloudShader->loadMat4(cloudShader->getUniform("Vi"), &Vi);
 
     /* Bind light position */
-    cloudShader->loadVec3(cloudShader->getUniform("lightPos"), glm::vec3(100.f, 100.f, 100.f));
+    cloudShader->loadVec3(cloudShader->getUniform("lightPos"), lightPos);
 
     /* Bind mesh */
     /* VAO */
@@ -121,9 +123,33 @@ void render() {
     cloudShader->unbind();
 }
 
+void updateLight() {
+    if (Keyboard::isKeyPressed(GLFW_KEY_Z)) {
+        lightPos.x += 10.f;
+    }
+    if (Keyboard::isKeyPressed(GLFW_KEY_X)) {
+        lightPos.x -= 10.f;
+    }
+    if (Keyboard::isKeyPressed(GLFW_KEY_C)) {
+        lightPos.y += 10.f;
+    }
+    if (Keyboard::isKeyPressed(GLFW_KEY_V)) {
+        lightPos.y -= 10.f;
+    }
+    if (Keyboard::isKeyPressed(GLFW_KEY_B)) {
+        lightPos.z += 10.f;
+    }
+    if (Keyboard::isKeyPressed(GLFW_KEY_N)) {
+        lightPos.z -= 10.f;
+    }
+}
+
 int main() {
     /* Init window, keyboard, and mouse wrappers */
     window.init("Clouds");
+
+    /* Create light */
+    lightPos = glm::vec3(100.f, 100.f, 100.f);
 
     /* Create cloud shader */
     createShader();
@@ -144,6 +170,9 @@ int main() {
 
         /* Update camera */
         camera.update(Util::timeStep);
+
+        /* Update light */
+        updateLight();
 
         /* Render clouds*/
         render();
