@@ -12,14 +12,14 @@ public:
     static double x, y;
     static double dx, dy;
 
-    /* Update Callback */
-    static void updateMousePos(double, double);
+    static void update(double, double);
 
     /* Denotes if mouse buttons are pressed */
     static void setButtonStatus(int, int);
     static bool isDown(int);
+    static bool isUp(int);
 private:
-    static bool mouseButtons[GLFW_MOUSE_BUTTON_LAST];
+    static int mouseButtons[GLFW_MOUSE_BUTTON_LAST];
 };
 
 #endif
