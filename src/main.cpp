@@ -60,13 +60,13 @@ void createClouds() {
     quad->init();
 
     /* Create textures */
-    diffuseTex = new Texture(RESOURCE_DIR + "smoke.png");
-    normalTex = new Texture(RESOURCE_DIR + "NormalMap.png");
+    diffuseTex = new Texture(RESOURCE_DIR + "cloud.png");
+    normalTex = new Texture(RESOURCE_DIR + "cloudmap.png");
 
     for (int i = 0; i < 30; i++) {
         Cloud *cloud = new Cloud;
 
-        cloud->position = Util::genRandomVec3(-5.f, 5.f);
+        cloud->position = Util::genRandomVec3(-1.f, 1.f);
         cloud->size = glm::normalize(glm::vec2(diffuseTex->width, diffuseTex->height));
         cloud->rotation = 0.f;
 
