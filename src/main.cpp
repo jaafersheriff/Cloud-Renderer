@@ -79,6 +79,7 @@ void createShader() {
     cloudShader->addUniform("size");
 
     cloudShader->addUniform("diffuseTex");
+    cloudShader->addUniform("normalTex");
 }
 
 void createClouds() {
@@ -131,8 +132,11 @@ void render() {
 
     /* Bind textures */
     cloudShader->loadInt(cloudShader->getUniform("diffuseTex"), diffuseTex->textureId);
+    cloudShader->loadInt(cloudShader->getUniform("normalTex"), normalTex->textureId);
     glActiveTexture(GL_TEXTURE0 + diffuseTex->textureId);
     glBindTexture(GL_TEXTURE_2D, diffuseTex->textureId);
+    glActiveTexture(GL_TEXTURE0 + normalTex->textureId);
+    glBindTexture(GL_TEXTURE_2D, normalTex->textureId);
 
     for (auto cloud : clouds) {
         cloudShader->loadVec3(cloudShader->getUniform("center"), cloud->position);
