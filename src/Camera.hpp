@@ -25,8 +25,7 @@ class Camera {
         glm::mat4 V;
 
         /* Update */
-        virtual void update();
-        virtual void takeMouseInput(const double, const double);
+        virtual void update(float dt);
 
         /* Move according to UVW */
         virtual void moveForward(const float);
@@ -43,9 +42,6 @@ class Camera {
 
         /* UVW basis vectors */
         glm::vec3 u, v, w;
-
-        void updateUVW();
-        virtual void updateLookAt();
 };
 
 #endif

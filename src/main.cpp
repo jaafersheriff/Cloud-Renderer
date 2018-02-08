@@ -9,10 +9,19 @@
 
 #include <vector>
 
+float Util::timeStep = 0.f;
+int Util::FPS = 0;
+double Util::lastFpsTime = 0.0;
+double Util::lastFrameTime = 0.0;
+double Util::runTime = 0.0;
+int Util::nFrames = 0;
+
 std::string RESOURCE_DIR = "../res/";
 
 Window window;
 Camera camera;
+
+glm::vec3 lightPos;
 
 std::vector<Cloud *> clouds;
 Shader *cloudShader;
@@ -20,49 +29,6 @@ Shader *cloudShader;
 Mesh *quad;
 Texture *diffuseTex;
 Texture *normalTex;
-
-/* Timing */
-double lastFpsTime, lastFrameTime, runTime;
-float timeStep;
-int nFrames, FPS;
-void updateTiming() {
-    runTime = (float)window.getTime();
-    timeStep = (float) runTime - lastFrameTime;
-    lastFrameTime = runTime;
-    nFrames++;
-    if (runTime - lastFpsTime >= 1.0) {
-        FPS = nFrames;
-        nFrames = 0;
-        lastFpsTime = runTime;
-    }
-}
-
-void takeInput() {
-    if (Mouse::isDown(0)) {
-        camera.takeMouseInput(Mouse::dx, Mouse::dy);
-    }
-    else {
-        camera.takeMouseInput(0.0, 0.0);
-    }
-    if (Keyboard::isKeyPressed(GLFW_KEY_W)) {
-        camera.moveForward(timeStep);
-    }
-    if (Keyboard::isKeyPressed(GLFW_KEY_S)) {
-        camera.moveBackward(timeStep);
-    }
-    if (Keyboard::isKeyPressed(GLFW_KEY_A)) {
-        camera.moveLeft(timeStep);
-    }
-    if (Keyboard::isKeyPressed(GLFW_KEY_D)) {
-        camera.moveRight(timeStep);
-    }
-    if (Keyboard::isKeyPressed(GLFW_KEY_R)) {
-        camera.moveUp(timeStep);
-    }
-    if (Keyboard::isKeyPressed(GLFW_KEY_E)) {
-        camera.moveDown(timeStep);
-    }   
-}
 
 void createShader() {
     /* Create shader */
@@ -74,12 +40,12 @@ void createShader() {
     cloudShader->addUniform("P");
     cloudShader->addUniform("M");
     cloudShader->addUniform("V");
-
-    cloudShader->addUniform("center");
-    cloudShader->addUniform("size");
+    cloudShader->addUniform("Vi");
 
     cloudShader->addUniform("diffuseTex");
     cloudShader->addUniform("normalTex");
+
+    cloudShader->addUniform("lightPos");
 }
 
 void createClouds() {
@@ -113,10 +79,18 @@ void render() {
     glDisable(GL_DEPTH_TEST);
 
     cloudShader->bind();
-
+    
+    /* Bind projeciton, view, inverise view matrices */
     cloudShader->loadMat4(cloudShader->getUniform("P"), &camera.P);
     cloudShader->loadMat4(cloudShader->getUniform("V"), &camera.V);
-        
+    glm::mat4 Vi = camera.V;
+    Vi[3][0] = Vi[3][1] = Vi[3][2] = 0.f;
+    Vi = glm::transpose(Vi);
+    cloudShader->loadMat4(cloudShader->getUniform("Vi"), &Vi);
+
+    /* Bind light position */
+    cloudShader->loadVec3(cloudShader->getUniform("lightPos"), lightPos);
+
     /* Bind mesh */
     /* VAO */
     glBindVertexArray(quad->vaoId);
@@ -138,11 +112,12 @@ void render() {
     glActiveTexture(GL_TEXTURE0 + normalTex->textureId);
     glBindTexture(GL_TEXTURE_2D, normalTex->textureId);
 
+    glm::mat4 M;
     for (auto cloud : clouds) {
-        cloudShader->loadVec3(cloudShader->getUniform("center"), cloud->position);
-        cloudShader->loadVec2(cloudShader->getUniform("size"), cloud->size);
-
-        glm::mat4 M = glm::rotate(glm::mat4(1.f), glm::radians(cloud->rotation), glm::vec3(0, 0, 1));
+        M  = glm::mat4(1.f);
+        M *= glm::translate(glm::mat4(1.f), cloud->position);
+        // M *= glm::rotate(glm::mat4(1.f), glm::radians(cloud->rotation), glm::vec3(0, 0, 1));
+        // M *= glm::scale(glm::mat4(1.f), glm::vec3(cloud->size, 0.f));
         cloudShader->loadMat4(cloudShader->getUniform("M"), &M);
 
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
@@ -152,13 +127,33 @@ void render() {
     cloudShader->unbind();
 }
 
-int main() {
-    /* Timing */
-    timeStep = lastFpsTime = lastFrameTime = runTime = 0.0;
-    nFrames = FPS = 0;
+void updateLight() {
+    if (Keyboard::isKeyPressed(GLFW_KEY_Z)) {
+        lightPos.x += 10.f;
+    }
+    if (Keyboard::isKeyPressed(GLFW_KEY_X)) {
+        lightPos.x -= 10.f;
+    }
+    if (Keyboard::isKeyPressed(GLFW_KEY_C)) {
+        lightPos.y += 10.f;
+    }
+    if (Keyboard::isKeyPressed(GLFW_KEY_V)) {
+        lightPos.y -= 10.f;
+    }
+    if (Keyboard::isKeyPressed(GLFW_KEY_B)) {
+        lightPos.z += 10.f;
+    }
+    if (Keyboard::isKeyPressed(GLFW_KEY_N)) {
+        lightPos.z -= 10.f;
+    }
+}
 
+int main() {
     /* Init window, keyboard, and mouse wrappers */
     window.init("Clouds");
+
+    /* Create light */
+    lightPos = glm::vec3(100.f, 100.f, 100.f);
 
     /* Create cloud shader */
     createShader();
@@ -174,12 +169,14 @@ int main() {
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     while (!window.shouldClose()) {
         /* Update context */
-        updateTiming();
+        Util::updateTiming(glfwGetTime());
         window.update();
 
         /* Update camera */
-        takeInput();
-        camera.update();
+        camera.update(Util::timeStep);
+
+        /* Update light */
+        updateLight();
 
         /* Render clouds*/
         render();

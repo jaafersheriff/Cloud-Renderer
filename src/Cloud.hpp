@@ -9,8 +9,8 @@ class Cloud {
         Cloud() {}
 
         glm::vec3 position = glm::vec3(0.f);
-        glm::vec2 size = glm::vec2(1.f);
         float rotation = 0.f;
+        glm::vec2 size = glm::vec2(1.f);
 };
 
 #endif
