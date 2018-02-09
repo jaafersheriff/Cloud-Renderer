@@ -37,8 +37,8 @@ int Window::init(std::string name) {
     /* Request version 3.3 of OpenGL */
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 4);
 
     /* Create GLFW window */
     window = glfwCreateWindow(this->width, this->height, name.c_str(), NULL, NULL);
@@ -54,19 +54,15 @@ int Window::init(std::string name) {
     glfwSetCursorPosCallback(window, mousePositionCallback);
     glfwSetMouseButtonCallback(window, mouseButtonCallback);
 
-    /* Init GLEW */
-    glewExperimental = GL_FALSE;
-    GLenum error = glGetError();
-    if (error != GL_NO_ERROR) {
-        std::cout << "OpenGL Error: " << error << std::endl;
-        return 1;
-    }
-    error = glewInit();
-    if (error != GLEW_OK) {
-        std::cerr << "Failed to init GLEW" << std::endl;
-        return 1;
-    }
-    glGetError();
+    /* Init GLAD */
+	if (!gladLoadGL())
+	{
+		std::cerr << "Failed to initialize GLAD" << std::endl;
+		return false;
+	}
+
+	std::cout << "OpenGL version: " << glGetString(GL_VERSION) << std::endl;
+	std::cout << "GLSL version: " << glGetString(GL_SHADING_LANGUAGE_VERSION) << std::endl;
 
     /* Vsync */
     glfwSwapInterval(1);

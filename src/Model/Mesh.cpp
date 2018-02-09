@@ -1,6 +1,6 @@
 #include "Mesh.hpp"
 
-#include <GL/glew.h>
+#include <glad/glad.h>
 #include <cassert>
 
 /* Constructor */

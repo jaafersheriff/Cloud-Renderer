@@ -4,26 +4,11 @@ cmake_minimum_required(VERSION 2.7)
 project(Clouds)
 
 # Use glob to get the list of all source files.
-file(GLOB_RECURSE SOURCES "src/*.cpp")
-file(GLOB_RECURSE HEADERS "src/*.h" "src/*.hpp")
-file(GLOB_RECURSE GLSL "resources/*.glsl" "src/*.glsl")
+file(GLOB_RECURSE SOURCES "src/*.cpp" "ext/glad/src/*.c")
+file(GLOB_RECURSE HEADERS "src/*.h" "src/*.hpp"  "ext/glad/*/*.h")
+file(GLOB_RECURSE GLSL "res/*.glsl" "resources/*.glsl" "src/*.glsl")
 
-#Set up link targets
-if(MINGWW) 
-    set(GLEW_DIR "$ENV{GLEW_DIR_MINGW}")
-else()
-    set(GLEW_DIR "$ENV{GLEW_DIR}")
-endif()
-if(NOT GLEW_DIR)
-  message(FATAL_ERROR "Please point the environment variable GLEW_DIR to the root directory of your GLEW installation.")
-else()
-  message(${GLEW_DIR})
-endif()
-
-if(WIN32 AND NOT MINGW)
-  # With prebuilt binaries
-  link_directories(${GLEW_DIR}/lib/Release/Win32)
-endif()
+include_directories("ext/glad/include")
 
 macro(GroupSources curdir)
     file(GLOB children RELATIVE ${PROJECT_SOURCE_DIR}/${curdir} ${PROJECT_SOURCE_DIR}/${curdir}/*)
@@ -72,18 +57,6 @@ else()
 endif()
 include_directories(${GLFW_DIR}/include)
 target_link_libraries(${CMAKE_PROJECT_NAME} glfw ${GLFW_LIBRARIES})
-
-# Get the GLEW environment variable.
-include_directories(${GLEW_DIR}/include)
-if(WIN32)
-  if(MINGW)
-    target_link_libraries(${CMAKE_PROJECT_NAME} C:/MinGW/msys/1.0/lib/glew-2.1.0/lib/glew32.dll)
-  else()
-    target_link_libraries(${CMAKE_PROJECT_NAME} ${GLEW_DIR}/lib/Release/Win32/glew32s.lib)
-  endif()
-else()
-  target_link_libraries(${CMAKE_PROJECT_NAME} ${GLEW_DIR}/lib/libGLEW.a)
-endif()
 
 # OS specific options and libraries
 if(WIN32)
