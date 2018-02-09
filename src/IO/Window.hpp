@@ -45,7 +45,6 @@ private:
     /* Callback functions */
     static void errorCallback(int, const char *);
     static void keyCallback(GLFWwindow *, int, int, int, int);
-    static void mousePositionCallback(GLFWwindow *, double, double);
     static void mouseButtonCallback(GLFWwindow *, int, int, int);
 };
 

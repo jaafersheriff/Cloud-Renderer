@@ -13,7 +13,7 @@ public:
 
     static void setKeyStatus(int, int);
 private:
-    static bool keyStatus[NUM_KEYS];
+    static int keyStatus[NUM_KEYS];
 };
 
 #endif
