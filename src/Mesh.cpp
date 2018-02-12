@@ -48,7 +48,4 @@ void Mesh::init() {
     /* Unbind  */
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-    /* Error check */
-    assert(glGetError() == GL_NO_ERROR);
 }

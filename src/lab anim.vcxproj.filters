@@ -39,6 +39,9 @@
     <Filter Include="src">
       <UniqueIdentifier>{888db46b-1747-472a-b64c-f7b5cdc5d1f3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="glsl">
+      <UniqueIdentifier>{7574fe72-d50e-40c5-934f-3b82daa41914}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.hpp">
@@ -76,6 +79,20 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="CMakeLists.txt" />
+    <Text Include="..\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\res\cloud_frag.glsl">
+      <Filter>glsl</Filter>
+    </None>
+    <None Include="..\res\cloud_vert.glsl">
+      <Filter>glsl</Filter>
+    </None>
+    <None Include="..\res\voxelize_frag.glsl">
+      <Filter>glsl</Filter>
+    </None>
+    <None Include="..\res\voxelize_vert.glsl">
+      <Filter>glsl</Filter>
+    </None>
   </ItemGroup>
 </Project>
