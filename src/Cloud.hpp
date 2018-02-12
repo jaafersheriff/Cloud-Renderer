@@ -2,7 +2,7 @@
 #ifndef _CLOUD_HPP_
 #define _CLOUD_HPP_
 
-#include "Model/Texture.hpp"
+#include "Texture.hpp"
 
 class Cloud {
     public:

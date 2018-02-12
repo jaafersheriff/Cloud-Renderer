@@ -1,0 +1,25 @@
+
+# C++
+language: cpp
+
+# Run on both Ubuntu 14.04 and OS X 10.9.5
+os:
+  - linux
+  - osx
+sudo: required
+dist: trusty
+
+# This is only necessary for Ubuntu 14.04, where glfw is quite sadly out of date
+before_install:
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo add-apt-repository ppa:keithw/glfw3 -y; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo sed -i 's/us-central1.gce/us-central1.gce.clouds/' /etc/apt/sources.list && sudo apt-get -qq update; fi
+
+install:
+  # Necessary packages
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get -qq -y install xorg-dev libglfw3-dev libglm-dev; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install glfw3 glm; fi
+
+script:
+  - mkdir Build && cd Build
+  - cmake ..
+  - make

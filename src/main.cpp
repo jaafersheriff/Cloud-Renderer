@@ -1,10 +1,10 @@
-#include "IO/Window.hpp"
+#include "Window.hpp"
 #include "Camera.hpp"
-#include "GL/GLSL.hpp"
-#include "GL/Shader.hpp"
+#include "GLSL.hpp"
+#include "Shader.hpp"
 #include "Util.hpp"
 
-#include "Model/Mesh.hpp"
+#include "Mesh.hpp"
 #include "Cloud.hpp"
 
 #include <vector>

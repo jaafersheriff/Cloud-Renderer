@@ -6,8 +6,8 @@
 
 #include "glm/glm.hpp"
 
-#define LOOK_SPEED 0.005f
-#define MOVE_SPEED 30.f
+#define LOOK_SPEED 0.003f
+#define MOVE_SPEED 15.f
 
 class Camera {
     public:
