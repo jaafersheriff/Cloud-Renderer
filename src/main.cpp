@@ -32,7 +32,10 @@ Shader *volumeShader;
 /* Render targets */
 std::vector<Cloud *> clouds;
 GLuint volumeHandle;
-#define VOLUMESIZE 128
+#define XBOUNDS glm::vec2(-50, 50)
+#define YBOUNDS glm::vec2(-50, 50)
+#define ZBOUNDS glm::vec2(-50, 50)
+#define VOXELSIZE 32
 
 /* Utility render targets */
 Mesh *quad;
@@ -61,12 +64,16 @@ void createVolumeShader() {
     volumeShader->init();
 
     volumeShader->addAttribute("vertPos");
-    volumeShader->addAttribute("vertTex");
 
     volumeShader->addUniform("P");
     volumeShader->addUniform("V");
     volumeShader->addUniform("M");
     volumeShader->addUniform("Vi");
+
+    volumeShader->addUniform("xBounds");
+    volumeShader->addUniform("yBounds");
+    volumeShader->addUniform("zBounds");
+    volumeShader->addUniform("voxelSize");
 
     volumeShader->addUniform("volume");
 }
@@ -173,17 +180,25 @@ void renderBillboards() {
 
 
 void voxelize() {
-    /* Generate 3D texture */
+    glDisable(GL_DEPTH_TEST);
+    glDisable(GL_CULL_FACE);
+    glDepthMask(GL_FALSE);
+    glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+ 
     volumeShader->bind();
+
     volumeShader->loadMat4(volumeShader->getUniform("P"), &camera.P);
     volumeShader->loadMat4(volumeShader->getUniform("V"), &camera.V);
     glm::mat4 Vi = camera.V;
     Vi[3][0] = Vi[3][1] = Vi[3][2] = 0.f;
     Vi = glm::transpose(Vi);
     volumeShader->loadMat4(volumeShader->getUniform("Vi"), &Vi);
-    volumeShader->loadInt(volumeShader->getUniform("volume"), volumeHandle);
-    glActiveTexture(GL_TEXTURE0 + volumeHandle);
+
     glBindImageTexture(1, volumeHandle, 0, GL_TRUE, 0, GL_READ_WRITE, GL_RGBA16F);
+    volumeShader->loadVec2(volumeShader->getUniform("xBounds"), XBOUNDS);
+    volumeShader->loadVec2(volumeShader->getUniform("yBounds"), YBOUNDS);
+    volumeShader->loadVec2(volumeShader->getUniform("zBounds"), ZBOUNDS);
+    volumeShader->loadInt(volumeShader->getUniform("voxelSize"), VOXELSIZE);
  
     /* Bind quad */
     /* VAO */
@@ -200,6 +215,7 @@ void voxelize() {
 
     /* Draw quad */
     glm::mat4 M  = glm::mat4(1.f);
+    M *= glm::translate(glm::mat4(1.f), glm::vec3(-1.f, 0.f, 0.f));
     volumeShader->loadMat4(volumeShader->getUniform("M"), &M);
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
@@ -210,15 +226,23 @@ void voxelize() {
     volumeShader->unbind();
 
     /* Pull 3D texture out of GPU */
-    std::vector<unsigned char> buffer(VOLUMESIZE * VOLUMESIZE * VOLUMESIZE * 4);
+    std::vector<unsigned char> buffer(VOXELSIZE * VOXELSIZE * VOXELSIZE * 4);
     glBindTexture(GL_TEXTURE_3D, volumeHandle);
     glGetTexImage(GL_TEXTURE_3D, 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer.data());
     for (int i = 0; i < buffer.size(); i+=4) {
-        BYTE red = buffer[i];
-        if (red > 0) {
-            int z = 0;
+        short r = buffer[i + 0];
+        short g = buffer[i + 1];
+        short b = buffer[i + 2];
+        short a = buffer[i + 3];
+        if (r || g || b || a) {
+            printf("%f %d-%d: <%d, %d, %d, %d>\n", glfwGetTime(), i, i+4, r, g, b, a);
         }
     }
+
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE);
+    glDepthMask(GL_TRUE);
+    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 }
 
 int main() {
@@ -237,7 +261,7 @@ int main() {
 
     /* Create clouds and volume */
     createClouds();
-    createVolume(VOLUMESIZE);
+    createVolume(VOXELSIZE);
 
     /* Init rendering */
     GLSL::checkVersion();

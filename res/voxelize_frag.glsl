@@ -3,21 +3,21 @@
 in vec3 fragPos;
 in vec2 fragTex;
 
-layout(binding=2, rgba16f) uniform image3D volume;
+uniform vec2 xBounds;
+uniform vec2 yBounds;
+uniform vec2 zBounds;
+uniform int voxelSize;
+
+layout(binding=1, rgba16f) uniform image3D volume;
 
 ivec3 voxelIndex(vec3 pos) {
-	const float minx = -20, maxx = 20,
-	miny = -2, maxy = 15,
-	minz = -12, maxz = 12;
-	const int voxelDim = 128;
+    float rangeX = xBounds.y - xBounds.x;
+    float rangeY = yBounds.y - yBounds.x;
+    float rangeZ = zBounds.y - zBounds.x;
 
-	float rangex = maxx - minx;
-	float rangey = maxy - miny;
-	float rangez = maxz - minz;
-
-	float x = voxelDim * ((pos.x - minx) / rangex);
-	float y = voxelDim * ((pos.y - miny) / rangey);
-	float z = voxelDim * ((pos.z - minz) / rangez);
+	float x = voxelSize * ((pos.x - xBounds.x) / rangeX);
+	float y = voxelSize * ((pos.y - yBounds.x) / rangeY);
+	float z = voxelSize * ((pos.z - zBounds.x) / rangeZ);
 
 	return ivec3(x, y, z);
 }
