@@ -7,6 +7,8 @@
 #include "Mesh.hpp"
 #include "Cloud.hpp"
 
+#include "glm/glm.hpp"
+
 #include <vector>
 
 /* Initial values */
@@ -32,10 +34,10 @@ Shader *volumeShader;
 /* Render targets */
 std::vector<Cloud *> clouds;
 GLuint volumeHandle;
-#define XBOUNDS glm::vec2(-50, 50)
-#define YBOUNDS glm::vec2(-50, 50)
-#define ZBOUNDS glm::vec2(-50, 50)
-#define VOXELSIZE 32
+#define XBOUNDS glm::vec2(-20, 20)
+#define YBOUNDS glm::vec2(-20, 20)
+#define ZBOUNDS glm::vec2(-20, 20)
+#define VOXELSIZE 64
 
 /* Utility render targets */
 Mesh *quad;
@@ -78,31 +80,14 @@ void createVolumeShader() {
     volumeShader->addUniform("volume");
 }
 
-void createClouds() {
-    /* Create quad mesh */
-    quad = new Mesh;
-    quad->vertBuf = {
-        -1.f, -1.f,  0.f,
-         1.f, -1.f,  0.f,
-        -1.f,  1.f,  0.f,
-         1.f,  1.f,  0.f
-    };
-    quad->init();
+void createCloud(glm::vec3 pos) {
+    Cloud *cloud = new Cloud;
 
-    /* Create textures */
-    diffuseTex = new Texture(RESOURCE_DIR + "cloud.png");
-    normalTex = new Texture(RESOURCE_DIR + "cloudmap.png");
+    cloud->position = pos;
+    cloud->size = glm::normalize(glm::vec2(diffuseTex->width, diffuseTex->height));
+    cloud->rotation = 0.f;
 
-    for (int i = 0; i < 30; i++) {
-        Cloud *cloud = new Cloud;
-
-        cloud->position = Util::genRandomVec3(-1.f, 1.f);
-        cloud->position.x += 10.f;
-        cloud->size = glm::normalize(glm::vec2(diffuseTex->width, diffuseTex->height));
-        cloud->rotation = 0.f;
-
-        clouds.push_back(cloud);
-    }
+    clouds.push_back(cloud);
 }
 
 void createVolume(int size) {
@@ -122,7 +107,6 @@ void createVolume(int size) {
 
 void renderBillboards() {
     /* Set GL state */
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glDisable(GL_DEPTH_TEST);
 
     /* Bind billboard shader */
@@ -176,6 +160,7 @@ void renderBillboards() {
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, 0);
     billboardShader->unbind();
+    glEnable(GL_DEPTH_TEST);
 }
 
 
@@ -183,7 +168,7 @@ void voxelize() {
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_CULL_FACE);
     glDepthMask(GL_FALSE);
-    glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+    // glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
  
     volumeShader->bind();
 
@@ -215,34 +200,34 @@ void voxelize() {
 
     /* Draw quad */
     glm::mat4 M  = glm::mat4(1.f);
-    M *= glm::translate(glm::mat4(1.f), glm::vec3(-1.f, 0.f, 0.f));
+    M *= glm::translate(glm::mat4(1.f), glm::vec3(5.f, 0.f, 0.f));
     volumeShader->loadMat4(volumeShader->getUniform("M"), &M);
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
     /* Wrap up shader */
     glBindVertexArray(0);
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, 0);
     volumeShader->unbind();
 
     /* Pull 3D texture out of GPU */
     std::vector<unsigned char> buffer(VOXELSIZE * VOXELSIZE * VOXELSIZE * 4);
     glBindTexture(GL_TEXTURE_3D, volumeHandle);
     glGetTexImage(GL_TEXTURE_3D, 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer.data());
+    // TODO : for x, y, z { find index, load billboard at that index }
     for (int i = 0; i < buffer.size(); i+=4) {
-        short r = buffer[i + 0];
-        short g = buffer[i + 1];
-        short b = buffer[i + 2];
-        short a = buffer[i + 3];
+        BYTE r = buffer[i + 0];
+        BYTE g = buffer[i + 1];
+        BYTE b = buffer[i + 2];
+        BYTE a = buffer[i + 3];
         if (r || g || b || a) {
-            printf("%f %d-%d: <%d, %d, %d, %d>\n", glfwGetTime(), i, i+4, r, g, b, a);
+            createCloud(glm::vec3(r, g, b)/255.f);
+            printf("<%f, %f, %f, %f>\n", (float)r, float(g), float(b), float(a));
         }
     }
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
     glDepthMask(GL_TRUE);
-    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+    // glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 }
 
 int main() {
@@ -259,16 +244,35 @@ int main() {
     createBillboardShader();
     createVolumeShader();
 
-    /* Create clouds and volume */
-    createClouds();
-    createVolume(VOXELSIZE);
+    /* Create quad mesh */
+    quad = new Mesh;
+    quad->vertBuf = {
+        -1.f, -1.f,  0.f,
+         1.f, -1.f,  0.f,
+        -1.f,  1.f,  0.f,
+         1.f,  1.f,  0.f
+    };
+    quad->init();
+
+    /* Create textures */
+    diffuseTex = new Texture(RESOURCE_DIR + "cloud.png");
+    normalTex = new Texture(RESOURCE_DIR + "cloudmap.png");
 
     /* Init rendering */
     GLSL::checkVersion();
-    glClearColor(0.f, 0.8f, 0.9f, 1.f);
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    /* First render pass - generate volume */
+    Util::updateTiming(glfwGetTime());
+    window.update();
+    camera.update(Util::timeStep);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glClearColor(0.f, 0.4f, 0.7f, 1.f);
+    /* Generate 3D Volume*/
+    createVolume(VOXELSIZE);
+    voxelize();
     while (!window.shouldClose()) {
         /* Update context */
         Util::updateTiming(glfwGetTime());
@@ -298,7 +302,8 @@ int main() {
         }
 
         /* Render */
-        voxelize();
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glClearColor(0.f, 0.4f, 0.7f, 1.f);
         renderBillboards();
     }
 }

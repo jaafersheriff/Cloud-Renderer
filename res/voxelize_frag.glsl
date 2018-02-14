@@ -1,4 +1,4 @@
-#version 450 core
+#version 440 core
 
 in vec3 fragPos;
 in vec2 fragTex;
@@ -10,6 +10,8 @@ uniform int voxelSize;
 
 layout(binding=1, rgba16f) uniform image3D volume;
 
+out vec4 color;
+
 ivec3 voxelIndex(vec3 pos) {
     float rangeX = xBounds.y - xBounds.x;
     float rangeY = yBounds.y - yBounds.x;
@@ -17,13 +19,13 @@ ivec3 voxelIndex(vec3 pos) {
 
 	float x = voxelSize * ((pos.x - xBounds.x) / rangeX);
 	float y = voxelSize * ((pos.y - yBounds.x) / rangeY);
-	float z = voxelSize * ((pos.z - zBounds.x) / rangeZ);
+	float z = voxelSize * (1 - (pos.z - zBounds.x) / rangeZ);
 
 	return ivec3(x, y, z);
 }
 
 void main() {
-    vec4 color = vec4(1, 0, 0, 1);
+    color = vec4(1, 0, 0, 1);
     ivec3 i = voxelIndex(fragPos);
-    imageStore(volume, i, color);
+    imageStore(volume, i, vec4(fragPos, 1));
 }
