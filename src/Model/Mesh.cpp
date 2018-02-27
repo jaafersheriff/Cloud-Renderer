@@ -1,4 +1,5 @@
 #include "Mesh.hpp"
+#include "Shaders/GLSL.hpp"
 
 #include <glad/glad.h>
 #include <cassert>
@@ -16,36 +17,36 @@ Mesh::Mesh() :
 void Mesh::init() {
 
     /* Initialize VAO */
-    glGenVertexArrays(1, &vaoId);
-    glBindVertexArray(vaoId);
+    CHECK_GL_CALL(glGenVertexArrays(1, &vaoId));
+    CHECK_GL_CALL(glBindVertexArray(vaoId));
 
     /* Copy vertex array */
-    glGenBuffers(1, &vertBufId);
-    glBindBuffer(GL_ARRAY_BUFFER, vertBufId);
-    glBufferData(GL_ARRAY_BUFFER, vertBuf.size() * sizeof(float), &vertBuf[0], GL_DYNAMIC_DRAW);
+    CHECK_GL_CALL(glGenBuffers(1, &vertBufId));
+    CHECK_GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, vertBufId));
+    CHECK_GL_CALL(glBufferData(GL_ARRAY_BUFFER, vertBuf.size() * sizeof(float), &vertBuf[0], GL_DYNAMIC_DRAW));
 
     /* Copy element array if it exists */
     if (!eleBuf.empty()) {
-        glGenBuffers(1, &eleBufId);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, eleBufId);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, eleBuf.size() * sizeof(unsigned int), &eleBuf[0], GL_DYNAMIC_DRAW);
+        CHECK_GL_CALL(glGenBuffers(1, &eleBufId));
+        CHECK_GL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, eleBufId));
+        CHECK_GL_CALL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, eleBuf.size() * sizeof(unsigned int), &eleBuf[0], GL_DYNAMIC_DRAW));
     }
 
     /* Copy normal array if it exists */
     if (!norBuf.empty()) {
-        glGenBuffers(1, &norBufId);
-        glBindBuffer(GL_ARRAY_BUFFER, norBufId);
-        glBufferData(GL_ARRAY_BUFFER, norBuf.size() * sizeof(float), &norBuf[0], GL_DYNAMIC_DRAW);
+        CHECK_GL_CALL(glGenBuffers(1, &norBufId));
+        CHECK_GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, norBufId));
+        CHECK_GL_CALL(glBufferData(GL_ARRAY_BUFFER, norBuf.size() * sizeof(float), &norBuf[0], GL_DYNAMIC_DRAW));
     }
 
     /* Copy texture array if it exists */
     if (!texBuf.empty()) {
-        glGenBuffers(1, &texBufId);
-        glBindBuffer(GL_ARRAY_BUFFER, texBufId);
-        glBufferData(GL_ARRAY_BUFFER, texBuf.size() * sizeof(float), &texBuf[0], GL_DYNAMIC_DRAW);
+        CHECK_GL_CALL(glGenBuffers(1, &texBufId));
+        CHECK_GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, texBufId));
+        CHECK_GL_CALL(glBufferData(GL_ARRAY_BUFFER, texBuf.size() * sizeof(float), &texBuf[0], GL_DYNAMIC_DRAW));
     }
 
     /* Unbind  */
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    CHECL_GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, 0));
+    CHECL_GL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
 }

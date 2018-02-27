@@ -47,6 +47,14 @@ void checkError(const char *str)
 	}
 }
 
+void printOpenGLErrors(const char * const Function, char const * const File, char const * const Line) {
+	GLenum glErr = glGetError();
+	if(glErr != GL_NO_ERROR) {
+        const char *const ErrorString = errorString(glErr);
+        printf("OpenGL error in file '%s' at line %d calling function '%s': '%s' '%d 0x%X'\n", File, Line, Function, ErrorString, glErr, glErr);
+	}
+}
+
 void printShaderInfoLog(GLuint shader)
 {
 	GLint infologLength = 0;

@@ -1,5 +1,4 @@
 #include "Shader.hpp"
-#include "GLSL.hpp"
 
 #include <fstream>
 

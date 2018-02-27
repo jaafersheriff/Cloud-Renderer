@@ -64,15 +64,15 @@ int main() {
 
     /* Init rendering */
     GLSL::checkVersion();
-    glEnable(GL_DEPTH_TEST);
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    CHECK_GL_CALL(glEnable(GL_DEPTH_TEST));
+    CHECK_GL_CALL(glEnable(GL_BLEND));
+    CHECK_GL_CALL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
 
     /* First render pass - generate volume */
     Window::update();
     Camera::update(Window::timeStep);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glClearColor(0.f, 0.4f, 0.7f, 1.f);
+    CHECK_GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+    CHECK_GL_CALL(glClearColor(0.f, 0.4f, 0.7f, 1.f));
 
     billboardShader->addCloud(glm::vec3(5.f, 0.f, 0.f));
     while (!Window::shouldClose()) {
@@ -85,8 +85,8 @@ int main() {
         takeInput();
 
         /* Render */
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        glClearColor(0.f, 0.4f, 0.7f, 1.f);
+        CHECK_GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+        CHECK_GL_CALL(glClearColor(0.f, 0.4f, 0.7f, 1.f));
         volumeShader->voxelize(billboardShader->quad, glm::vec3(5.f, 0.f, 0.f));
         //billboardShader->render(lightPos);
         //pointShader->render(volumeShader->getVoxelData());

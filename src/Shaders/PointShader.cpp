@@ -15,18 +15,16 @@ bool PointShader::init() {
 
     /* Init single float geometry */
     // TODO : instance this? Is that even worth it?
-    glGenVertexArrays(1, &vaoID);
-    glBindVertexArray(vaoID);
+    CHECK_GL_CALL(glGenVertexArrays(1, &vaoID));
+    CHECK_GL_CALL(glBindVertexArray(vaoID));
 
-    glGenBuffers(1, &vboID);
-    glBindBuffer(GL_ARRAY_BUFFER, vboID);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3), nullptr, GL_STATIC_DRAW);
+    CHECK_GL_CALL(glGenBuffers(1, &vboID));
+    CHECK_GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, vboID));
+    CHECK_GL_CALL(glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3), nullptr, GL_STATIC_DRAW));
 
-    glBindVertexArray(0);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-    return glGetError() == GL_NO_ERROR;
+    CHECK_GL_CALL(glBindVertexArray(0));
+    CHECK_GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, 0));
+    CHECK_GL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
 }
 
 void PointShader::render(std::vector<glm::vec4> & points) {
@@ -40,15 +38,16 @@ void PointShader::render(std::vector<glm::vec4> & points) {
     loadMat4(getUniform("P"), &Camera::getP());
     loadMat4(getUniform("V"), &Camera::getV());
 
-    glBindVertexArray(vaoID);
-    glBindBuffer(GL_ARRAY_BUFFER, vboID);
+    CHECK_GL_CALL(glBindVertexArray(vaoID));
+    CHECK_GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, vboID));
 
     for (glm::vec3 point : points) {
-        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(glm::vec3), glm::value_ptr(glm::vec3(point)));
-        glDrawArrays(GL_POINT, 0, 1);
+        CHECK_GL_CALL(glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(glm::vec3), glm::value_ptr(glm::vec3(point))));
+        CHECK_GL_CALL(glDrawArrays(GL_POINT, 0, 1));
     }
 
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
+    CHECK_GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, 0));
+    CHECK_GL_CALL(glBindVertexArray(0));
+
     unbind();
 }

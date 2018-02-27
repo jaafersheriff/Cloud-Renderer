@@ -45,7 +45,7 @@ void BillboardShader::render(glm::vec3 lightPos) {
     }
 
     /* Set GL state */
-    glDisable(GL_DEPTH_TEST);
+    CHECK_GL_CALL(glDisable(GL_DEPTH_TEST));
 
     /* Bind shader */
     bind();
@@ -63,21 +63,21 @@ void BillboardShader::render(glm::vec3 lightPos) {
 
     /* Bind mesh */
     /* VAO */
-    glBindVertexArray(quad->vaoId);
+    CHECK_GL_CALL(glBindVertexArray(quad->vaoId));
 
     /* Vertices VBO */
     int pos = getAttribute("vertPos");
-    glEnableVertexAttribArray(pos);
-    glBindBuffer(GL_ARRAY_BUFFER, quad->vertBufId);
-    glVertexAttribPointer(pos, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+    CHECK_GL_CALL(glEnableVertexAttribArray(pos));
+    CHECK_GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, quad->vertBufId));
+    CHECK_GL_CALL(glVertexAttribPointer(pos, 3, GL_FLOAT, GL_FALSE, 0, nullptr));
 
     /* Bind textures */
     loadInt(getUniform("diffuseTex"), diffuseTex->textureId);
-    glActiveTexture(GL_TEXTURE0 + diffuseTex->textureId);
-    glBindTexture(GL_TEXTURE_2D, diffuseTex->textureId);
+    CHECK_GL_CALL(glActiveTexture(GL_TEXTURE0 + diffuseTex->textureId));
+    CHECK_GL_CALL(glBindTexture(GL_TEXTURE_2D, diffuseTex->textureId));
     loadInt(getUniform("normalTex"), normalTex->textureId);
-    glActiveTexture(GL_TEXTURE0 + normalTex->textureId);
-    glBindTexture(GL_TEXTURE_2D, normalTex->textureId);
+    CHECK_GL_CALL(glActiveTexture(GL_TEXTURE0 + normalTex->textureId));
+    CHECK_GL_CALL(glBindTexture(GL_TEXTURE_2D, normalTex->textureId));
 
     glm::mat4 M;
     for (auto cloud : clouds) {
@@ -88,15 +88,15 @@ void BillboardShader::render(glm::vec3 lightPos) {
         // M *= glm::scale(glm::mat4(1.f), glm::vec3(cloud->size, 0.f));
         loadMat4(getUniform("M"), &M);
 
-        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+        CHECK_GL_CALL(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
     }
 
-    glBindVertexArray(0);
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, 0);
+    CHECK_GL_CALL(glBindVertexArray(0));
+    CHECK_GL_CALL(glActiveTexture(GL_TEXTURE0));
+    CHECK_GL_CALL(glBindTexture(GL_TEXTURE_2D, 0));
     unbind();
 
-    glEnable(GL_DEPTH_TEST);
+    CHECK_GL_CALL(glEnable(GL_DEPTH_TEST));
 }
 
 void BillboardShader::addCloud(glm::vec3 pos) {

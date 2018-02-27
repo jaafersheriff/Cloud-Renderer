@@ -4,6 +4,8 @@
 #ifndef _SHADER_HPP_
 #define _SHADER_HPP_
 
+#include "GLSL.hpp"
+
 #include <glad/glad.h>
 #include "glm/glm.hpp"
 #include "glm/gtc/type_ptr.hpp"
@@ -58,9 +60,6 @@ class Shader {
         GLint fShaderId;
         std::map<std::string, GLint> attributes;
         std::map<std::string, GLint> uniforms;
-
-        /* GLSL utility functions */
-        GLuint createShader(std::string, GLenum);
 };
 
 #endif
