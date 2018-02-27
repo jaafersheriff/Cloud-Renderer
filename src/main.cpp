@@ -105,6 +105,24 @@ void createImGuiPanes() {
             ImGui::SliderFloat3("Position", glm::value_ptr(lightPos), -1000.f, 1000.f);
         } 
     });
+    imGuiFuncs.push_back({ "Billboards",
+        [&]() {
+            // TODO : generate cluster w offset
+            static glm::vec3 pos(0.f);
+            static float scale(0.f);
+            static float rotation(0.f);
+            ImGui::SliderFloat3("Position", glm::value_ptr(pos), -100.f, 100.f);
+            ImGui::SliderFloat("Scale", &scale, 0.f, 100.f);
+            ImGui::SliderAngle("Rotation", &rotation);
+            if (ImGui::Button("Add Billboard")) {
+                billboardShader->addCloud(pos, scale, rotation);
+            }
+            if (ImGui::Button("Clear Billboards")) {
+                billboardShader->clearClouds();
+            }
+ 
+        } 
+    });
 }
 
 void initGeom() {
