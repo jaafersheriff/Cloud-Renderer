@@ -58,9 +58,9 @@ int main() {
     billboardShader = new BillboardShader(RESOURCE_DIR + "cloud_vert.glsl", RESOURCE_DIR + "cloud_frag.glsl");
     billboardShader->init(RESOURCE_DIR + "cloud.png", RESOURCE_DIR + "cloudMap.png");
     volumeShader = new VolumeShader(RESOURCE_DIR + "voxelize_vert.glsl", RESOURCE_DIR + "voxelize_frag.glsl");
-    volumeShader->init(16, glm::vec2(-20.f, 20.f), glm::vec2(-2.f, 15.f), glm::vec2(12.f, 12.f));
-//    pointShader = new PointShader(RESOURCE_DIR + "point_vert.glsl", RESOURCE_DIR + "point_frag.glsl");
-//    pointShader->init();
+    volumeShader->init(16, glm::vec2(-20.f, 20.f), glm::vec2(-2.f, 15.f), glm::vec2(-12.f, 12.f));
+    pointShader = new PointShader(RESOURCE_DIR + "point_vert.glsl", RESOURCE_DIR + "point_frag.glsl");
+    pointShader->init();
 
     /* Init rendering */
     GLSL::checkVersion();
@@ -75,6 +75,8 @@ int main() {
     CHECK_GL_CALL(glClearColor(0.f, 0.4f, 0.7f, 1.f));
 
     billboardShader->addCloud(glm::vec3(5.f, 0.f, 0.f));
+    volumeShader->voxelize(billboardShader->quad, glm::vec3(5.f, 0.f, 0.f));
+
     while (!Window::shouldClose()) {
         /* Update context */
         Window::update();
@@ -87,8 +89,7 @@ int main() {
         /* Render */
         CHECK_GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
         CHECK_GL_CALL(glClearColor(0.f, 0.4f, 0.7f, 1.f));
-        volumeShader->voxelize(billboardShader->quad, glm::vec3(5.f, 0.f, 0.f));
         //billboardShader->render(lightPos);
-        //pointShader->render(volumeShader->getVoxelData());
+        pointShader->render(volumeShader->getVoxelData());
     }
 }

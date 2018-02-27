@@ -1,5 +1,6 @@
 #version 440 core
 
+in vec4 worldPos;
 in vec3 fragPos;
 in vec2 fragTex;
 
@@ -26,6 +27,6 @@ ivec3 voxelIndex(vec3 pos) {
 
 void main() {
     color = vec4(1, 0, 0, 1);
-    ivec3 i = voxelIndex(fragPos);
-    imageStore(volume, i, vec4(fragPos, 1));
+    ivec3 i = voxelIndex(worldPos.xyz);
+    imageStore(volume, i, worldPos);
 }

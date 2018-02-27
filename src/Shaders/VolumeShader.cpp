@@ -44,7 +44,8 @@ void VolumeShader::initVolume() {
     CHECK_GL_CALL(glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
     CHECK_GL_CALL(glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE));
 
-    CHECK_GL_CALL(glTexStorage3D(GL_TEXTURE_3D, 1, GL_RGBA16F, volumeSize, volumeSize, volumeSize));
+    CHECK_GL_CALL(glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA16F, volumeSize, volumeSize, volumeSize, 0, GL_RGBA, GL_FLOAT, nullptr));
+    //CHECK_GL_CALL(glTexStorage3D(GL_TEXTURE_3D, 1, GL_RGBA16F, volumeSize, volumeSize, volumeSize));
     CHECK_GL_CALL(glClearTexImage(volumeHandle, 0, GL_RGBA, GL_FLOAT, nullptr));
     CHECK_GL_CALL(glBindTexture(GL_TEXTURE_3D, 0));
 }
@@ -54,7 +55,7 @@ void VolumeShader::voxelize(Mesh *mesh, glm::vec3 position, glm::vec3 scale) {
     CHECK_GL_CALL(glDisable(GL_DEPTH_TEST));
     CHECK_GL_CALL(glDisable(GL_CULL_FACE));
     CHECK_GL_CALL(glDepthMask(GL_FALSE));
-    CHECK_GL_CALL(glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE));
+    //CHECK_GL_CALL(glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE));
  
     bind();
 
@@ -83,7 +84,7 @@ void VolumeShader::voxelize(Mesh *mesh, glm::vec3 position, glm::vec3 scale) {
 
     /* Invoke draw call on a quad - this will write to the 3D texture */
     glm::mat4 M  = glm::mat4(1.f);
-    M *= glm::scale(glm::mat4(1.f), scale);
+    //M *= glm::scale(glm::mat4(1.f), scale);
     M *= glm::translate(glm::mat4(1.f), position);
     loadMat4(getUniform("M"), &M);
     CHECK_GL_CALL(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
@@ -106,13 +107,13 @@ void VolumeShader::voxelize(Mesh *mesh, glm::vec3 position, glm::vec3 scale) {
         float a = buffer[i + 3];
         if (r || g || b || a) {
             voxelData.push_back(glm::vec4(r, g, b, a));
-            printf("<%f, %f, %f, %f>\n", (float)r, float(g), float(b), float(a));
+            printf("<%f, %f, %f, %f>\n", r, g, b, a);
         }
     }
 
     CHECK_GL_CALL(glEnable(GL_DEPTH_TEST));
     CHECK_GL_CALL(glEnable(GL_CULL_FACE));
     CHECK_GL_CALL(glDepthMask(GL_TRUE));
-    CHECK_GL_CALL(glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE));
+    //CHECK_GL_CALL(glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE));
 }
 
