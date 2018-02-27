@@ -20,7 +20,7 @@ class BillboardShader : public Shader {
 
         /* Add billboard to list at a given position */
         void addCloud(glm::vec3 pos, float scale, float rotation);
-        void clearClouds() { clouds.clear(); }
+        void clearClouds();
 
         Mesh *quad;
     private:

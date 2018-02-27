@@ -66,10 +66,7 @@ int main() {
     CHECK_GL_CALL(glEnable(GL_DEPTH_TEST));
     CHECK_GL_CALL(glEnable(GL_BLEND));
     CHECK_GL_CALL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
-
-    /* First render pass - generate volume */
     Camera::update(Window::timeStep);
-    volumeShader->voxelize(billboardShader->quad, glm::vec3(5.f, 0.f, 0.f), glm::vec3(2.f));
 
     while (!Window::shouldClose()) {
         /* Update context */
@@ -120,8 +117,30 @@ void createImGuiPanes() {
             if (ImGui::Button("Clear Billboards")) {
                 billboardShader->clearClouds();
             }
- 
         } 
+    });
+    imGuiFuncs.push_back({ "Volume",
+        [&]() {
+            static glm::vec3 pos(0.f);
+            static glm::vec3 scale(1.f);
+            ImGui::SliderFloat3("Position", glm::value_ptr(pos), -100.f, 100.f);
+            ImGui::SliderFloat3("Scale", glm::value_ptr(scale), 0.f, 50.f);
+            ImGui::SliderFloat3("XBounds", glm::value_ptr(volumeShader->xBounds), -20.f, 20.f);
+            ImGui::SliderFloat3("YBounds", glm::value_ptr(volumeShader->yBounds), -20.f, 20.f);
+            ImGui::SliderFloat3("ZBounds", glm::value_ptr(volumeShader->zBounds), -20.f, 20.f);
+            ImGui::SliderInt("Volume Size", &volumeShader->volumeSize, 0, 256);
+
+            if (ImGui::Button("Quad Voxelize!")) {
+                volumeShader->voxelize(billboardShader->quad, pos, scale);
+            }
+            if (ImGui::Button("Cube Voxelize!")) {
+                volumeShader->voxelize(cube, pos, scale);
+            }
+            // TODO
+            if (ImGui::Button("Clear Volume")) {
+                std::cerr << "TODO" << std::endl;
+            }
+        }
     });
 }
 

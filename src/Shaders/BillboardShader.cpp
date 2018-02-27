@@ -100,3 +100,10 @@ void BillboardShader::addCloud(glm::vec3 pos, float scale, float rotation) {
 
     clouds.push_back(cloud);
 }
+
+void BillboardShader::clearClouds() {
+    for (auto c : clouds) {
+        delete c;
+    }
+    clouds.clear();
+}
