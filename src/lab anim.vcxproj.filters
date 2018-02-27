@@ -28,16 +28,16 @@
     <ClCompile Include="Shaders\GLSL.cpp">
       <Filter>src\Shaders</Filter>
     </ClCompile>
-    <ClCompile Include="Shaders\PointShader.cpp">
-      <Filter>src\Shaders</Filter>
-    </ClCompile>
     <ClCompile Include="Shaders\Shader.cpp">
       <Filter>src\Shaders</Filter>
     </ClCompile>
-    <ClCompile Include="Shaders\VoxelShader.cpp">
+    <ClCompile Include="Shaders\BillboardShader.cpp">
       <Filter>src\Shaders</Filter>
     </ClCompile>
-    <ClCompile Include="Shaders\BillboardShader.cpp">
+    <ClCompile Include="Shaders\VolumeShader.cpp">
+      <Filter>src\Shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Shaders\DiffuseShader.cpp">
       <Filter>src\Shaders</Filter>
     </ClCompile>
   </ItemGroup>
@@ -92,16 +92,16 @@
     <ClInclude Include="Shaders\GLSL.hpp">
       <Filter>src\Shaders</Filter>
     </ClInclude>
-    <ClInclude Include="Shaders\PointShader.hpp">
-      <Filter>src\Shaders</Filter>
-    </ClInclude>
     <ClInclude Include="Shaders\Shader.hpp">
       <Filter>src\Shaders</Filter>
     </ClInclude>
-    <ClInclude Include="Shaders\VoxelShader.hpp">
+    <ClInclude Include="Shaders\BillboardShader.hpp">
       <Filter>src\Shaders</Filter>
     </ClInclude>
-    <ClInclude Include="Shaders\BillboardShader.hpp">
+    <ClInclude Include="Shaders\VolumeShader.hpp">
+      <Filter>src\Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="Shaders\DiffuseShader.hpp">
       <Filter>src\Shaders</Filter>
     </ClInclude>
   </ItemGroup>

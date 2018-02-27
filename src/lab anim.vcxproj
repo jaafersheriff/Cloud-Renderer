@@ -29,9 +29,9 @@
     <ClCompile Include="Model\Texture.cpp" />
     <ClCompile Include="Shaders\BillboardShader.cpp" />
     <ClCompile Include="Shaders\GLSL.cpp" />
-    <ClCompile Include="Shaders\PointShader.cpp" />
+    <ClCompile Include="Shaders\DiffuseShader.cpp" />
     <ClCompile Include="Shaders\Shader.cpp" />
-    <ClCompile Include="Shaders\VoxelShader.cpp" />
+    <ClCompile Include="Shaders\VolumeShader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.hpp" />
@@ -43,9 +43,9 @@
     <ClInclude Include="Model\Texture.hpp" />
     <ClInclude Include="Shaders\BillboardShader.hpp" />
     <ClInclude Include="Shaders\GLSL.hpp" />
-    <ClInclude Include="Shaders\PointShader.hpp" />
+    <ClInclude Include="Shaders\DiffuseShader.hpp" />
     <ClInclude Include="Shaders\Shader.hpp" />
-    <ClInclude Include="Shaders\VoxelShader.hpp" />
+    <ClInclude Include="Shaders\VolumeShader.hpp" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="Util.hpp" />
   </ItemGroup>
@@ -131,7 +131,8 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;DEBUG_MODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <AdditionalDependencies>glfw3.lib;glew32.lib;glew32s.lib;%(AdditionalDependencies)</AdditionalDependencies>
