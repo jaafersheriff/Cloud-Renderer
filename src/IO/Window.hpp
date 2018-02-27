@@ -21,27 +21,28 @@ public:
     static int width;
     static int height;
 
-    /* Reference to GLFW window, mouse, keyboard */
-    GLFWwindow *window;
-
     /* Init */
-    int init(std::string);
+    static int init(std::string);
 
     /* Set window title */
     void setTitle(const char *);
 
     /* Update */
-    void update();
+    static void update();
 
     /* Return if window should close */
-    int shouldClose();
+    static int shouldClose();
 
     /* Return running time */
     double getTime();
 
     /* Shut down */
     void shutDown();
+
 private:
+    /* Reference to GLFW window, mouse, keyboard */
+    static GLFWwindow *window;
+
     /* Callback functions */
     static void errorCallback(int, const char *);
     static void keyCallback(GLFWwindow *, int, int, int, int);

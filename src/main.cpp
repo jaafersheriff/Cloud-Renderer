@@ -1,13 +1,15 @@
-#include "Window.hpp"
+#include "IO/Window.hpp"
 #include "Camera.hpp"
-#include "GLSL.hpp"
-#include "Shader.hpp"
+#include "Shaders/GLSL.hpp"
+#include "Shaders/Shader.hpp"
 #include "Util.hpp"
 
-#include "Mesh.hpp"
+#include "Model/Mesh.hpp"
+#include "Model/Texture.hpp"
 #include "Cloud.hpp"
 
 #include "glm/glm.hpp"
+#include "glm/gtc/type_ptr.hpp"
 
 #include <vector>
 
@@ -20,16 +22,11 @@ double Util::runTime = 0.0;
 int Util::nFrames = 0;
 std::string RESOURCE_DIR = "../res/";
 
-/* Utility members */
-Window window;
-Camera camera;
-
 /* Light position */
 glm::vec3 lightPos;
 
 /* Cloud billboards */
 Shader *billboardShader;
-Mesh *quad;
 Texture *diffuseTex;
 Texture *normalTex;
 
@@ -46,25 +43,6 @@ GLuint volumeHandle;
 Shader *diffuseShader;
 Mesh *cube;
 std::vector<glm::vec3> cubes;
-
-void createBillboardShader() {
-    billboardShader = new Shader(RESOURCE_DIR + "cloud_vert.glsl", RESOURCE_DIR + "cloud_frag.glsl");
-    if (!billboardShader->init()) {
-        std::cerr << "UNABLE TO INITIALIZE BILLBOARD SHADER" << std::endl;
-    }
-    
-    billboardShader->addAttribute("vertPos");
-
-    billboardShader->addUniform("P");
-    billboardShader->addUniform("M");
-    billboardShader->addUniform("V");
-    billboardShader->addUniform("Vi");
-
-    billboardShader->addUniform("diffuseTex");
-    billboardShader->addUniform("normalTex");
-
-    billboardShader->addUniform("lightPos");
-}
 
 void createVolumeShader() {
     volumeShader = new Shader(RESOURCE_DIR + "voxelize_vert.glsl", RESOURCE_DIR + "voxelize_frag.glsl");
@@ -120,16 +98,6 @@ void initVolume(int size) {
 }
 
 void initGeom() {
-    /* Create quad mesh */
-    quad = new Mesh;
-    quad->vertBuf = {
-        -1.f, -1.f,  0.f,
-         1.f, -1.f,  0.f,
-        -1.f,  1.f,  0.f,
-         1.f,  1.f,  0.f
-    };
-    quad->init();
-
     /* Create cube mesh */
     cube = new Mesh;
     cube->vertBuf = {
@@ -187,8 +155,8 @@ void renderCubes() {
     diffuseShader->bind();
     
     /* Bind projeciton, view, inverise view matrices */
-    diffuseShader->loadMat4(diffuseShader->getUniform("P"), &camera.P);
-    diffuseShader->loadMat4(diffuseShader->getUniform("V"), &camera.V);
+    diffuseShader->loadMat4(diffuseShader->getUniform("P"), &Camera::getP());
+    diffuseShader->loadMat4(diffuseShader->getUniform("V"), &Camera::getV());
 
     /* Bind light position */
     diffuseShader->loadVec3(diffuseShader->getUniform("lightPos"), lightPos);
@@ -228,61 +196,7 @@ void renderCubes() {
 }
 
 void renderBillboards() {
-    /* Set GL state */
-    glDisable(GL_DEPTH_TEST);
 
-    /* Bind billboard shader */
-    billboardShader->bind();
-    
-    /* Bind projeciton, view, inverise view matrices */
-    billboardShader->loadMat4(billboardShader->getUniform("P"), &camera.P);
-    billboardShader->loadMat4(billboardShader->getUniform("V"), &camera.V);
-    glm::mat4 Vi = camera.V;
-    Vi[3][0] = Vi[3][1] = Vi[3][2] = 0.f;
-    Vi = glm::transpose(Vi);
-    billboardShader->loadMat4(billboardShader->getUniform("Vi"), &Vi);
-
-    /* Bind light position */
-    billboardShader->loadVec3(billboardShader->getUniform("lightPos"), lightPos);
-
-    /* Bind mesh */
-    /* VAO */
-    glBindVertexArray(quad->vaoId);
-
-    /* Vertices VBO */
-    int pos = billboardShader->getAttribute("vertPos");
-    glEnableVertexAttribArray(pos);
-    glBindBuffer(GL_ARRAY_BUFFER, quad->vertBufId);
-    glVertexAttribPointer(pos, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
-
-    /* IBO */
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, quad->eleBufId);
-
-    /* Bind textures */
-    billboardShader->loadInt(billboardShader->getUniform("diffuseTex"), diffuseTex->textureId);
-    glActiveTexture(GL_TEXTURE0 + diffuseTex->textureId);
-    glBindTexture(GL_TEXTURE_2D, diffuseTex->textureId);
-    billboardShader->loadInt(billboardShader->getUniform("normalTex"), normalTex->textureId);
-    glActiveTexture(GL_TEXTURE0 + normalTex->textureId);
-    glBindTexture(GL_TEXTURE_2D, normalTex->textureId);
-
-    glm::mat4 M;
-    for (auto cloud : clouds) {
-        M  = glm::mat4(1.f);
-        M *= glm::translate(glm::mat4(1.f), cloud->position);
-        // TODO : fix M
-        // M *= glm::rotate(glm::mat4(1.f), glm::radians(cloud->rotation), glm::vec3(0, 0, 1));
-        // M *= glm::scale(glm::mat4(1.f), glm::vec3(cloud->size, 0.f));
-        billboardShader->loadMat4(billboardShader->getUniform("M"), &M);
-
-        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-    }
-
-    glBindVertexArray(0);
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, 0);
-    billboardShader->unbind();
-    glEnable(GL_DEPTH_TEST);
 }
 
 
@@ -294,9 +208,9 @@ void voxelize() {
  
     volumeShader->bind();
 
-    volumeShader->loadMat4(volumeShader->getUniform("P"), &camera.P);
-    volumeShader->loadMat4(volumeShader->getUniform("V"), &camera.V);
-    glm::mat4 Vi = camera.V;
+    volumeShader->loadMat4(volumeShader->getUniform("P"), &Camera::getP());
+    volumeShader->loadMat4(volumeShader->getUniform("V"), &Camera::getV());
+    glm::mat4 Vi = Camera::getV();
     Vi[3][0] = Vi[3][1] = Vi[3][2] = 0.f;
     Vi = glm::transpose(Vi);
     volumeShader->loadMat4(volumeShader->getUniform("Vi"), &Vi);
@@ -379,7 +293,7 @@ void takeInput() {
 
 int main() {
     /* Init window, keyboard, and mouse wrappers */
-    if (window.init("Clouds")) {
+    if (Window::init("Clouds")) {
         std::cerr << "ERROR" << std::endl;
         return 1;
     }
@@ -388,9 +302,7 @@ int main() {
     lightPos = glm::vec3(100.f, 100.f, 100.f);
 
     /* Create shaders */
-    createBillboardShader();
-    createVolumeShader();
-    createDiffuseShader();
+    billboardShader = new BillboardShader();
 
     /* Create meshes */
     initGeom();
@@ -408,19 +320,19 @@ int main() {
 
     /* First render pass - generate volume */
     Util::updateTiming(glfwGetTime());
-    window.update();
-    camera.update(Util::timeStep);
+    Window::update();
+    Camera::update(Util::timeStep);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glClearColor(0.f, 0.4f, 0.7f, 1.f);
     /* Generate 3D Volume*/
     voxelize();
-    while (!window.shouldClose()) {
+    while (!Window::shouldClose()) {
         /* Update context */
         Util::updateTiming(glfwGetTime());
-        window.update();
+        Window::update();
 
         /* Update camera */
-        camera.update(Util::timeStep);
+        Camera::update(Util::timeStep);
 
         takeInput();
 

@@ -1,6 +1,6 @@
 #include "Camera.hpp"
 
-#include "Window.hpp"
+#include "IO/Window.hpp"
 #include "Util.hpp"
 
 #include "glm/gtc/matrix_transform.hpp"
@@ -54,8 +54,8 @@ void Camera::update(float dt) {
 
     /* Update matrices */
     // TODO : only update if necessary
-    this->P = glm::perspective(45.f, (float) (Window::width / Window::height), 0.01f, 2500.f);
-    this->V = glm::lookAt(position, lookAt, glm::vec3(0, 1, 0));
+    P = glm::perspective(45.f, (float) (Window::width / Window::height), 0.01f, 2500.f);
+    V = glm::lookAt(position, lookAt, glm::vec3(0, 1, 0));
 }
 
 /* All movement is based on UVW basis-vectors */

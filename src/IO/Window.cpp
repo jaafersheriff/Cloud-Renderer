@@ -37,7 +37,7 @@ int Window::init(std::string name) {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 4);
 
     /* Create GLFW window */
-    window = glfwCreateWindow(this->width, this->height, name.c_str(), NULL, NULL);
+    window = glfwCreateWindow(width, height, name.c_str(), NULL, NULL);
     if (!window) {
         std::cerr << "Failed to create window" << std::endl;
         glfwTerminate();

@@ -11,37 +11,39 @@
 
 class Camera {
     public:
-        /* Position in 3-D world */
-        glm::vec3 position;
-        /* Position looking at in 3-D world */
-        glm::vec3 lookAt;
-
         /* Constructors */
         Camera(const glm::vec3);
         Camera() : Camera(glm::vec3(0.f)) { }
 
-        /* Matrices */
-        glm::mat4 P;
-        glm::mat4 V;
-
         /* Update */
-        virtual void update(float dt);
+        static void update(float dt);
 
         /* Move according to UVW */
-        virtual void moveForward(const float);
-        virtual void moveBackward(const float);
-        virtual void moveLeft(const float);
-        virtual void moveRight(const float);
-        virtual void moveUp(const float);
-        virtual void moveDown(const float);
+        static void moveForward(const float);
+        static void moveBackward(const float);
+        static void moveLeft(const float);
+        static void moveRight(const float);
+        static void moveUp(const float);
+        static void moveDown(const float);
+
+        static glm::mat4 & getP() { return P; }
+        static glm::mat4 & getV() { return V; }
 
     protected:
         /* Used for look at calculation */
-        double phi;
-        double theta;
+        static double phi;
+        static double theta;
 
         /* UVW basis vectors */
-        glm::vec3 u, v, w;
+        static glm::vec3 u, v, w;
+
+        /* Matrices */
+        static glm::mat4 P;
+        static glm::mat4 V;
+
+        /* Positions */
+        static glm::vec3 position;
+        static glm::vec3 lookAt;
 };
 
 #endif
