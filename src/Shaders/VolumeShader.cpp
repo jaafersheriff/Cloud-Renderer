@@ -26,6 +26,7 @@ bool VolumeShader::init(int size, glm::vec2 x, glm::vec2 y, glm::vec2 z) {
     addUniform("yBounds");
     addUniform("zBounds");
     addUniform("voxelSize");
+    addUniform("voxelize");
 
     addUniform("volume");
 
@@ -55,43 +56,9 @@ void VolumeShader::voxelize(Mesh *mesh, glm::vec3 position, glm::vec3 scale) {
     CHECK_GL_CALL(glDisable(GL_DEPTH_TEST));
     CHECK_GL_CALL(glDisable(GL_CULL_FACE));
     CHECK_GL_CALL(glDepthMask(GL_FALSE));
-    //CHECK_GL_CALL(glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE));
- 
-    bind();
+    CHECK_GL_CALL(glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE));
 
-    loadMat4(getUniform("P"), &Camera::getP());
-    loadMat4(getUniform("V"), &Camera::getV());
-    glm::mat4 Vi = Camera::getV();
-    Vi[3][0] = Vi[3][1] = Vi[3][2] = 0.f;
-    Vi = glm::transpose(Vi);
-    loadMat4(getUniform("Vi"), &Vi);
-
-    glBindImageTexture(1, volumeHandle, 0, GL_TRUE, 0, GL_READ_WRITE, GL_RGBA32F);
-    loadInt(getUniform("voxelSize"), volumeSize);
-    loadVec2(getUniform("xBounds"), xBounds);
-    loadVec2(getUniform("yBounds"), yBounds);
-    loadVec2(getUniform("zBounds"), zBounds);
- 
-    /* Bind quad */
-    /* VAO */
-    CHECK_GL_CALL(glBindVertexArray(mesh->vaoId));
-
-    /* Vertices VBO */
-    int pos = getAttribute("vertPos");
-    CHECK_GL_CALL(glEnableVertexAttribArray(pos));
-    CHECK_GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, mesh->vertBufId));
-    CHECK_GL_CALL(glVertexAttribPointer(pos, 3, GL_FLOAT, GL_FALSE, 0, nullptr));
-
-    /* Invoke draw call on a quad - this will write to the 3D texture */
-    glm::mat4 M  = glm::mat4(1.f);
-    //M *= glm::scale(glm::mat4(1.f), scale);
-    M *= glm::translate(glm::mat4(1.f), position);
-    loadMat4(getUniform("M"), &M);
-    CHECK_GL_CALL(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
-
-    /* Wrap up shader */
-    glBindVertexArray(0);
-    unbind();
+    renderMesh(mesh, position, scale, true);
 
     /* Pull 3D texture out of GPU */
     std::vector<float> buffer(volumeSize * volumeSize * volumeSize * 4);
@@ -114,6 +81,45 @@ void VolumeShader::voxelize(Mesh *mesh, glm::vec3 position, glm::vec3 scale) {
     CHECK_GL_CALL(glEnable(GL_DEPTH_TEST));
     CHECK_GL_CALL(glEnable(GL_CULL_FACE));
     CHECK_GL_CALL(glDepthMask(GL_TRUE));
-    //CHECK_GL_CALL(glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE));
+    CHECK_GL_CALL(glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE));
+}
+
+void VolumeShader::renderMesh(Mesh *mesh, glm::vec3 position, glm::vec3 scale, bool voxelize) {
+    bind();
+
+    loadMat4(getUniform("P"), &Camera::getP());
+    loadMat4(getUniform("V"), &Camera::getV());
+    glm::mat4 Vi = Camera::getV();
+    Vi[3][0] = Vi[3][1] = Vi[3][2] = 0.f;
+    Vi = glm::transpose(Vi);
+    loadMat4(getUniform("Vi"), &Vi);
+
+    glBindImageTexture(1, volumeHandle, 0, GL_TRUE, 0, GL_READ_WRITE, GL_RGBA32F);
+    loadInt(getUniform("voxelSize"), volumeSize);
+    loadVec2(getUniform("xBounds"), xBounds);
+    loadVec2(getUniform("yBounds"), yBounds);
+    loadVec2(getUniform("zBounds"), zBounds);
+    loadBool(getUniform("voxelize"), voxelize);
+ 
+    /* Bind quad */
+    /* VAO */
+    CHECK_GL_CALL(glBindVertexArray(mesh->vaoId));
+
+    /* Vertices VBO */
+    int pos = getAttribute("vertPos");
+    CHECK_GL_CALL(glEnableVertexAttribArray(pos));
+    CHECK_GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, mesh->vertBufId));
+    CHECK_GL_CALL(glVertexAttribPointer(pos, 3, GL_FLOAT, GL_FALSE, 0, nullptr));
+
+    /* Invoke draw call on a quad - this will write to the 3D texture */
+    glm::mat4 M  = glm::mat4(1.f);
+    M *= glm::translate(glm::mat4(1.f), position);
+    M *= glm::scale(glm::mat4(1.f), scale);
+    loadMat4(getUniform("M"), &M);
+    CHECK_GL_CALL(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
+
+    /* Wrap up shader */
+    glBindVertexArray(0);
+    unbind();
 }
 

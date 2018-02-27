@@ -7,6 +7,7 @@ uniform vec2 xBounds;
 uniform vec2 yBounds;
 uniform vec2 zBounds;
 uniform int voxelSize;
+uniform bool voxelize;
 
 layout(binding=1, rgba32f) uniform image3D volume;
 
@@ -26,6 +27,6 @@ ivec3 voxelIndex(vec3 pos) {
 
 void main() {
     color = vec4(1, 0, 0, 1);
-    ivec3 i = voxelIndex(fragPos);
-    imageStore(volume, i, vec4(fragPos, 1.0));
+        ivec3 i = voxelIndex(fragPos);
+        imageStore(volume, i, vec4(fragPos, 1.0));
 }

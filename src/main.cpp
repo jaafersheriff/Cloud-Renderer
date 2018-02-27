@@ -127,10 +127,9 @@ int main() {
     CHECK_GL_CALL(glEnable(GL_BLEND));
     CHECK_GL_CALL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
 
-
     /* First render pass - generate volume */
     Camera::update(Window::timeStep);
-    volumeShader->voxelize(billboardShader->quad, glm::vec3(5.f, 0.f, 0.f));
+    volumeShader->voxelize(billboardShader->quad, glm::vec3(5.f, 0.f, 0.f), glm::vec3(2.f));
 
     while (!Window::shouldClose()) {
         /* Update context */
@@ -146,5 +145,6 @@ int main() {
         CHECK_GL_CALL(glClearColor(0.f, 0.4f, 0.7f, 1.f));
         billboardShader->render(lightPos);
         diffuseShader->render(cube, volumeShader->getVoxelData(), lightPos);
+        volumeShader->renderMesh(quad, glm::vec3(5.f, 0.f, 0.f), glm::vec3(2.f), false);
     }
 }
