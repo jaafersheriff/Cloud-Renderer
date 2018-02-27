@@ -44,8 +44,8 @@ public:
     static int FPS;
 
     /* ImGui */
-    static void toggleImgui() { imGuiEnabled = !imGuiEnabled; }
-    static bool isImGuiEnabled() { return imGuiEnabled; }
+    static void toggleImgui();
+    static bool isImGuiEnabled();
 
 private:
     /* Reference to GLFW window, mouse, keyboard */

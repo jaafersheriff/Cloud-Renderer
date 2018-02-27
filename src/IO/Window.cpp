@@ -137,7 +137,7 @@ void Window::update() {
     /* Update ImGui */
     imGuiTimer += timeStep;
     if (Keyboard::isKeyPressed(GLFW_KEY_GRAVE_ACCENT) && (Keyboard::isKeyPressed(GLFW_KEY_LEFT_SHIFT) ||
-        Keyboard::isKeyPressed(GLFW_KEY_RIGHT_SHIFT)) && imGuiTimer > 1.f) {
+        Keyboard::isKeyPressed(GLFW_KEY_RIGHT_SHIFT)) && imGuiTimer > 0.1f) {
         toggleImgui();
         imGuiTimer = 0.f;
     }
@@ -163,3 +163,13 @@ void Window::shutDown() {
     glfwDestroyWindow(window);
     glfwTerminate();
 }
+
+void Window::toggleImgui() {
+    Window::imGuiEnabled = !Window::imGuiEnabled;
+}
+
+bool Window::isImGuiEnabled() {
+    return Window::imGuiEnabled;
+}
+
+
