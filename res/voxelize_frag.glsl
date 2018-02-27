@@ -1,6 +1,5 @@
 #version 440 core
 
-in vec4 worldPos;
 in vec3 fragPos;
 in vec2 fragTex;
 
@@ -9,7 +8,7 @@ uniform vec2 yBounds;
 uniform vec2 zBounds;
 uniform int voxelSize;
 
-layout(binding=1, rgba16f) uniform image3D volume;
+layout(binding=1, rgba32f) uniform image3D volume;
 
 out vec4 color;
 
@@ -27,6 +26,6 @@ ivec3 voxelIndex(vec3 pos) {
 
 void main() {
     color = vec4(1, 0, 0, 1);
-    ivec3 i = voxelIndex(worldPos.xyz);
-    imageStore(volume, i, worldPos);
+    ivec3 i = voxelIndex(fragPos);
+    imageStore(volume, i, vec4(fragPos, 1.0));
 }
