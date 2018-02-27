@@ -32,6 +32,10 @@
     <ClCompile Include="Shaders\DiffuseShader.cpp" />
     <ClCompile Include="Shaders\Shader.cpp" />
     <ClCompile Include="Shaders\VolumeShader.cpp" />
+    <ClCompile Include="ThirdParty\imgui\imgui.cpp" />
+    <ClCompile Include="ThirdParty\imgui\imgui_demo.cpp" />
+    <ClCompile Include="ThirdParty\imgui\imgui_draw.cpp" />
+    <ClCompile Include="ThirdParty\imgui\imgui_impl_glfw_gl3.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.hpp" />
@@ -47,6 +51,13 @@
     <ClInclude Include="Shaders\Shader.hpp" />
     <ClInclude Include="Shaders\VolumeShader.hpp" />
     <ClInclude Include="stb_image.h" />
+    <ClInclude Include="ThirdParty\imgui\imconfig.h" />
+    <ClInclude Include="ThirdParty\imgui\imgui.h" />
+    <ClInclude Include="ThirdParty\imgui\imgui_impl_glfw_gl3.h" />
+    <ClInclude Include="ThirdParty\imgui\imgui_internal.h" />
+    <ClInclude Include="ThirdParty\imgui\stb_rect_pack.h" />
+    <ClInclude Include="ThirdParty\imgui\stb_textedit.h" />
+    <ClInclude Include="ThirdParty\imgui\stb_truetype.h" />
     <ClInclude Include="Util.hpp" />
   </ItemGroup>
   <ItemGroup>
@@ -59,6 +70,7 @@
     <None Include="..\res\diffuse_vert.glsl" />
     <None Include="..\res\voxelize_frag.glsl" />
     <None Include="..\res\voxelize_vert.glsl" />
+    <None Include="ThirdParty\imgui\LICENSE" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

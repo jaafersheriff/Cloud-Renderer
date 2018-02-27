@@ -3,7 +3,7 @@
 #include "Shaders/GLSL.hpp"
 
 #define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
+#include "ThirdParty/stb_image.h"
 #include <iostream>
 
 Texture::Texture(std::string fileName) {

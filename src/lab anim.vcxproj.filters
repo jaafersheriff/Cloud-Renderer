@@ -40,6 +40,18 @@
     <ClCompile Include="Shaders\DiffuseShader.cpp">
       <Filter>src\Shaders</Filter>
     </ClCompile>
+    <ClCompile Include="ThirdParty\imgui\imgui_demo.cpp">
+      <Filter>src\ThirdParty\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="ThirdParty\imgui\imgui_draw.cpp">
+      <Filter>src\ThirdParty\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="ThirdParty\imgui\imgui_impl_glfw_gl3.cpp">
+      <Filter>src\ThirdParty\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="ThirdParty\imgui\imgui.cpp">
+      <Filter>src\ThirdParty\imgui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="ext">
@@ -60,15 +72,18 @@
     <Filter Include="src\Model">
       <UniqueIdentifier>{1f96ca8d-d390-45a4-8526-e576963027b5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\ThirdParty">
+      <UniqueIdentifier>{7099358b-f1df-4a2b-b7fc-932cbdd425eb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ThirdParty\imgui">
+      <UniqueIdentifier>{bdc1dd4e-b14e-4abc-9347-c75d981b8e91}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.hpp">
       <Filter>src</Filter>
     </ClInclude>
     <ClInclude Include="Cloud.hpp">
-      <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="stb_image.h">
       <Filter>src</Filter>
     </ClInclude>
     <ClInclude Include="Util.hpp">
@@ -104,6 +119,30 @@
     <ClInclude Include="Shaders\DiffuseShader.hpp">
       <Filter>src\Shaders</Filter>
     </ClInclude>
+    <ClInclude Include="stb_image.h">
+      <Filter>src\ThirdParty</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\imgui\imgui.h">
+      <Filter>src\ThirdParty\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\imgui\imgui_impl_glfw_gl3.h">
+      <Filter>src\ThirdParty\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\imgui\imgui_internal.h">
+      <Filter>src\ThirdParty\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\imgui\stb_rect_pack.h">
+      <Filter>src\ThirdParty\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\imgui\stb_textedit.h">
+      <Filter>src\ThirdParty\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\imgui\stb_truetype.h">
+      <Filter>src\ThirdParty\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\imgui\imconfig.h">
+      <Filter>src\ThirdParty\imgui</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\CMakeLists.txt" />
@@ -126,6 +165,9 @@
     </None>
     <None Include="..\res\diffuse_vert.glsl">
       <Filter>glsl</Filter>
+    </None>
+    <None Include="ThirdParty\imgui\LICENSE">
+      <Filter>src\ThirdParty\imgui</Filter>
     </None>
   </ItemGroup>
 </Project>
