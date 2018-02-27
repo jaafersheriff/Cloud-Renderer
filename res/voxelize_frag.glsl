@@ -27,6 +27,8 @@ ivec3 voxelIndex(vec3 pos) {
 
 void main() {
     color = vec4(1, 0, 0, 1);
+    if(voxelize) {
         ivec3 i = voxelIndex(fragPos);
         imageStore(volume, i, vec4(fragPos, 1.0));
+    }
 }
