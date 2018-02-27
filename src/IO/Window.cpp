@@ -1,5 +1,8 @@
 #include "Window.hpp"
 
+#include "ThirdParty/imgui/imgui.h"
+#include "ThirdParty/imgui/imgui_impl_glfw_gl3.h"
+
 #include <iostream> /* cout, cerr */
 
 int Window::width = DEFAULT_WIDTH;
@@ -13,19 +16,41 @@ double Window::lastFrameTime = 0.0;
 double Window::runTime = 0.0;
 int Window::nFrames = 0;
 
+float Window::imGuiTimer = 1.f;
+bool Window::imGuiEnabled = true;
+
 void Window::errorCallback(int error, const char *desc) {
     std::cerr << "Error " << error << ": " << desc << std::endl;
 }
 
 void Window::keyCallback(GLFWwindow *window, int key, int scancode, int action, int mode) {
-    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
+    if (key == GLFW_KEY_ESCAPE && action >= GLFW_PRESS) {
         glfwSetWindowShouldClose(window, true);
     }
+
     Keyboard::setKeyStatus(key, action);
+
+    if (isImGuiEnabled() && (ImGui::IsWindowFocused() || ImGui::IsMouseHoveringAnyWindow())) {
+        ImGui_ImplGlfwGL3_KeyCallback(window, key, scancode, action, mode);
+    }
+    else {
+        Keyboard::setKeyStatus(key, action);
+    }
 }
 
 void Window::mouseButtonCallback(GLFWwindow *window, int button, int action, int mods) {
-    Mouse::setButtonStatus(button, action);
+    if (isImGuiEnabled() && (ImGui::IsWindowFocused() || ImGui::IsMouseHoveringAnyWindow())) {
+        ImGui_ImplGlfwGL3_MouseButtonCallback(window, button, action, mods);
+    }
+    else {
+        Mouse::setButtonStatus(button, action);
+    }
+}
+
+void Window::characterCallback(GLFWwindow *window, unsigned int c) {
+    if (isImGuiEnabled() && (ImGui::IsWindowFocused() || ImGui::IsMouseHoveringAnyWindow())) {
+        ImGui_ImplGlfwGL3_CharCallback(window, c);
+    }
 }
 
 int Window::init(std::string name) {
@@ -52,6 +77,9 @@ int Window::init(std::string name) {
         return 1;
     }
     glfwMakeContextCurrent(window);
+
+    /* Init ImGui */
+    ImGui_ImplGlfwGL3_Init(window, false);
 
     /* Set callbacks */
     glfwSetKeyCallback(window, keyCallback);
@@ -106,6 +134,17 @@ void Window::update() {
         lastFpsTime = runTime;
     }
  
+    /* Update ImGui */
+    imGuiTimer += timeStep;
+    if (Keyboard::isKeyPressed(GLFW_KEY_GRAVE_ACCENT) && (Keyboard::isKeyPressed(GLFW_KEY_LEFT_SHIFT) ||
+        Keyboard::isKeyPressed(GLFW_KEY_RIGHT_SHIFT)) && imGuiTimer > 1.f) {
+        toggleImgui();
+        imGuiTimer = 0.f;
+    }
+
+    if (isImGuiEnabled()) {
+        ImGui_ImplGlfwGL3_NewFrame(true);
+    }
 
     glfwSwapBuffers(window);
     glfwPollEvents();

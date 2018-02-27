@@ -43,6 +43,10 @@ public:
     static float timeStep;
     static int FPS;
 
+    /* ImGui */
+    static void toggleImgui() { imGuiEnabled = !imGuiEnabled; }
+    static bool isImGuiEnabled() { return imGuiEnabled; }
+
 private:
     /* Reference to GLFW window, mouse, keyboard */
     static GLFWwindow *window;
@@ -51,12 +55,17 @@ private:
     static void errorCallback(int, const char *);
     static void keyCallback(GLFWwindow *, int, int, int, int);
     static void mouseButtonCallback(GLFWwindow *, int, int, int);
+    static void characterCallback(GLFWwindow *, unsigned int);
 
     /* Timing */
     static double lastFpsTime;
     static double lastFrameTime;
     static double runTime;
     static int nFrames;
+
+    /* ImGui */
+    static bool imGuiEnabled;
+    static float imGuiTimer;
 };
 
 #endif
