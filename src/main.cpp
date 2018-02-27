@@ -69,20 +69,18 @@ int main() {
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     /* First render pass - generate volume */
-    Util::updateTiming(Window::getTime());
     Window::update();
-    Camera::update(Util::timeStep);
+    Camera::update(Window::timeStep);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glClearColor(0.f, 0.4f, 0.7f, 1.f);
 
     billboardShader->addCloud(glm::vec3(5.f, 0.f, 0.f));
     while (!Window::shouldClose()) {
         /* Update context */
-        Util::updateTiming(Window::getTime());
         Window::update();
 
         /* Update camera */
-        Camera::update(Util::timeStep);
+        Camera::update(Window::timeStep);
 
         takeInput();
 
