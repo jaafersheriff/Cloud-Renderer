@@ -5,6 +5,7 @@
 #include "Shaders/GLSL.hpp"
 #include "Shaders/BillboardShader.hpp"
 #include "Shaders/VolumeShader.hpp"
+#include "Shaders/PointShader.hpp"
 
 #include "Cloud.hpp"
 
@@ -23,6 +24,8 @@ glm::vec3 lightPos;
 /* Shaders */
 BillboardShader *billboardShader;
 VolumeShader *volumeShader;
+PointShader *pointShader;
+
 // TODO : imgui
 void takeInput() {
     /* Update light */
@@ -57,12 +60,12 @@ int main() {
     lightPos = glm::vec3(100.f, 100.f, 100.f);
 
     /* Create shaders */
-    billboardShader = new BillboardShader(RESOURCE_DIR + "cloud_vert.glsl", 
-                                          RESOURCE_DIR + "cloud_frag.glsl");
-    volumeShader = new VolumeShader(RESOURCE_DIR + "voxelize_vert.glsl", 
-                                    RESOURCE_DIR + "voxelize_frag.glsl");
+    billboardShader = new BillboardShader(RESOURCE_DIR + "cloud_vert.glsl", RESOURCE_DIR + "cloud_frag.glsl");
+    volumeShader = new VolumeShader(RESOURCE_DIR + "voxelize_vert.glsl", RESOURCE_DIR + "voxelize_frag.glsl");
+    pointShader = new PointShader(RESOURCE_DIR + "point_vert.glsl", RESOURCE_DIR + "point_frag.glsl");
     billboardShader->init(RESOURCE_DIR + "cloud.png", RESOURCE_DIR + "cloudMap.png");
     volumeShader->init(64, glm::vec2(-20.f, 20.f), glm::vec2(-2.f, 20.f), glm::vec2(12.f, 12.f));
+    pointShader->init();
 
     /* Init rendering */
     GLSL::checkVersion();
@@ -71,7 +74,7 @@ int main() {
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     /* First render pass - generate volume */
-    Util::updateTiming(glfwGetTime());
+    Util::updateTiming(Window::getTime());
     Window::update();
     Camera::update(Util::timeStep);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -81,7 +84,7 @@ int main() {
     volumeShader->voxelize(billboardShader->quad, glm::vec3(5.f, 0.f, 0.f));
     while (!Window::shouldClose()) {
         /* Update context */
-        Util::updateTiming(glfwGetTime());
+        Util::updateTiming(Window::getTime());
         Window::update();
 
         /* Update camera */
@@ -92,5 +95,6 @@ int main() {
         /* Render */
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glClearColor(0.f, 0.4f, 0.7f, 1.f);
+        pointShader->render(volumeShader->getVoxelData());
     }
 }

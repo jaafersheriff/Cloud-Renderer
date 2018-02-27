@@ -16,17 +16,21 @@ class VolumeShader : public Shader {
 
         /* Generate 3D volume */
         void voxelize(Mesh *, glm::vec3 position = glm::vec3(0.f), glm::vec3 scale = glm::vec3(1.f));
-        
-        /* Data stored in voxels */
-        std::vector<glm::vec4> voxelData;
+
+        std::vector<glm::vec4> & getVoxelData() { return voxelData; }
+
     private:
         void initVolume();
 
+        /* Volume vars */
         GLuint volumeHandle;
         int volumeSize;
         glm::vec2 xBounds;
         glm::vec2 yBounds;
         glm::vec2 zBounds;
+
+        /* Data stored in voxels */
+        std::vector<glm::vec4> voxelData;
 };
 
 #endif

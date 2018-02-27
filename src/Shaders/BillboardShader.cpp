@@ -44,7 +44,7 @@ void BillboardShader::render(glm::vec3 lightPos) {
     /* Bind shader */
     bind();
     
-    /* Bind projeciton, view, inverise view matrices */
+    /* Bind projeciton, view, inverse view matrices */
     loadMat4(getUniform("P"), &Camera::getP());
     loadMat4(getUniform("V"), &Camera::getV());
     glm::mat4 Vi = Camera::getP();
