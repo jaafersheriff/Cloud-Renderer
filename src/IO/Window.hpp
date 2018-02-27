@@ -39,6 +39,10 @@ public:
     /* Shut down */
     void shutDown();
 
+    /* Timing */
+    static float timeStep;
+    static int FPS;
+
 private:
     /* Reference to GLFW window, mouse, keyboard */
     static GLFWwindow *window;
@@ -47,6 +51,12 @@ private:
     static void errorCallback(int, const char *);
     static void keyCallback(GLFWwindow *, int, int, int, int);
     static void mouseButtonCallback(GLFWwindow *, int, int, int);
+
+    /* Timing */
+    static double lastFpsTime;
+    static double lastFrameTime;
+    static double runTime;
+    static int nFrames;
 };
 
 #endif

@@ -13,23 +13,6 @@ class Util {
         static constexpr float PI = 3.14159265359;
 
         //////////////////////////////////////////////
-        //                TIMING/FPS                //
-        //////////////////////////////////////////////
-        static float timeStep;
-        static int FPS;
-        static void updateTiming(double uTime) {
-            runTime = (float)uTime;
-            timeStep = (float)runTime - lastFrameTime;
-            lastFrameTime = runTime;
-            nFrames++;
-            if (runTime - lastFpsTime >= 1.0) {
-                FPS = nFrames;
-                nFrames = 0;
-                lastFpsTime = runTime;
-            }
-        }
-
-        //////////////////////////////////////////////
         //                  RANDOM                  //
         //////////////////////////////////////////////
         /* Generate a random float [0, 1] */
@@ -61,14 +44,6 @@ class Util {
                 vec.x << ", " << vec.y << ", " << vec.z
                 << ">" << std::endl;
         }
-
-
-    private:
-        /* Timing/FPS */
-        static double lastFpsTime;
-        static double lastFrameTime;
-        static double runTime;
-        static int nFrames;
 };
 
 #endif

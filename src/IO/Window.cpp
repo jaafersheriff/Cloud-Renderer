@@ -6,6 +6,13 @@ int Window::width = DEFAULT_WIDTH;
 int Window::height = DEFAULT_HEIGHT;
 GLFWwindow *Window::window;
 
+float Window::timeStep = 0.f;
+int Window::FPS = 0;
+double Window::lastFpsTime = 0.0;
+double Window::lastFrameTime = 0.0;
+double Window::runTime = 0.0;
+int Window::nFrames = 0;
+
 void Window::errorCallback(int error, const char *desc) {
     std::cerr << "Error " << error << ": " << desc << std::endl;
 }
@@ -84,6 +91,18 @@ void Window::update() {
     double x, y;
     glfwGetCursorPos(window, &x, &y);
     Mouse::update(x, y);
+
+    /* Update timing */
+    runTime = (float)glfwGetTime();
+    timeStep = (float)runTime - lastFrameTime;
+    lastFrameTime = runTime;
+    nFrames++;
+    if (runTime - lastFpsTime >= 1.0) {
+        FPS = nFrames;
+        nFrames = 0;
+        lastFpsTime = runTime;
+    }
+ 
 
     glfwSwapBuffers(window);
     glfwPollEvents();
