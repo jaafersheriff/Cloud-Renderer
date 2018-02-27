@@ -4,6 +4,7 @@
 
 bool PointShader::init() {
     if (!Shader::init()) {
+        std::cerr << "Error initializing billboard shader" << std::endl;
         return false;
     }
 
@@ -11,7 +12,6 @@ bool PointShader::init() {
 
     addUniform("P");
     addUniform("V");
-    addUniform("M");
 
     /* Init single float geometry */
     // TODO : instance this? Is that even worth it?
@@ -30,6 +30,10 @@ bool PointShader::init() {
 }
 
 void PointShader::render(std::vector<glm::vec4> & points) {
+    if (!isEnabled) {
+        return;
+    }
+
     bind();
 
     /* Bind projeciton, view, inverise view matrices */
