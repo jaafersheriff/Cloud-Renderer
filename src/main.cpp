@@ -117,7 +117,7 @@ int main() {
     billboardShader = new BillboardShader(RESOURCE_DIR + "cloud_vert.glsl", RESOURCE_DIR + "cloud_frag.glsl");
     billboardShader->init(RESOURCE_DIR + "cloud.png", RESOURCE_DIR + "cloudMap.png", quad);
     volumeShader = new VolumeShader(RESOURCE_DIR + "voxelize_vert.glsl", RESOURCE_DIR + "voxelize_frag.glsl");
-    volumeShader->init(16, glm::vec2(-20.f, 20.f), glm::vec2(-2.f, 15.f), glm::vec2(-12.f, 12.f));
+    volumeShader->init(32, glm::vec2(-20.f, 20.f), glm::vec2(-20.f, 15.f), glm::vec2(-12.f, 12.f));
     diffuseShader = new DiffuseShader(RESOURCE_DIR + "diffuse_vert.glsl", RESOURCE_DIR + "diffuse_frag.glsl");
     diffuseShader->init();
 
@@ -127,13 +127,9 @@ int main() {
     CHECK_GL_CALL(glEnable(GL_BLEND));
     CHECK_GL_CALL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
 
-    /* First render pass - generate volume */
-    Window::update();
-    Camera::update(Window::timeStep);
-    CHECK_GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
-    CHECK_GL_CALL(glClearColor(0.f, 0.4f, 0.7f, 1.f));
 
-    billboardShader->addCloud(glm::vec3(5.f, 0.f, 0.f));
+    /* First render pass - generate volume */
+    Camera::update(Window::timeStep);
     volumeShader->voxelize(billboardShader->quad, glm::vec3(5.f, 0.f, 0.f));
 
     while (!Window::shouldClose()) {
@@ -148,7 +144,7 @@ int main() {
         /* Render */
         CHECK_GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
         CHECK_GL_CALL(glClearColor(0.f, 0.4f, 0.7f, 1.f));
-        //billboardShader->render(lightPos);
+        billboardShader->render(lightPos);
         diffuseShader->render(cube, volumeShader->getVoxelData(), lightPos);
     }
 }

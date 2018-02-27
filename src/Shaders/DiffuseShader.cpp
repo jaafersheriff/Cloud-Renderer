@@ -7,7 +7,7 @@
 
 bool DiffuseShader::init() {
     if (!Shader::init()) {
-        std::cerr << "Error initializing billboard shader" << std::endl;
+        std::cerr << "Error initializing diffuse shader" << std::endl;
         return false;
     }
 

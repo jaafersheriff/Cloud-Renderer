@@ -70,6 +70,9 @@ int Window::init(std::string name) {
     /* Vsync */
     glfwSwapInterval(1);
 
+    /* More init */
+    update();
+
     return 0;
 }
 
