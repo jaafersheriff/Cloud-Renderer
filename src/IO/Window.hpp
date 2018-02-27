@@ -34,7 +34,7 @@ public:
     static int shouldClose();
 
     /* Return running time */
-    double getTime();
+    static double getTime();
 
     /* Shut down */
     void shutDown();

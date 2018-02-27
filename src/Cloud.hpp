@@ -2,8 +2,6 @@
 #ifndef _CLOUD_HPP_
 #define _CLOUD_HPP_
 
-#include "Texture.hpp"
-
 class Cloud {
     public:
         Cloud() {}

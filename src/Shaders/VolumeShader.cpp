@@ -7,6 +7,7 @@
 bool VolumeShader::init(int size, glm::vec2 x, glm::vec2 y, glm::vec2 z) {
     if (!Shader::init()) {
         return false;
+        std::cerr << "Error initializing billboard shader" << std::endl;
     }
 
     this->volumeSize = size;
@@ -80,15 +81,11 @@ void VolumeShader::voxelize(Mesh *mesh, glm::vec3 position, glm::vec3 scale) {
     glBindBuffer(GL_ARRAY_BUFFER, mesh->vertBufId);
     glVertexAttribPointer(pos, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
 
-    /* IBO */
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->eleBufId);
-    
     /* Invoke draw call on a quad - this will write to the 3D texture */
     glm::mat4 M  = glm::mat4(1.f);
     M *= glm::translate(glm::mat4(1.f), glm::vec3(5.f, 0.f, 0.f));
     loadMat4(getUniform("M"), &M);
-    //glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-    glDrawElements(GL_TRIANGLES, (int)mesh->eleBuf.size(), GL_UNSIGNED_INT, nullptr);
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
     /* Wrap up shader */
     glBindVertexArray(0);

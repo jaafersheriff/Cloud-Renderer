@@ -1,9 +1,10 @@
 #include "Texture.hpp"
 
+#include "Shaders//GLSL.hpp"
+
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 #include <iostream>
-
 
 Texture::Texture(std::string fileName) {
     /* Get texture data */
@@ -60,4 +61,6 @@ void Texture::copyToGPU(const uint8_t *data) {
 
     /* Unbind */
     glBindTexture(GL_TEXTURE_2D, 0);
+
+    GLSL::checkError();
 }

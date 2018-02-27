@@ -4,6 +4,7 @@
 
 int Window::width = DEFAULT_WIDTH;
 int Window::height = DEFAULT_HEIGHT;
+GLFWwindow *Window::window;
 
 void Window::errorCallback(int error, const char *desc) {
     std::cerr << "Error " << error << ": " << desc << std::endl;

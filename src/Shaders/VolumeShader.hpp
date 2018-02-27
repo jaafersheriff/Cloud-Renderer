@@ -30,6 +30,7 @@ class VolumeShader : public Shader {
         glm::vec2 zBounds;
 
         /* Data stored in voxels */
+        // TODO : a fixed-size array and write over values 
         std::vector<glm::vec4> voxelData;
 };
 

@@ -6,6 +6,7 @@
 
 bool BillboardShader::init(std::string diffuseName, std::string normalName) {
     if (!Shader::init()) {
+        std::cerr << "Error initializing billboard shader" << std::endl;
         return false;
     }
 
@@ -14,6 +15,7 @@ bool BillboardShader::init(std::string diffuseName, std::string normalName) {
     addUniform("P");
     addUniform("M");
     addUniform("V");
+    addUniform("Vi");
 
     addUniform("diffuseTex");
     addUniform("normalTex");
@@ -38,6 +40,10 @@ bool BillboardShader::init(std::string diffuseName, std::string normalName) {
 }
 
 void BillboardShader::render(glm::vec3 lightPos) {
+    if (!isEnabled) {
+        return;
+    }
+
     /* Set GL state */
     glDisable(GL_DEPTH_TEST);
 
@@ -47,7 +53,7 @@ void BillboardShader::render(glm::vec3 lightPos) {
     /* Bind projeciton, view, inverse view matrices */
     loadMat4(getUniform("P"), &Camera::getP());
     loadMat4(getUniform("V"), &Camera::getV());
-    glm::mat4 Vi = Camera::getP();
+    glm::mat4 Vi = Camera::getV();
     Vi[3][0] = Vi[3][1] = Vi[3][2] = 0.f;
     Vi = glm::transpose(Vi);
     loadMat4(getUniform("Vi"), &Vi);
@@ -64,9 +70,6 @@ void BillboardShader::render(glm::vec3 lightPos) {
     glEnableVertexAttribArray(pos);
     glBindBuffer(GL_ARRAY_BUFFER, quad->vertBufId);
     glVertexAttribPointer(pos, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
-
-    /* IBO */
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, quad->eleBufId);
 
     /* Bind textures */
     loadInt(getUniform("diffuseTex"), diffuseTex->textureId);
@@ -92,6 +95,7 @@ void BillboardShader::render(glm::vec3 lightPos) {
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, 0);
     unbind();
+
     glEnable(GL_DEPTH_TEST);
 }
 
