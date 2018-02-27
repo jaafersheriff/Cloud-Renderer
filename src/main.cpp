@@ -1,16 +1,12 @@
 #include "IO/Window.hpp"
 #include "Camera.hpp"
-#include "Shaders/BillboardShader.hpp"
 #include "Util.hpp"
 
-#include "Model/Mesh.hpp"
-#include "Model/Texture.hpp"
+#include "Shaders/GLSL.hpp"
+#include "Shaders/BillboardShader.hpp"
+#include "Shaders/VolumeShader.hpp"
+
 #include "Cloud.hpp"
-
-#include "glm/glm.hpp"
-#include "glm/gtc/type_ptr.hpp"
-
-#include <vector>
 
 /* Initial values */
 float Util::timeStep = 0.f;
@@ -26,236 +22,8 @@ glm::vec3 lightPos;
 
 /* Shaders */
 BillboardShader *billboardShader;
-
-/* 3D Texture */
-Shader *volumeShader;
-std::vector<Cloud *> clouds;
-GLuint volumeHandle;
-#define XBOUNDS glm::vec2(-20, 20)
-#define YBOUNDS glm::vec2(-2, 15)
-#define ZBOUNDS glm::vec2(-12, 12)
-#define VOXELSIZE 64
-
-/* Debug visualization */
-Shader *diffuseShader;
-Mesh *cube;
-std::vector<glm::vec3> cubes;
-
-void createVolumeShader() {
-    volumeShader = new Shader(RESOURCE_DIR + "voxelize_vert.glsl", RESOURCE_DIR + "voxelize_frag.glsl");
-    if (!volumeShader->init()) {
-        std::cerr << "UNABLE TO INITIALIZE VOLUME SHADER" << std::endl;
-    }
-
-    volumeShader->addAttribute("vertPos");
-
-    volumeShader->addUniform("P");
-    volumeShader->addUniform("V");
-    volumeShader->addUniform("M");
-    volumeShader->addUniform("Vi");
-
-    volumeShader->addUniform("xBounds");
-    volumeShader->addUniform("yBounds");
-    volumeShader->addUniform("zBounds");
-    volumeShader->addUniform("voxelSize");
-
-    volumeShader->addUniform("volume");
-}
-
-void createDiffuseShader() {
-    diffuseShader = new Shader(RESOURCE_DIR + "diffuse_vert.glsl", RESOURCE_DIR + "diffuse_frag.glsl");
-    if (!diffuseShader->init()) {
-        std::cerr << "UNABLE TO INITIALIZE DIFFUSE SHADER" << std::endl;
-    }
-
-    diffuseShader->addAttribute("vertPos");
-    diffuseShader->addAttribute("vertNor");
-
-    diffuseShader->addUniform("P");
-    diffuseShader->addUniform("M");
-    diffuseShader->addUniform("V");
-
-    diffuseShader->addUniform("lightPos");
-}
-
-void initVolume(int size) {
-    glGenTextures(1, &volumeHandle);
-    glBindTexture(GL_TEXTURE_3D, volumeHandle);
-
-    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-
-    //glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA16F, size, size, size, 0, GL_RGBA, GL_FLOAT, nullptr);
-    glTexStorage3D(GL_TEXTURE_3D, 1, GL_RGBA16F, size, size, size);
-    glClearTexImage(volumeHandle, 0, GL_RGBA, GL_FLOAT, nullptr);
-    glBindTexture(GL_TEXTURE_3D, 0);
-}
-
-void initGeom() {
-    /* Create cube mesh */
-    cube = new Mesh;
-    cube->vertBuf = {
-         0.5f,  0.5f, -0.5f,
-         0.5f, -0.5f, -0.5f,
-        -0.5f, -0.5f, -0.5f,
-        -0.5f,  0.5f, -0.5f,
-         0.5f,  0.5f,  0.5f,
-         0.5f, -0.5f,  0.5f,
-        -0.5f, -0.5f,  0.5f,
-        -0.5f,  0.5f,  0.5f
-    };
-    cube->norBuf = {
-         0.f, -1.f,  0.f,
-         0.f, -1.f,  0.f,
-         0.f,  0.f, -1.f,
-         0.f,  1.f,  0.f,
-         0.f,  1.f,  0.f,
-         0.f,  0.f,  1.f,
-         0.f,  0.f,  1.f,
-         1.f,  0.f,  0.f,
-         1.f,  0.f,  0.f,
-        -1.f,  0.f,  0.f,
-        -1.f,  0.f,  0.f,
-    };
-    cube->eleBuf = {
-		0, 1, 2,
-		2, 3, 0,
-		1, 5, 6,
-		6, 2, 1,
-		7, 6, 5,
-		5, 4, 7,
-		4, 0, 3,
-		3, 7, 4,
-		4, 5, 1,
-		1, 0, 4,
-		3, 2, 6,
-		6, 7, 3,
-    };
-    cube->init();
-}
-
-void renderCubes() {
-    /* Bind shader */
-    diffuseShader->bind();
-    
-    /* Bind projeciton, view, inverise view matrices */
-    diffuseShader->loadMat4(diffuseShader->getUniform("P"), &Camera::getP());
-    diffuseShader->loadMat4(diffuseShader->getUniform("V"), &Camera::getV());
-
-    /* Bind light position */
-    diffuseShader->loadVec3(diffuseShader->getUniform("lightPos"), lightPos);
-
-    /* Bind mesh */
-    /* VAO */
-    glBindVertexArray(cube->vaoId);
-
-    /* Vertices VBO */
-    int pos = diffuseShader->getAttribute("vertPos");
-    glEnableVertexAttribArray(pos);
-    glBindBuffer(GL_ARRAY_BUFFER, cube->vertBufId);
-    glVertexAttribPointer(pos, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
-
-    /* Normals VBO */
-    pos = diffuseShader->getAttribute("vertNor");
-    glEnableVertexAttribArray(pos);
-    glBindBuffer(GL_ARRAY_BUFFER, cube->norBufId);
-    glVertexAttribPointer(pos, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
- 
-    /* IBO */
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cube->eleBufId);
-
-    glm::mat4 M;
-    for (auto position : cubes) {
-        M  = glm::mat4(1.f);
-        M *= glm::scale(glm::mat4(1.f), glm::vec3(1.f));
-        M *= glm::translate(glm::mat4(1.f), 5.f*position);
-        diffuseShader->loadMat4(diffuseShader->getUniform("M"), &M);
-
-        glDrawElements(GL_TRIANGLES, (int)cube->eleBuf.size(), GL_UNSIGNED_INT, nullptr);
-    }
-
-    glBindVertexArray(0);
-    glActiveTexture(GL_TEXTURE0);
-    diffuseShader->unbind();
-}
-
-void renderBillboards() {
-
-}
-
-
-void voxelize() {
-    glDisable(GL_DEPTH_TEST);
-    glDisable(GL_CULL_FACE);
-    glDepthMask(GL_FALSE);
-    glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
- 
-    volumeShader->bind();
-
-    volumeShader->loadMat4(volumeShader->getUniform("P"), &Camera::getP());
-    volumeShader->loadMat4(volumeShader->getUniform("V"), &Camera::getV());
-    glm::mat4 Vi = Camera::getV();
-    Vi[3][0] = Vi[3][1] = Vi[3][2] = 0.f;
-    Vi = glm::transpose(Vi);
-    volumeShader->loadMat4(volumeShader->getUniform("Vi"), &Vi);
-
-    glBindImageTexture(1, volumeHandle, 0, GL_TRUE, 0, GL_READ_WRITE, GL_RGBA16F);
-    volumeShader->loadVec2(volumeShader->getUniform("xBounds"), XBOUNDS);
-    volumeShader->loadVec2(volumeShader->getUniform("yBounds"), YBOUNDS);
-    volumeShader->loadVec2(volumeShader->getUniform("zBounds"), ZBOUNDS);
-    volumeShader->loadInt(volumeShader->getUniform("voxelSize"), VOXELSIZE);
- 
-    /* Bind quad */
-    /* VAO */
-    glBindVertexArray(cube->vaoId);
-
-    /* Vertices VBO */
-    int pos = volumeShader->getAttribute("vertPos");
-    glEnableVertexAttribArray(pos);
-    glBindBuffer(GL_ARRAY_BUFFER, cube->vertBufId);
-    glVertexAttribPointer(pos, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
-
-    /* IBO */
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cube->eleBufId);
-    
-    /* Invoke draw call on a quad - this will write to the 3D texture */
-    glm::mat4 M  = glm::mat4(1.f);
-    M *= glm::translate(glm::mat4(1.f), glm::vec3(5.f, 0.f, 0.f));
-    volumeShader->loadMat4(volumeShader->getUniform("M"), &M);
-    //glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-    glDrawElements(GL_TRIANGLES, (int)cube->eleBuf.size(), GL_UNSIGNED_INT, nullptr);
-
-    /* Wrap up shader */
-    glBindVertexArray(0);
-    volumeShader->unbind();
-
-    /* Pull 3D texture out of GPU */
-    std::vector<float> buffer(VOXELSIZE * VOXELSIZE * VOXELSIZE * 4);
-    glBindTexture(GL_TEXTURE_3D, volumeHandle);
-    glGetTexImage(GL_TEXTURE_3D, 0, GL_RGBA, GL_FLOAT, buffer.data());
-
-    // TODO : for x, y, z { find index, load billboard at that index }
-    for (int i = 0; i < buffer.size(); i+=4) {
-        float r = buffer[i + 0];
-        float g = buffer[i + 1];
-        float b = buffer[i + 2];
-        float a = buffer[i + 3];
-        if (r || g || b || a) {
-            // createCloud(glm::vec3(r, g, b)/255.f);
-            cubes.push_back(glm::vec3(r, g, b));
-            printf("<%f, %f, %f, %f>\n", (float)r, float(g), float(b), float(a));
-        }
-    }
-
-    glEnable(GL_DEPTH_TEST);
-    glEnable(GL_CULL_FACE);
-    glDepthMask(GL_TRUE);
-    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-}
-
+VolumeShader *volumeShader;
+// TODO : imgui
 void takeInput() {
     /* Update light */
     if (Keyboard::isKeyPressed(GLFW_KEY_Z)) {
@@ -291,11 +59,10 @@ int main() {
     /* Create shaders */
     billboardShader = new BillboardShader(RESOURCE_DIR + "cloud_vert.glsl", 
                                           RESOURCE_DIR + "cloud_frag.glsl");
+    volumeShader = new VolumeShader(RESOURCE_DIR + "voxelize_vert.glsl", 
+                                    RESOURCE_DIR + "voxelize_frag.glsl");
     billboardShader->init(RESOURCE_DIR + "cloud.png", RESOURCE_DIR + "cloudMap.png");
-
-    /* Create meshes */
-    initGeom();
-    initVolume(VOXELSIZE);
+    volumeShader->init(64, glm::vec2(-20.f, 20.f), glm::vec2(-2.f, 20.f), glm::vec2(12.f, 12.f));
 
     /* Init rendering */
     GLSL::checkVersion();
@@ -309,8 +76,9 @@ int main() {
     Camera::update(Util::timeStep);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glClearColor(0.f, 0.4f, 0.7f, 1.f);
+
     /* Generate 3D Volume*/
-    voxelize();
+    volumeShader->voxelize(billboardShader->quad, glm::vec3(5.f, 0.f, 0.f));
     while (!Window::shouldClose()) {
         /* Update context */
         Util::updateTiming(glfwGetTime());
@@ -324,7 +92,5 @@ int main() {
         /* Render */
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glClearColor(0.f, 0.4f, 0.7f, 1.f);
-        renderBillboards();
-        renderCubes();
     }
 }

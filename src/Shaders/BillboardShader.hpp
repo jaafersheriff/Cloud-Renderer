@@ -21,12 +21,12 @@ class BillboardShader : public Shader {
         /* Add billboard to list at a given position */
         void addCloud(glm::vec3 pos);
 
+        Mesh *quad;
     private:
         /* List of render target */
         std::vector<Cloud *> clouds;
 
         /* Assets */
-        Mesh *quad;
         Texture *diffuseTex;
         Texture *normalTex;
 };
