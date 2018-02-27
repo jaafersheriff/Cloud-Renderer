@@ -6,7 +6,7 @@
 
 bool VolumeShader::init(int size, glm::vec2 x, glm::vec2 y, glm::vec2 z) {
     if (!Shader::init()) {
-        std::cerr << "Error initializing billboard shader" << std::endl;
+        std::cerr << "Error initializing volume shader" << std::endl;
         return false;
     }
 

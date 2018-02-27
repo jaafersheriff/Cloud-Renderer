@@ -4,7 +4,7 @@
 #include "Cloud.hpp"
 #include "Util.hpp"
 
-bool BillboardShader::init(std::string diffuseName, std::string normalName) {
+bool BillboardShader::init(std::string diffuseName, std::string normalName, Mesh *quad) {
     if (!Shader::init()) {
         std::cerr << "Error initializing billboard shader" << std::endl;
         return false;
@@ -22,15 +22,7 @@ bool BillboardShader::init(std::string diffuseName, std::string normalName) {
 
     addUniform("lightPos");
 
-    /* Create quad mesh */
-    quad = new Mesh;
-    quad->vertBuf = {
-        -1.f, -1.f,  0.f,
-         1.f, -1.f,  0.f,
-        -1.f,  1.f,  0.f,
-         1.f,  1.f,  0.f
-    };
-    quad->init();
+    this->quad = quad;
 
     /* Create textures */
     this->diffuseTex = new Texture(diffuseName);

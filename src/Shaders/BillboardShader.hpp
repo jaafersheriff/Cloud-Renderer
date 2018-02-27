@@ -13,7 +13,7 @@ class BillboardShader : public Shader {
             Shader(vertex, fragment)
         {}
 
-        bool init(std::string, std::string);
+        bool init(std::string, std::string, Mesh *);
 
         /* Render billboard list */
         void render(glm::vec3);

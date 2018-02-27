@@ -5,7 +5,7 @@
 #include "Shaders/GLSL.hpp"
 #include "Shaders/BillboardShader.hpp"
 #include "Shaders/VolumeShader.hpp"
-#include "Shaders/PointShader.hpp"
+#include "Shaders/DiffuseShader.hpp"
 
 #include "Cloud.hpp"
 
@@ -19,7 +19,10 @@ glm::vec3 lightPos;
 /* Shaders */
 BillboardShader *billboardShader;
 VolumeShader *volumeShader;
-PointShader *pointShader;
+DiffuseShader *diffuseShader;
+
+Mesh *quad;
+Mesh *cube;
 
 // TODO : imgui
 void takeInput() {
@@ -44,6 +47,59 @@ void takeInput() {
     }
 }
 
+void initGeom() {
+    /* Create quad */
+    quad = new Mesh;
+    quad->vertBuf = {
+        -1.f, -1.f,  0.f,
+         1.f, -1.f,  0.f,
+        -1.f,  1.f,  0.f,
+         1.f,  1.f,  0.f
+    };
+    quad->init();
+
+    /* Create cube */
+    cube = new Mesh;
+    cube->vertBuf = {
+         0.5f,  0.5f, -0.5f,
+         0.5f, -0.5f, -0.5f,
+        -0.5f, -0.5f, -0.5f,
+        -0.5f,  0.5f, -0.5f,
+         0.5f,  0.5f,  0.5f,
+         0.5f, -0.5f,  0.5f,
+        -0.5f, -0.5f,  0.5f,
+        -0.5f,  0.5f,  0.5f
+    };
+    cube->norBuf = {
+         0.f, -1.f,  0.f,
+         0.f, -1.f,  0.f,
+         0.f,  0.f, -1.f,
+         0.f,  1.f,  0.f,
+         0.f,  1.f,  0.f,
+         0.f,  0.f,  1.f,
+         0.f,  0.f,  1.f,
+         1.f,  0.f,  0.f,
+         1.f,  0.f,  0.f,
+        -1.f,  0.f,  0.f,
+        -1.f,  0.f,  0.f,
+    };
+    cube->eleBuf = {
+		0, 1, 2,
+		2, 3, 0,
+		1, 5, 6,
+		6, 2, 1,
+		7, 6, 5,
+		5, 4, 7,
+		4, 0, 3,
+		3, 7, 4,
+		4, 5, 1,
+		1, 0, 4,
+		3, 2, 6,
+		6, 7, 3,
+    };
+    cube->init();
+}
+
 int main() {
     /* Init window, keyboard, and mouse wrappers */
     if (Window::init("Clouds")) {
@@ -51,16 +107,19 @@ int main() {
         return 1;
     }
 
+    /* Create quad and cube */
+    initGeom();
+
     /* Create light */
     lightPos = glm::vec3(100.f, 100.f, 100.f);
 
     /* Create shaders */
     billboardShader = new BillboardShader(RESOURCE_DIR + "cloud_vert.glsl", RESOURCE_DIR + "cloud_frag.glsl");
-    billboardShader->init(RESOURCE_DIR + "cloud.png", RESOURCE_DIR + "cloudMap.png");
+    billboardShader->init(RESOURCE_DIR + "cloud.png", RESOURCE_DIR + "cloudMap.png", quad);
     volumeShader = new VolumeShader(RESOURCE_DIR + "voxelize_vert.glsl", RESOURCE_DIR + "voxelize_frag.glsl");
     volumeShader->init(16, glm::vec2(-20.f, 20.f), glm::vec2(-2.f, 15.f), glm::vec2(-12.f, 12.f));
-    pointShader = new PointShader(RESOURCE_DIR + "point_vert.glsl", RESOURCE_DIR + "point_frag.glsl");
-    pointShader->init();
+    diffuseShader = new DiffuseShader(RESOURCE_DIR + "diffuse_vert.glsl", RESOURCE_DIR + "diffuse_frag.glsl");
+    diffuseShader->init();
 
     /* Init rendering */
     GLSL::checkVersion();
@@ -90,6 +149,6 @@ int main() {
         CHECK_GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
         CHECK_GL_CALL(glClearColor(0.f, 0.4f, 0.7f, 1.f));
         //billboardShader->render(lightPos);
-        pointShader->render(volumeShader->getVoxelData());
+        diffuseShader->render(cube, volumeShader->getVoxelData(), lightPos);
     }
 }
