@@ -15,7 +15,11 @@ class Shader {
     public:
         /* Empty constructor
          * Only used to set GLSL shader names */
-        Shader(std::string v = "", std::string f = "") : vShaderName(v), fShaderName(f) { }
+        Shader(std::string v = "", std::string f = "") : 
+            vShaderName(v), 
+            fShaderName(f),
+            isEnabled(true)
+        { }
 
         /* Call parent Shader::init()
          * Add uniforms and attributes to GLSL shaders */
@@ -25,8 +29,6 @@ class Shader {
         void bind();
         void unbind();
         void cleanUp();
-        void unloadMesh();
-        void unloadTexture(int);
         void addAttribute(const std::string &);
         void addUniform(const std::string &);
 
@@ -41,10 +43,13 @@ class Shader {
         /* Get shader location */
         GLint getAttribute(const std::string &);
         GLint getUniform(const std::string &);
+
     protected:
         /* GLSL shader names */
         const std::string vShaderName;
         const std::string fShaderName;
+
+        bool isEnabled;
     private:    
         /* GLSL shader attributes */
         GLuint pid = 0;

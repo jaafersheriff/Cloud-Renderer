@@ -17,12 +17,12 @@ bool Shader::init() {
     }
 
 
-    vShaderId = createShader(vShaderName, GL_VERTEX_SHADER);
+    vShaderId = GLSL::createShader(vShaderName, GL_VERTEX_SHADER);
     if (vShaderId < 0) {
         return false;
     }
 
-    fShaderId = createShader(fShaderName, GL_FRAGMENT_SHADER);
+    fShaderId = GLSL::createShader(fShaderName, GL_FRAGMENT_SHADER);
     if (fShaderId < 0) {
         return false;
     }
@@ -40,25 +40,6 @@ bool Shader::init() {
 
     GLSL::checkError(GET_FILE_LINE);
     return true;
-}
-
-GLuint Shader::createShader(std::string name, GLenum type) {
-    GLint rc;
-    GLuint shaderId = glCreateShader(type);
-
-    const char *shader = GLSL::textFileRead(name.c_str());
-    glShaderSource(shaderId , 1, &shader, NULL);
-
-    // Compile shader
-    glCompileShader(shaderId);
-    glGetShaderiv(shaderId, GL_COMPILE_STATUS, &rc);
-    if (!rc) {
-        GLSL::printShaderInfoLog(shaderId);
-        std::cerr << "Error compiling " << name << std::endl;
-        return -1;
-    }
-
-    return shaderId;
 }
 
 void Shader::bind() {

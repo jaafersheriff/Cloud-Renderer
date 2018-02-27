@@ -148,3 +148,23 @@ int textFileWrite(const char *fn, char *s)
 	return(status);
 }
 }
+
+GLuint GLSL::createShader(std::string name, GLenum type) {
+    GLint rc;
+    GLuint shaderId = glCreateShader(type);
+
+    const char *shader = textFileRead(name.c_str());
+    glShaderSource(shaderId , 1, &shader, NULL);
+
+    // Compile shader
+    glCompileShader(shaderId);
+    glGetShaderiv(shaderId, GL_COMPILE_STATUS, &rc);
+    if (!rc) {
+        printShaderInfoLog(shaderId);
+        std::cerr << "Error compiling " << name << std::endl;
+        return -1;
+    }
+
+    return shaderId;
+}
+
