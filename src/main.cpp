@@ -1,7 +1,6 @@
 #include "IO/Window.hpp"
 #include "Camera.hpp"
-#include "Shaders/GLSL.hpp"
-#include "Shaders/Shader.hpp"
+#include "Shaders/BillboardShader.hpp"
 #include "Util.hpp"
 
 #include "Model/Mesh.hpp"
@@ -25,10 +24,8 @@ std::string RESOURCE_DIR = "../res/";
 /* Light position */
 glm::vec3 lightPos;
 
-/* Cloud billboards */
-Shader *billboardShader;
-Texture *diffuseTex;
-Texture *normalTex;
+/* Shaders */
+BillboardShader *billboardShader;
 
 /* 3D Texture */
 Shader *volumeShader;
@@ -138,16 +135,6 @@ void initGeom() {
 		6, 7, 3,
     };
     cube->init();
-}
-
-void createCloud(glm::vec3 pos) {
-    Cloud *cloud = new Cloud;
-
-    cloud->position = pos;
-    cloud->size = glm::normalize(glm::vec2(diffuseTex->width, diffuseTex->height));
-    cloud->rotation = 0.f;
-
-    clouds.push_back(cloud);
 }
 
 void renderCubes() {
@@ -302,15 +289,13 @@ int main() {
     lightPos = glm::vec3(100.f, 100.f, 100.f);
 
     /* Create shaders */
-    billboardShader = new BillboardShader();
+    billboardShader = new BillboardShader(RESOURCE_DIR + "cloud_vert.glsl", 
+                                          RESOURCE_DIR + "cloud_frag.glsl");
+    billboardShader->init(RESOURCE_DIR + "cloud.png", RESOURCE_DIR + "cloudMap.png");
 
     /* Create meshes */
     initGeom();
     initVolume(VOXELSIZE);
-
-    /* Create textures */
-    diffuseTex = new Texture(RESOURCE_DIR + "cloud.png");
-    normalTex = new Texture(RESOURCE_DIR + "cloudmap.png");
 
     /* Init rendering */
     GLSL::checkVersion();
