@@ -28,11 +28,11 @@ bool Shader::init() {
         return false;
     }
 
-    pid = glCreateProgram();
-    glAttachShader(pid, vShaderId);
-    glAttachShader(pid, fShaderId);
-    glLinkProgram(pid);
-    glGetProgramiv(pid, GL_LINK_STATUS, &rc);
+    pid = CHECK_GL_CALL(glCreateProgram());
+    CHECK_GL_CALL(glAttachShader(pid, vShaderId));
+    CHECK_GL_CALL(glAttachShader(pid, fShaderId));
+    CHECK_GL_CALL(glLinkProgram(pid));
+    CHECK_GL_CALL(glGetProgramiv(pid, GL_LINK_STATUS, &rc));
     if (!rc) {
         GLSL::printProgramInfoLog(pid);
         std::cerr << "Error linking shaders" << std::endl;
@@ -40,16 +40,15 @@ bool Shader::init() {
         return false;
     }
 
-    GLSL::checkError(GET_FILE_LINE);
     return true;
 }
 
 void Shader::bind() {
-    glUseProgram(pid);
+    CHECK_GL_CALL(glUseProgram(pid));
 }
 
 void Shader::unbind() {
-    glUseProgram(0);
+    CHECK_GL_CALL(glUseProgram(0));
 }
 
 void Shader::addAttribute(const std::string &name) {
@@ -88,11 +87,11 @@ GLint Shader::getUniform(const std::string &name) {
 
 void Shader::cleanUp() {
     unbind();
-    glDetachShader(pid, vShaderId);
-    glDetachShader(pid, fShaderId);
-    glDeleteShader(vShaderId);
-    glDeleteShader(fShaderId);
-    glDeleteProgram(pid);
+    CHECK_GL_CALL(glDetachShader(pid, vShaderId));
+    CHECK_GL_CALL(glDetachShader(pid, fShaderId));
+    CHECK_GL_CALL(glDeleteShader(vShaderId));
+    CHECK_GL_CALL(glDeleteShader(fShaderId));
+    CHECK_GL_CALL(glDeleteProgram(pid));
 }
 
 void Shader::loadBool(const int location, const bool b) const {

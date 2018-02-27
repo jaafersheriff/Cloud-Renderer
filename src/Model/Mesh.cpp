@@ -47,6 +47,6 @@ void Mesh::init() {
     }
 
     /* Unbind  */
-    CHECL_GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, 0));
-    CHECL_GL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
+    CHECK_GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, 0));
+    CHECK_GL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
 }
