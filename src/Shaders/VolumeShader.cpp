@@ -44,7 +44,7 @@ void VolumeShader::initVolume() {
     CHECK_GL_CALL(glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
     CHECK_GL_CALL(glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE));
 
-    CHECK_GL_CALL(glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA16F, volumeSize, volumeSize, volumeSize, 0, GL_RGBA, GL_FLOAT, nullptr));
+    CHECK_GL_CALL(glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA32F, volumeSize, volumeSize, volumeSize, 0, GL_RGBA, GL_FLOAT, nullptr));
     //CHECK_GL_CALL(glTexStorage3D(GL_TEXTURE_3D, 1, GL_RGBA16F, volumeSize, volumeSize, volumeSize));
     CHECK_GL_CALL(glClearTexImage(volumeHandle, 0, GL_RGBA, GL_FLOAT, nullptr));
     CHECK_GL_CALL(glBindTexture(GL_TEXTURE_3D, 0));
@@ -66,7 +66,7 @@ void VolumeShader::voxelize(Mesh *mesh, glm::vec3 position, glm::vec3 scale) {
     Vi = glm::transpose(Vi);
     loadMat4(getUniform("Vi"), &Vi);
 
-    glBindImageTexture(1, volumeHandle, 0, GL_TRUE, 0, GL_READ_WRITE, GL_RGBA16F);
+    glBindImageTexture(1, volumeHandle, 0, GL_TRUE, 0, GL_READ_WRITE, GL_RGBA32F);
     loadInt(getUniform("voxelSize"), volumeSize);
     loadVec2(getUniform("xBounds"), xBounds);
     loadVec2(getUniform("yBounds"), yBounds);
