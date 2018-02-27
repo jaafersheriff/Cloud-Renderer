@@ -38,8 +38,8 @@ Shader *volumeShader;
 std::vector<Cloud *> clouds;
 GLuint volumeHandle;
 #define XBOUNDS glm::vec2(-20, 20)
-#define YBOUNDS glm::vec2(-20, 20)
-#define ZBOUNDS glm::vec2(-20, 20)
+#define YBOUNDS glm::vec2(-2, 15)
+#define ZBOUNDS glm::vec2(-12, 12)
 #define VOXELSIZE 64
 
 /* Debug visualization */
@@ -309,23 +309,23 @@ void voxelize() {
  
     /* Bind quad */
     /* VAO */
-    glBindVertexArray(quad->vaoId);
+    glBindVertexArray(cube->vaoId);
 
     /* Vertices VBO */
     int pos = volumeShader->getAttribute("vertPos");
     glEnableVertexAttribArray(pos);
-    glBindBuffer(GL_ARRAY_BUFFER, quad->vertBufId);
+    glBindBuffer(GL_ARRAY_BUFFER, cube->vertBufId);
     glVertexAttribPointer(pos, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
 
     /* IBO */
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, quad->eleBufId);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cube->eleBufId);
     
     /* Invoke draw call on a quad - this will write to the 3D texture */
     glm::mat4 M  = glm::mat4(1.f);
     M *= glm::translate(glm::mat4(1.f), glm::vec3(5.f, 0.f, 0.f));
     volumeShader->loadMat4(volumeShader->getUniform("M"), &M);
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-    //glDrawElements(GL_TRIANGLES, (int)cube->eleBuf.size(), GL_UNSIGNED_INT, nullptr);
+    //glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    glDrawElements(GL_TRIANGLES, (int)cube->eleBuf.size(), GL_UNSIGNED_INT, nullptr);
 
     /* Wrap up shader */
     glBindVertexArray(0);

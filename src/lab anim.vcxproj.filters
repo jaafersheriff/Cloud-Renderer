@@ -7,29 +7,38 @@
     <ClCompile Include="Camera.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="GLSL.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="Keyboard.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
     <ClCompile Include="main.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="Mesh.cpp">
-      <Filter>src</Filter>
+    <ClCompile Include="IO\Mouse.cpp">
+      <Filter>src\IO</Filter>
     </ClCompile>
-    <ClCompile Include="Mouse.cpp">
-      <Filter>src</Filter>
+    <ClCompile Include="IO\Window.cpp">
+      <Filter>src\IO</Filter>
     </ClCompile>
-    <ClCompile Include="Shader.cpp">
-      <Filter>src</Filter>
+    <ClCompile Include="IO\Keyboard.cpp">
+      <Filter>src\IO</Filter>
     </ClCompile>
-    <ClCompile Include="Texture.cpp">
-      <Filter>src</Filter>
+    <ClCompile Include="Model\Mesh.cpp">
+      <Filter>src\Model</Filter>
     </ClCompile>
-    <ClCompile Include="Window.cpp">
-      <Filter>src</Filter>
+    <ClCompile Include="Model\Texture.cpp">
+      <Filter>src\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="Shaders\GLSL.cpp">
+      <Filter>src\Shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Shaders\PointShader.cpp">
+      <Filter>src\Shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Shaders\Shader.cpp">
+      <Filter>src\Shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Shaders\VoxelShader.cpp">
+      <Filter>src\Shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Shaders\BillboardShader.cpp">
+      <Filter>src\Shaders</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -42,6 +51,15 @@
     <Filter Include="glsl">
       <UniqueIdentifier>{7574fe72-d50e-40c5-934f-3b82daa41914}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\IO">
+      <UniqueIdentifier>{ba92efaa-7890-44fd-9a84-8cd13d59f3c5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Shaders">
+      <UniqueIdentifier>{6130924e-8c6a-414c-9c72-343fe6d2975c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Model">
+      <UniqueIdentifier>{1f96ca8d-d390-45a4-8526-e576963027b5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.hpp">
@@ -50,32 +68,41 @@
     <ClInclude Include="Cloud.hpp">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="GLSL.hpp">
-      <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="Keyboard.hpp">
-      <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="Mesh.hpp">
-      <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="Mouse.hpp">
-      <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="Shader.hpp">
-      <Filter>src</Filter>
-    </ClInclude>
     <ClInclude Include="stb_image.h">
-      <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="Texture.hpp">
       <Filter>src</Filter>
     </ClInclude>
     <ClInclude Include="Util.hpp">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="Window.hpp">
-      <Filter>src</Filter>
+    <ClInclude Include="IO\Keyboard.hpp">
+      <Filter>src\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="IO\Mouse.hpp">
+      <Filter>src\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="IO\Window.hpp">
+      <Filter>src\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="Model\Mesh.hpp">
+      <Filter>src\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Model\Texture.hpp">
+      <Filter>src\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Shaders\GLSL.hpp">
+      <Filter>src\Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="Shaders\PointShader.hpp">
+      <Filter>src\Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="Shaders\Shader.hpp">
+      <Filter>src\Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="Shaders\VoxelShader.hpp">
+      <Filter>src\Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="Shaders\BillboardShader.hpp">
+      <Filter>src\Shaders</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -92,6 +119,12 @@
       <Filter>glsl</Filter>
     </None>
     <None Include="..\res\voxelize_vert.glsl">
+      <Filter>glsl</Filter>
+    </None>
+    <None Include="..\res\diffuse_frag.glsl">
+      <Filter>glsl</Filter>
+    </None>
+    <None Include="..\res\diffuse_vert.glsl">
       <Filter>glsl</Filter>
     </None>
   </ItemGroup>

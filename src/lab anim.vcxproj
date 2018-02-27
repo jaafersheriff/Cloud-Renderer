@@ -21,27 +21,33 @@
   <ItemGroup>
     <ClCompile Include="..\ext\glad\src\glad.c" />
     <ClCompile Include="Camera.cpp" />
-    <ClCompile Include="GLSL.cpp" />
-    <ClCompile Include="Keyboard.cpp" />
+    <ClCompile Include="IO\Keyboard.cpp" />
+    <ClCompile Include="IO\Mouse.cpp" />
+    <ClCompile Include="IO\Window.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="Mesh.cpp" />
-    <ClCompile Include="Mouse.cpp" />
-    <ClCompile Include="Shader.cpp" />
-    <ClCompile Include="Texture.cpp" />
-    <ClCompile Include="Window.cpp" />
+    <ClCompile Include="Model\Mesh.cpp" />
+    <ClCompile Include="Model\Texture.cpp" />
+    <ClCompile Include="Shaders\BillboardShader.cpp" />
+    <ClCompile Include="Shaders\GLSL.cpp" />
+    <ClCompile Include="Shaders\PointShader.cpp" />
+    <ClCompile Include="Shaders\Shader.cpp" />
+    <ClCompile Include="Shaders\VoxelShader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.hpp" />
     <ClInclude Include="Cloud.hpp" />
-    <ClInclude Include="GLSL.hpp" />
-    <ClInclude Include="Keyboard.hpp" />
-    <ClInclude Include="Mesh.hpp" />
-    <ClInclude Include="Mouse.hpp" />
-    <ClInclude Include="Shader.hpp" />
+    <ClInclude Include="IO\Keyboard.hpp" />
+    <ClInclude Include="IO\Mouse.hpp" />
+    <ClInclude Include="IO\Window.hpp" />
+    <ClInclude Include="Model\Mesh.hpp" />
+    <ClInclude Include="Model\Texture.hpp" />
+    <ClInclude Include="Shaders\BillboardShader.hpp" />
+    <ClInclude Include="Shaders\GLSL.hpp" />
+    <ClInclude Include="Shaders\PointShader.hpp" />
+    <ClInclude Include="Shaders\Shader.hpp" />
+    <ClInclude Include="Shaders\VoxelShader.hpp" />
     <ClInclude Include="stb_image.h" />
-    <ClInclude Include="Texture.hpp" />
     <ClInclude Include="Util.hpp" />
-    <ClInclude Include="Window.hpp" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\CMakeLists.txt" />
@@ -49,6 +55,8 @@
   <ItemGroup>
     <None Include="..\res\cloud_frag.glsl" />
     <None Include="..\res\cloud_vert.glsl" />
+    <None Include="..\res\diffuse_frag.glsl" />
+    <None Include="..\res\diffuse_vert.glsl" />
     <None Include="..\res\voxelize_frag.glsl" />
     <None Include="..\res\voxelize_vert.glsl" />
   </ItemGroup>
