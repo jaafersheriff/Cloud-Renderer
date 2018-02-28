@@ -24,6 +24,10 @@ BillboardShader *billboardShader;
 VolumeShader *volumeShader;
 DiffuseShader *diffuseShader;
 
+/* Volume quad */
+glm::vec3 volumePos(5.f, 0.f, 0.f);
+glm::vec3 quadScale(2.f);
+
 /* Geometry */
 Mesh *quad;
 Mesh *cube;
@@ -89,7 +93,9 @@ int main() {
         CHECK_GL_CALL(glClearColor(0.f, 0.4f, 0.7f, 1.f));
         billboardShader->render(lightPos);
         diffuseShader->render(cube, volumeShader->getVoxelData(), lightPos);
-        volumeShader->renderMesh(quad, glm::vec3(5.f, 0.f, 0.f), glm::vec3(2.f), false);
+        if (volumeShader->isEnabled()) {
+            volumeShader->renderMesh(quad, volumePos, quadScale, false);
+        }
         if (Window::isImGuiEnabled()) {
             ImGui::Render();
         }
@@ -117,24 +123,27 @@ void createImGuiPanes() {
             if (ImGui::Button("Clear Billboards")) {
                 billboardShader->clearClouds();
             }
+            bool b = billboardShader->isEnabled();
+            ImGui::Checkbox("Render", &b);
+            billboardShader->setEnabled(b);
         } 
     });
     imGuiFuncs.push_back({ "Volume",
         [&]() {
-            static glm::vec3 pos(0.f);
-            static glm::vec3 scale(1.f);
-            ImGui::SliderFloat3("Position", glm::value_ptr(pos), -100.f, 100.f);
-            ImGui::SliderFloat3("Scale", glm::value_ptr(scale), 0.f, 50.f);
+            ImGui::SliderFloat3("Position", glm::value_ptr(volumePos), -100.f, 100.f);
+            ImGui::SliderFloat3("Scale", glm::value_ptr(quadScale), 0.f, 50.f);
             ImGui::SliderFloat3("XBounds", glm::value_ptr(volumeShader->xBounds), -20.f, 20.f);
             ImGui::SliderFloat3("YBounds", glm::value_ptr(volumeShader->yBounds), -20.f, 20.f);
             ImGui::SliderFloat3("ZBounds", glm::value_ptr(volumeShader->zBounds), -20.f, 20.f);
             ImGui::SliderInt("Volume Size", &volumeShader->volumeSize, 0, 256);
-
+            bool b = volumeShader->isEnabled();
+            ImGui::Checkbox("Render underlying quad", &b);
+            volumeShader->setEnabled(b);
             if (ImGui::Button("Quad Voxelize!")) {
-                volumeShader->voxelize(billboardShader->quad, pos, scale);
+                volumeShader->voxelize(quad, volumePos, quadScale);
             }
             if (ImGui::Button("Cube Voxelize!")) {
-                volumeShader->voxelize(cube, pos, scale);
+                volumeShader->voxelize(cube, volumePos, quadScale);
             }
             // TODO
             if (ImGui::Button("Clear Volume")) {
