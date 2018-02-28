@@ -29,6 +29,9 @@ class Camera {
         static glm::mat4 & getP() { return P; }
         static glm::mat4 & getV() { return V; }
 
+        static glm::vec3 getPosition() { return position; }
+        static glm::vec3 getLookAt() { return lookAt; }
+
     protected:
         /* Used for look at calculation */
         static double phi;

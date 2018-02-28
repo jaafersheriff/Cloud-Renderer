@@ -12,6 +12,7 @@
 #include "ThirdParty/imgui/imgui.h"
 
 #include <functional>
+#include <time.h>
 
 /* Initial values */
 std::string RESOURCE_DIR = "../res/";
@@ -26,7 +27,7 @@ DiffuseShader *diffuseShader;
 
 /* Volume quad */
 glm::vec3 volumePos(5.f, 0.f, 0.f);
-glm::vec3 quadScale(2.f);
+glm::vec3 volumeScale(2.f);
 
 /* Geometry */
 Mesh *quad;
@@ -38,6 +39,7 @@ std::vector<std::function<void()>> imGuiFuncs;
 void initGeom();
 void createImGuiPanes();
 int main() {
+    srand((unsigned int)(time(0)));  
     /* Init window, keyboard, and mouse wrappers */
     if (Window::init("Clouds")) {
         std::cerr << "ERROR" << std::endl;
@@ -88,7 +90,7 @@ int main() {
         billboardShader->render(lightPos);
         diffuseShader->render(cube, volumeShader->getVoxelData(), lightPos);
         if (volumeShader->isEnabled()) {
-            volumeShader->renderMesh(quad, volumePos, quadScale, false);
+            volumeShader->renderMesh(quad, volumePos, volumeScale, false);
         }
         if (Window::isImGuiEnabled()) {
             ImGui::Render();
@@ -97,6 +99,18 @@ int main() {
 }
 
 void createImGuiPanes() {
+    imGuiFuncs.push_back(
+        [&]() {
+            ImGui::Begin("Stats");
+            ImGui::Text("FPS:       %d", Window::FPS);
+            ImGui::Text("dt:        %f", Window::timeStep);
+            glm::vec3 pos = Camera::getPosition();
+            glm::vec3 look = Camera::getLookAt();
+            ImGui::Text("CamPos:    (%f, %f, %f)", pos.x, pos.y, pos.z);
+            ImGui::Text("CamLookAt: (%f, %f, %f)", look.x, look.y, look.z);
+            ImGui::End();
+        } 
+    );
     imGuiFuncs.push_back(
         [&]() {
             ImGui::Begin("Light");
@@ -145,16 +159,29 @@ void createImGuiPanes() {
         [&]() {
             ImGui::Begin("Volume");
             ImGui::SliderFloat3("Position", glm::value_ptr(volumePos), -100.f, 100.f);
-            ImGui::SliderFloat3("Scale", glm::value_ptr(quadScale), 0.f, 50.f);
-            ImGui::SliderFloat3("XBounds", glm::value_ptr(volumeShader->xBounds), -20.f, 20.f);
-            ImGui::SliderFloat3("YBounds", glm::value_ptr(volumeShader->yBounds), -20.f, 20.f);
-            ImGui::SliderFloat3("ZBounds", glm::value_ptr(volumeShader->zBounds), -20.f, 20.f);
-            ImGui::SliderInt("Volume Size", &volumeShader->volumeSize, 0, 256);
+            ImGui::SliderFloat3("Scale", glm::value_ptr(volumeScale), 0.f, 50.f);
+            glm::vec2 x = volumeShader->getXBounds();
+            glm::vec2 y = volumeShader->getYBounds();
+            glm::vec2 z = volumeShader->getZBounds();
+            int size = volumeShader->getVolumeSize();
+            if(ImGui::SliderFloat2("XBounds", glm::value_ptr(x), -20.f, 20.f)) {
+                volumeShader->setXBounds(x);
+            }
+            if(ImGui::SliderFloat2("YBounds", glm::value_ptr(y), -20.f, 20.f)) {
+                volumeShader->setYBounds(y);
+            }
+            if(ImGui::SliderFloat2("ZBounds", glm::value_ptr(z), -20.f, 20.f)) {
+                volumeShader->setZBounds(z);
+            }
+            if (ImGui::SliderInt("Volume Size", &size, 0, 256)) {
+                volumeShader->setVolumeSize(size);
+            }
+
             bool b = volumeShader->isEnabled();
             ImGui::Checkbox("Render underlying quad", &b);
             volumeShader->setEnabled(b);
             if (ImGui::Button("Quad Voxelize!")) {
-                volumeShader->voxelize(quad, volumePos, quadScale);
+                volumeShader->voxelize(quad, volumePos, volumeScale);
             }
             if (ImGui::Button("Clear Volume")) {
                 volumeShader->clearVolume();

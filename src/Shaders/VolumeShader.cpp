@@ -44,9 +44,12 @@ void VolumeShader::initVolume() {
     CHECK_GL_CALL(glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
     CHECK_GL_CALL(glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
     CHECK_GL_CALL(glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE));
+    generateVolume();
+}
 
+void VolumeShader::generateVolume() {
     CHECK_GL_CALL(glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA32F, volumeSize, volumeSize, volumeSize, 0, GL_RGBA, GL_FLOAT, nullptr));
-    //CHECK_GL_CALL(glTexStorage3D(GL_TEXTURE_3D, 1, GL_RGBA16F, volumeSize, volumeSize, volumeSize));
+    //CHECK_GL_CALL(glTexStorage3D(GL_TEXTURE_3D, 1, GL_RGBA32F, volumeSize, volumeSize, volumeSize));
     clearVolume();
     CHECK_GL_CALL(glBindTexture(GL_TEXTURE_3D, 0));
 }
@@ -61,6 +64,11 @@ void VolumeShader::voxelize(Mesh *mesh, glm::vec3 position, glm::vec3 scale) {
     CHECK_GL_CALL(glDisable(GL_CULL_FACE));
     CHECK_GL_CALL(glDepthMask(GL_FALSE));
     CHECK_GL_CALL(glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE));
+
+    if (dirtyVolume) {
+        generateVolume();
+        dirtyVolume = false;
+    }
 
     renderMesh(mesh, position, scale, true);
 
@@ -126,3 +134,7 @@ void VolumeShader::renderMesh(Mesh *mesh, glm::vec3 position, glm::vec3 scale, b
     unbind();
 }
 
+void VolumeShader::setVolumeSize(int in) {
+    this->volumeSize = in;
+    dirtyVolume = true;
+}
