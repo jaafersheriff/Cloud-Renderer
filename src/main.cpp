@@ -33,11 +33,7 @@ Mesh *quad;
 Mesh *cube;
 
 /* ImGui functions */
-struct ImGuiFunc { 
-    std::string name;
-    std::function<void()> fun;
-};
-std::vector<ImGuiFunc> imGuiFuncs;
+std::vector<std::function<void()>> imGuiFuncs;
 
 void initGeom();
 void createImGuiPanes();
@@ -82,9 +78,7 @@ int main() {
         /* IMGUI */
         if (Window::isImGuiEnabled()) {
             for (auto func : imGuiFuncs) {
-                ImGui::Begin(func.name.c_str());
-                func.fun();
-                ImGui::End();
+                func();
             }
         }
 
@@ -103,22 +97,40 @@ int main() {
 }
 
 void createImGuiPanes() {
-    imGuiFuncs.push_back({ "Light",
+    imGuiFuncs.push_back(
         [&]() {
+            ImGui::Begin("Light");
             ImGui::SliderFloat3("Position", glm::value_ptr(lightPos), -1000.f, 1000.f);
+            ImGui::End();
         } 
-    });
-    imGuiFuncs.push_back({ "Billboards",
+    );
+    imGuiFuncs.push_back(
         [&]() {
-            // TODO : generate cluster w offset
+            ImGui::Begin("Billboards");
             static glm::vec3 pos(0.f);
             static float scale(0.f);
             static float rotation(0.f);
             ImGui::SliderFloat3("Position", glm::value_ptr(pos), -100.f, 100.f);
             ImGui::SliderFloat("Scale", &scale, 0.f, 100.f);
             ImGui::SliderAngle("Rotation", &rotation);
-            if (ImGui::Button("Add Billboard")) {
+            if (ImGui::Button("Add Single Billboard")) {
                 billboardShader->addCloud(pos, scale, rotation);
+            }
+            static int numClouds = 1;
+            static float posJitter = 0.f;
+            static float scaleJitter = 0.f;
+            static float rotJitter = 0.f;
+            ImGui::SliderInt("In Cluster", &numClouds, 1, 50);
+            ImGui::SliderFloat("Position Jitter", &posJitter, 0.f, 10.f);
+            ImGui::SliderFloat("Scale Jitter", &scaleJitter, 0.f, 10.f);
+            ImGui::SliderFloat("Rotation Jitter", &rotJitter, 0.f, 360.f);
+            if (ImGui::Button("Add Cluster")) {
+                for (int i = 0; i < numClouds; i++) {
+                    billboardShader->addCloud(
+                        pos + Util::genRandomVec3()*posJitter,
+                        scale + Util::genRandom()*scaleJitter,
+                        rotation + Util::genRandom()*rotJitter);
+                }
             }
             if (ImGui::Button("Clear Billboards")) {
                 billboardShader->clearClouds();
@@ -126,10 +138,12 @@ void createImGuiPanes() {
             bool b = billboardShader->isEnabled();
             ImGui::Checkbox("Render", &b);
             billboardShader->setEnabled(b);
+            ImGui::End();
         } 
-    });
-    imGuiFuncs.push_back({ "Volume",
+    );
+    imGuiFuncs.push_back(
         [&]() {
+            ImGui::Begin("Volume");
             ImGui::SliderFloat3("Position", glm::value_ptr(volumePos), -100.f, 100.f);
             ImGui::SliderFloat3("Scale", glm::value_ptr(quadScale), 0.f, 50.f);
             ImGui::SliderFloat3("XBounds", glm::value_ptr(volumeShader->xBounds), -20.f, 20.f);
@@ -142,15 +156,12 @@ void createImGuiPanes() {
             if (ImGui::Button("Quad Voxelize!")) {
                 volumeShader->voxelize(quad, volumePos, quadScale);
             }
-            if (ImGui::Button("Cube Voxelize!")) {
-                volumeShader->voxelize(cube, volumePos, quadScale);
-            }
-            // TODO
             if (ImGui::Button("Clear Volume")) {
-                std::cerr << "TODO" << std::endl;
+                volumeShader->clearVolume();
             }
+            ImGui::End();
         }
-    });
+    );
 }
 
 void initGeom() {

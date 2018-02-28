@@ -47,10 +47,14 @@ void VolumeShader::initVolume() {
 
     CHECK_GL_CALL(glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA32F, volumeSize, volumeSize, volumeSize, 0, GL_RGBA, GL_FLOAT, nullptr));
     //CHECK_GL_CALL(glTexStorage3D(GL_TEXTURE_3D, 1, GL_RGBA16F, volumeSize, volumeSize, volumeSize));
-    CHECK_GL_CALL(glClearTexImage(volumeHandle, 0, GL_RGBA, GL_FLOAT, nullptr));
+    clearVolume();
     CHECK_GL_CALL(glBindTexture(GL_TEXTURE_3D, 0));
 }
 
+void VolumeShader::clearVolume() {
+    CHECK_GL_CALL(glClearTexImage(volumeHandle, 0, GL_RGBA, GL_FLOAT, nullptr));
+    voxelData.clear();
+}
 
 void VolumeShader::voxelize(Mesh *mesh, glm::vec3 position, glm::vec3 scale) {
     CHECK_GL_CALL(glDisable(GL_DEPTH_TEST));
