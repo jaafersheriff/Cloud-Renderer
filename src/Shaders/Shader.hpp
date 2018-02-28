@@ -21,7 +21,7 @@ class Shader {
         Shader(std::string v = "", std::string f = "") : 
             vShaderName(v), 
             fShaderName(f),
-            isEnabled(true)
+            enabled(true)
         { }
 
         /* Call parent Shader::init()
@@ -47,12 +47,15 @@ class Shader {
         GLint getAttribute(const std::string &);
         GLint getUniform(const std::string &);
 
+        bool isEnabled() { return enabled; }
+        void setEnabled(bool b) { enabled = b; }
+
     protected:
         /* GLSL shader names */
         const std::string vShaderName;
         const std::string fShaderName;
 
-        bool isEnabled;
+        bool enabled;
     private:    
         /* GLSL shader attributes */
         GLuint pid = 0;

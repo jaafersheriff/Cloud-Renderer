@@ -22,7 +22,7 @@ bool DiffuseShader::init() {
 }
 
 void DiffuseShader::render(Mesh *mesh, std::vector<glm::vec4> & diffuses, glm::vec3 lightPos) {
-    if (!isEnabled) {
+    if (!enabled) {
         return;
     }
 

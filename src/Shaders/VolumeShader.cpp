@@ -74,7 +74,6 @@ void VolumeShader::voxelize(Mesh *mesh, glm::vec3 position, glm::vec3 scale) {
         float a = buffer[i + 3];
         if (r || g || b || a) {
             voxelData.push_back(glm::vec4(r, g, b, a));
-            printf("<%f, %f, %f, %f>\n", r, g, b, a);
         }
     }
 
@@ -114,7 +113,7 @@ void VolumeShader::renderMesh(Mesh *mesh, glm::vec3 position, glm::vec3 scale, b
     /* Invoke draw call on a quad - this will write to the 3D texture */
     glm::mat4 M  = glm::mat4(1.f);
     M *= glm::translate(glm::mat4(1.f), position);
-    M *= glm::scale(glm::mat4(1.f), scale);
+    //M *= glm::scale(glm::mat4(1.f), scale);
     loadMat4(getUniform("M"), &M);
     CHECK_GL_CALL(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
 

@@ -11,20 +11,20 @@ bool Shader::init() {
         std::cerr << "Shader(s) don't exist" << std::endl;
         std::cerr << "\t" << vShaderName << std::endl;
         std::cerr << "\t" << fShaderName << std::endl;
-        isEnabled = false;
+        enabled = false;
         return false;
     }
 
 
     vShaderId = GLSL::createShader(vShaderName, GL_VERTEX_SHADER);
     if (vShaderId < 0) {
-        isEnabled = false;
+        enabled = false;
         return false;
     }
 
     fShaderId = GLSL::createShader(fShaderName, GL_FRAGMENT_SHADER);
     if (fShaderId < 0) {
-        isEnabled = false;
+        enabled = false;
         return false;
     }
 
@@ -36,7 +36,7 @@ bool Shader::init() {
     if (!rc) {
         GLSL::printProgramInfoLog(pid);
         std::cerr << "Error linking shaders" << std::endl;
-        isEnabled = false;
+        enabled = false;
         return false;
     }
 
