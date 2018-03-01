@@ -48,6 +48,7 @@ void VolumeShader::initVolume() {
 }
 
 void VolumeShader::generateVolume() {
+    // TODO : does this free previously allocated memory?
     CHECK_GL_CALL(glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA32F, volumeSize, volumeSize, volumeSize, 0, GL_RGBA, GL_FLOAT, nullptr));
     //CHECK_GL_CALL(glTexStorage3D(GL_TEXTURE_3D, 1, GL_RGBA32F, volumeSize, volumeSize, volumeSize));
     clearVolume();
