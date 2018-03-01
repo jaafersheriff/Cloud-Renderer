@@ -15,8 +15,12 @@ class Util {
         //////////////////////////////////////////////
         //                  RANDOM                  //
         //////////////////////////////////////////////
-        /* Generate a random float [0, 1] */
+        /* Generate a random float [-1, 1] */
         static inline float genRandom() {
+            return (rand() / (float) RAND_MAX - 0.5) * 2;
+        }
+        /* Generate a random float [0, 1] */
+        static inline float genPosRandom() {
             return rand() / (float) RAND_MAX;
         }
         /* Generate a scaled random value */
