@@ -22,7 +22,7 @@ public:
     static int height;
 
     /* Init */
-    static int init(std::string);
+    static int init(std::string, float);
 
     /* Set window title */
     void setTitle(const char *);

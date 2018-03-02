@@ -40,8 +40,9 @@ void initGeom();
 void createImGuiPanes();
 int main() {
     srand((unsigned int)(time(0)));  
+
     /* Init window, keyboard, and mouse wrappers */
-    if (Window::init("Clouds")) {
+    if (Window::init("Clouds", 20.f)) {
         std::cerr << "ERROR" << std::endl;
         return 1;
     }

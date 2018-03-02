@@ -1094,13 +1094,13 @@ void    ImFontAtlas::Clear()
     ClearFonts();
 }
 
-void    ImFontAtlas::GetTexDataAsAlpha8(unsigned char** out_pixels, int* out_width, int* out_height, int* out_bytes_per_pixel)
+void    ImFontAtlas::GetTexDataAsAlpha8(float size, unsigned char** out_pixels, int* out_width, int* out_height, int* out_bytes_per_pixel)
 {
     // Build atlas on demand
     if (TexPixelsAlpha8 == NULL)
     {
         if (ConfigData.empty())
-            AddFontDefault();
+            AddFontDefault(size);
         Build();
     }
 
@@ -1110,14 +1110,14 @@ void    ImFontAtlas::GetTexDataAsAlpha8(unsigned char** out_pixels, int* out_wid
     if (out_bytes_per_pixel) *out_bytes_per_pixel = 1;
 }
 
-void    ImFontAtlas::GetTexDataAsRGBA32(unsigned char** out_pixels, int* out_width, int* out_height, int* out_bytes_per_pixel)
+void    ImFontAtlas::GetTexDataAsRGBA32(float size, unsigned char** out_pixels, int* out_width, int* out_height, int* out_bytes_per_pixel)
 {
     // Convert to RGBA32 format on demand
     // Although it is likely to be the most commonly used format, our font rendering is 1 channel / 8 bpp
     if (!TexPixelsRGBA32)
     {
         unsigned char* pixels;
-        GetTexDataAsAlpha8(&pixels, NULL, NULL);
+        GetTexDataAsAlpha8(size, &pixels, NULL, NULL);
         TexPixelsRGBA32 = (unsigned int*)ImGui::MemAlloc((size_t)(TexWidth * TexHeight * 4));
         const unsigned char* src = pixels;
         unsigned int* dst = TexPixelsRGBA32;
@@ -1177,7 +1177,7 @@ static void         Decode85(const unsigned char* src, unsigned char* dst)
 }
 
 // Load embedded ProggyClean.ttf at size 13, disable oversampling
-ImFont* ImFontAtlas::AddFontDefault(const ImFontConfig* font_cfg_template)
+ImFont* ImFontAtlas::AddFontDefault(float size, const ImFontConfig* font_cfg_template)
 {
     ImFontConfig font_cfg = font_cfg_template ? *font_cfg_template : ImFontConfig();
     if (!font_cfg_template)
@@ -1188,7 +1188,7 @@ ImFont* ImFontAtlas::AddFontDefault(const ImFontConfig* font_cfg_template)
     if (font_cfg.Name[0] == '\0') strcpy(font_cfg.Name, "ProggyClean.ttf, 13px");
 
     const char* ttf_compressed_base85 = GetDefaultCompressedFontDataTTFBase85();
-    ImFont* font = AddFontFromMemoryCompressedBase85TTF(ttf_compressed_base85, 13.0f, &font_cfg, GetGlyphRangesDefault());
+    ImFont* font = AddFontFromMemoryCompressedBase85TTF(ttf_compressed_base85, size, &font_cfg, GetGlyphRangesDefault());
     return font;
 }
 

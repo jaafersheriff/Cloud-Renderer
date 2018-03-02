@@ -53,7 +53,7 @@ void Window::characterCallback(GLFWwindow *window, unsigned int c) {
     }
 }
 
-int Window::init(std::string name) {
+int Window::init(std::string name, float fontSize = 15.f) {
     /* Set error callback */
     glfwSetErrorCallback(errorCallback);
 
@@ -99,6 +99,7 @@ int Window::init(std::string name) {
     glfwSwapInterval(1);
 
     /* More init */
+    ImGui_ImplGlfwGL3_NewFrame(true, fontSize);
     update();
 
     return 0;
@@ -141,7 +142,6 @@ void Window::update() {
         toggleImgui();
         imGuiTimer = 0.f;
     }
-
     if (isImGuiEnabled()) {
         ImGui_ImplGlfwGL3_NewFrame(true);
     }

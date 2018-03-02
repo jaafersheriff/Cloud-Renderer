@@ -172,13 +172,13 @@ void ImGui_ImplGlfwGL3_CharCallback(GLFWwindow*, unsigned int c)
         io.AddInputCharacter((unsigned short)c);
 }
 
-bool ImGui_ImplGlfwGL3_CreateFontsTexture()
+bool ImGui_ImplGlfwGL3_CreateFontsTexture(float size)
 {
     // Build texture atlas
     ImGuiIO& io = ImGui::GetIO();
     unsigned char* pixels;
     int width, height;
-    io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);   // Load as RGBA 32-bits (75% of the memory is wasted, but default font is so small) because it is more likely to be compatible with user's existing shaders. If your ImTextureId represent a higher-level concept than just a GL texture id, consider calling GetTexDataAsAlpha8() instead to save on GPU memory.
+    io.Fonts->GetTexDataAsRGBA32(size, &pixels, &width, &height);   // Load as RGBA 32-bits (75% of the memory is wasted, but default font is so small) because it is more likely to be compatible with user's existing shaders. If your ImTextureId represent a higher-level concept than just a GL texture id, consider calling GetTexDataAsAlpha8() instead to save on GPU memory.
 
     // Upload texture to graphics system
     GLint last_texture;
@@ -198,7 +198,7 @@ bool ImGui_ImplGlfwGL3_CreateFontsTexture()
     return true;
 }
 
-bool ImGui_ImplGlfwGL3_CreateDeviceObjects()
+bool ImGui_ImplGlfwGL3_CreateDeviceObjects(float size)
 {
     // Backup GL state
     GLint last_texture, last_array_buffer, last_vertex_array;
@@ -265,7 +265,7 @@ bool ImGui_ImplGlfwGL3_CreateDeviceObjects()
     glVertexAttribPointer(g_AttribLocationColor, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(ImDrawVert), (GLvoid*)OFFSETOF(ImDrawVert, col));
 #undef OFFSETOF
 
-    ImGui_ImplGlfwGL3_CreateFontsTexture();
+    ImGui_ImplGlfwGL3_CreateFontsTexture(size);
 
     // Restore modified GL state
     glBindTexture(GL_TEXTURE_2D, last_texture);
@@ -351,10 +351,10 @@ void ImGui_ImplGlfwGL3_Shutdown()
     ImGui::Shutdown();
 }
 
-void ImGui_ImplGlfwGL3_NewFrame(bool hideMouse)
+void ImGui_ImplGlfwGL3_NewFrame(bool hideMouse, float size)
 {
     if (!g_FontTexture)
-        ImGui_ImplGlfwGL3_CreateDeviceObjects();
+        ImGui_ImplGlfwGL3_CreateDeviceObjects(size);
 
     ImGuiIO& io = ImGui::GetIO();
 
