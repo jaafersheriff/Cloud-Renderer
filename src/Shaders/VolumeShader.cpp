@@ -89,6 +89,7 @@ void VolumeShader::voxelize(Mesh *mesh, glm::vec3 position, glm::vec3 scale) {
             voxelData.push_back(glm::vec4(r, g, b, a));
         }
     }
+    std::cout << "Retrived " << voxelData.size() << " points from 3D Texture" << std::endl;
 
     CHECK_GL_CALL(glEnable(GL_DEPTH_TEST));
     CHECK_GL_CALL(glEnable(GL_CULL_FACE));
@@ -133,6 +134,21 @@ void VolumeShader::renderMesh(Mesh *mesh, glm::vec3 position, glm::vec3 scale, b
     /* Wrap up shader */
     glBindVertexArray(0);
     unbind();
+}
+
+void VolumeShader::setXBounds(glm::vec2 in) {
+    this->xBounds = in;
+    dirtyVolume = true;
+}
+
+void VolumeShader::setYBounds(glm::vec2 in) {
+    this->yBounds = in;
+    dirtyVolume = true;
+}
+
+void VolumeShader::setZBounds(glm::vec2 in) {
+    this->zBounds = in;
+    dirtyVolume = true;
 }
 
 void VolumeShader::setVolumeSize(int in) {

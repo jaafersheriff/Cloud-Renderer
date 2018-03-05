@@ -27,9 +27,9 @@ class VolumeShader : public Shader {
         int getVolumeSize() { return volumeSize; }
 
         /* Setters */
-        void setXBounds(glm::vec2 in) { this->xBounds = in; }
-        void setYBounds(glm::vec2 in) { this->yBounds = in; }
-        void setZBounds(glm::vec2 in) { this->zBounds = in; }
+        void setXBounds(glm::vec2 in);
+        void setYBounds(glm::vec2 in);
+        void setZBounds(glm::vec2 in);
         void setVolumeSize(int);
      private:
         void initVolume();

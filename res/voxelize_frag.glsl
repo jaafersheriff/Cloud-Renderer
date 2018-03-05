@@ -13,6 +13,8 @@ layout(binding=1, rgba32f) uniform image3D volume;
 
 out vec4 color;
 
+/* Linear map from aribtray box(?) in world space to 3D volume 
+ * Voxel indices: [0, voxelSize - 1] */
 ivec3 voxelIndex(vec3 pos) {
     float rangeX = xBounds.y - xBounds.x;
     float rangeY = yBounds.y - yBounds.x;
@@ -20,7 +22,7 @@ ivec3 voxelIndex(vec3 pos) {
 
 	float x = voxelSize * ((pos.x - xBounds.x) / rangeX);
 	float y = voxelSize * ((pos.y - yBounds.x) / rangeY);
-	float z = voxelSize * (1 - (pos.z - zBounds.x) / rangeZ);
+	float z = voxelSize * ((pos.z - zBounds.x) / rangeZ);
 
 	return ivec3(x, y, z);
 }
