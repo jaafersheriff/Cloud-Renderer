@@ -91,7 +91,6 @@ void VolumeShader::voxelize(Mesh *mesh, glm::vec3 position, glm::vec3 scale) {
     CHECK_GL_CALL(glBindTexture(GL_TEXTURE_3D, volumeHandle));
     CHECK_GL_CALL(glGetTexImage(GL_TEXTURE_3D, 0, GL_RGBA, GL_FLOAT, buffer.data()));
 
-    // TODO : for x, y, z { find index, load billboard at that index }
     voxelData.clear();
     for (int i = 0; i < buffer.size(); i+=4) {
         float r = buffer[i + 0];
@@ -99,7 +98,8 @@ void VolumeShader::voxelize(Mesh *mesh, glm::vec3 position, glm::vec3 scale) {
         float b = buffer[i + 2];
         float a = buffer[i + 3];
         if (r || g || b || a) {
-            voxelData.push_back(glm::vec4(r, g, b, a));
+            // TODO : 1D buffer indices to 3D texture indices
+            voxelData.push_back(reverseVoxelIndex(glm::ivec3(i, i + 1, i + 2)));
         }
     }
     std::cout << "Retrived " << voxelData.size() << " points from 3D Texture" << std::endl;

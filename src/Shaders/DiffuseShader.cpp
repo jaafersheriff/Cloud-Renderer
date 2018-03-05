@@ -21,7 +21,7 @@ bool DiffuseShader::init() {
     addUniform("lightPos");
 }
 
-void DiffuseShader::render(Mesh *mesh, std::vector<glm::vec4> & diffuses, glm::vec3 lightPos) {
+void DiffuseShader::render(Mesh *mesh, std::vector<glm::vec3> & diffuses, glm::vec3 lightPos) {
     if (!enabled) {
         return;
     }
@@ -57,7 +57,7 @@ void DiffuseShader::render(Mesh *mesh, std::vector<glm::vec4> & diffuses, glm::v
     glm::mat4 M;
     for (auto position : diffuses) {
         M  = glm::mat4(1.f);
-        M *= glm::translate(glm::mat4(1.f), glm::vec3(position));
+        M *= glm::translate(glm::mat4(1.f), position);
         loadMat4(getUniform("M"), &M);
 
         CHECK_GL_CALL(glDrawElements(GL_TRIANGLES, (int)mesh->eleBuf.size(), GL_UNSIGNED_INT, nullptr));
