@@ -60,6 +60,19 @@ void VolumeShader::clearVolume() {
     voxelData.clear();
 }
 
+// TODO : Calculate and store ranges for reuse including in frag shader 
+glm::vec3 VolumeShader::reverseVoxelIndex(glm::ivec3 voxelIndex) {
+    float xRange = xBounds.y - xBounds.x;
+    float yRange = yBounds.y - yBounds.x;
+    float zRange = zBounds.y - zBounds.x;
+
+    float x = float(voxelIndex.x) * xRange / volumeSize + xBounds.x;
+    float y = float(voxelIndex.y) * yRange / volumeSize + yBounds.x;
+    float z = float(voxelIndex.z) * zRange / volumeSize + zBounds.x;
+
+    return glm::vec3(x, y, z);
+}
+
 void VolumeShader::voxelize(Mesh *mesh, glm::vec3 position, glm::vec3 scale) {
     CHECK_GL_CALL(glDisable(GL_DEPTH_TEST));
     CHECK_GL_CALL(glDisable(GL_CULL_FACE));
