@@ -57,7 +57,7 @@ void DiffuseShader::render(Mesh *mesh, std::vector<glm::vec3> & diffuses, glm::v
     glm::mat4 M;
     for (auto position : diffuses) {
         M  = glm::mat4(1.f);
-        M *= glm::translate(glm::mat4(1.f), position);
+        M *= glm::translate(glm::mat4(1.f), position - glm::vec3(16, 16, 16));
         loadMat4(getUniform("M"), &M);
 
         CHECK_GL_CALL(glDrawElements(GL_TRIANGLES, (int)mesh->eleBuf.size(), GL_UNSIGNED_INT, nullptr));

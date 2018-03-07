@@ -72,7 +72,18 @@ glm::vec3 VolumeShader::reverseVoxelIndex(glm::ivec3 voxelIndex) {
 
     return glm::vec3(x, y, z);
 }
-
+//-------------------------------------------------
+glm::ivec3 get_3D_indices(int index,int bpp)//bytes (!!) per pixel
+{
+	int line = 32 * bpp;
+	int slice = 32 * line;
+	int z = index / slice;
+	int y = (index - z * slice) / line;
+	int x = index - z * slice - y*line;
+	x /= bpp;
+	return glm::ivec3(x, y, z);
+}
+//-------------------------------------------------
 void VolumeShader::voxelize(Mesh *mesh, glm::vec3 position, glm::vec3 scale) {
     CHECK_GL_CALL(glDisable(GL_DEPTH_TEST));
     CHECK_GL_CALL(glDisable(GL_CULL_FACE));
@@ -92,14 +103,19 @@ void VolumeShader::voxelize(Mesh *mesh, glm::vec3 position, glm::vec3 scale) {
     CHECK_GL_CALL(glGetTexImage(GL_TEXTURE_3D, 0, GL_RGBA, GL_FLOAT, buffer.data()));
 
     voxelData.clear();
-    for (int i = 0; i < buffer.size(); i+=4) {
+	int c = 0;
+    for (int i = 0; i < buffer.size(); i+=4) 
+	{
+		glm::ivec3 in = get_3D_indices(i,4);
         float r = buffer[i + 0];
-        float g = buffer[i + 1];
+       /* float g = buffer[i + 1];
         float b = buffer[i + 2];
-        float a = buffer[i + 3];
-        if (r || g || b || a) {
+        float a = buffer[i + 3];*/
+        if (r) 		
+		{
             // TODO : 1D buffer indices to 3D texture indices
-            voxelData.push_back(reverseVoxelIndex(glm::ivec3(i, i + 1, i + 2)));
+            voxelData.push_back(glm::vec3(in.x, in.y, in.z));
+			c++;
         }
     }
     std::cout << "Retrived " << voxelData.size() << " points from 3D Texture" << std::endl;
@@ -140,7 +156,7 @@ void VolumeShader::renderMesh(Mesh *mesh, glm::vec3 position, glm::vec3 scale, b
     /* Invoke draw call on a quad - this will write to the 3D texture */
     glm::mat4 M  = glm::mat4(1.f);
     M *= glm::translate(glm::mat4(1.f), position);
-    //M *= glm::scale(glm::mat4(1.f), scale);
+    M *= glm::scale(glm::mat4(1.f), scale);
     loadMat4(getUniform("M"), &M);
     CHECK_GL_CALL(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
 

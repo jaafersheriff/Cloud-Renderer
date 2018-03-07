@@ -77,7 +77,7 @@ void BillboardShader::render(glm::vec3 lightPos) {
         M *= glm::translate(glm::mat4(1.f), cloud->position);
         // TODO : fix rotation
         // M *= glm::rotate(glm::mat4(1.f), glm::radians(cloud->rotation), glm::vec3(0, 0, 1));
-        // M *= glm::scale(glm::mat4(1.f), glm::vec3(cloud->size, 0.f));
+         M = M*glm::scale(glm::mat4(1.f), glm::vec3(8,8,8));
         loadMat4(getUniform("M"), &M);
 
         CHECK_GL_CALL(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));

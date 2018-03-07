@@ -27,7 +27,7 @@ DiffuseShader *diffuseShader;
 
 /* Volume quad */
 glm::vec3 volumePos(5.f, 0.f, 0.f);
-glm::vec3 volumeScale(2.f);
+glm::vec3 volumeScale(8.f);
 
 /* Geometry */
 Mesh *quad;
@@ -57,7 +57,7 @@ int main() {
     billboardShader = new BillboardShader(RESOURCE_DIR + "cloud_vert.glsl", RESOURCE_DIR + "cloud_frag.glsl");
     billboardShader->init(RESOURCE_DIR + "cloud.png", RESOURCE_DIR + "cloudMap.png", quad);
     volumeShader = new VolumeShader(RESOURCE_DIR + "voxelize_vert.glsl", RESOURCE_DIR + "voxelize_frag.glsl");
-    volumeShader->init(32, glm::vec2(-20.f, 20.f), glm::vec2(-20.f, 15.f), glm::vec2(-12.f, 12.f));
+    volumeShader->init(32, glm::vec2(-16.f, 16.f), glm::vec2(-16.f, 16.f), glm::vec2(-16.f, 16.f));
     diffuseShader = new DiffuseShader(RESOURCE_DIR + "diffuse_vert.glsl", RESOURCE_DIR + "diffuse_frag.glsl");
     diffuseShader->init();
 
@@ -91,6 +91,7 @@ int main() {
         billboardShader->render(lightPos);
         diffuseShader->render(cube, volumeShader->getVoxelData(), lightPos);
         if (volumeShader->isEnabled()) {
+			
             volumeShader->renderMesh(quad, volumePos, volumeScale, false);
         }
         if (Window::isImGuiEnabled()) {
@@ -160,7 +161,7 @@ void createImGuiPanes() {
         [&]() {
             ImGui::Begin("Volume");
             ImGui::SliderFloat3("Position", glm::value_ptr(volumePos), -100.f, 100.f);
-            ImGui::SliderFloat3("Scale", glm::value_ptr(volumeScale), 0.f, 50.f);
+            //ImGui::SliderFloat3("Scale", glm::value_ptr(volumeScale), 0.f, 50.f);
             glm::vec2 x = volumeShader->getXBounds();
             glm::vec2 y = volumeShader->getYBounds();
             glm::vec2 z = volumeShader->getZBounds();
@@ -196,10 +197,10 @@ void initGeom() {
     /* Create quad */
     quad = new Mesh;
     quad->vertBuf = {
-        -1.f, -1.f,  0.f,
-         1.f, -1.f,  0.f,
-        -1.f,  1.f,  0.f,
-         1.f,  1.f,  0.f
+        -0.5f, -0.5f,  0.f,
+         0.5f, -0.5f,  0.f,
+        -0.5f,  0.5f,  0.f,
+         0.5f,  0.5f,  0.f
     };
     quad->init();
 
@@ -244,5 +245,4 @@ void initGeom() {
     };
     cube->init();
 }
-
 
