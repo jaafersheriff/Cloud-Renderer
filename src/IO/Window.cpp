@@ -17,7 +17,7 @@ double Window::runTime = 0.0;
 int Window::nFrames = 0;
 
 float Window::imGuiTimer = 1.f;
-bool Window::imGuiEnabled = true;
+bool Window::imGuiEnabled = false;
 
 void Window::errorCallback(int error, const char *desc) {
     std::cerr << "Error " << error << ": " << desc << std::endl;
