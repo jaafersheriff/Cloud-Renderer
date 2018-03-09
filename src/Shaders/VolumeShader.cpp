@@ -4,7 +4,7 @@
 
 #include "glm/gtc/matrix_transform.hpp"
 
-bool VolumeShader::init(int size, glm::vec2 x, glm::vec2 y, glm::vec2 z) {
+bool VolumeShader::init(int size, glm::vec2 x, glm::vec2 y, glm::vec2 z, Spatial *s) {
     if (!Shader::init()) {
         std::cerr << "Error initializing volume shader" << std::endl;
         return false;
@@ -14,6 +14,7 @@ bool VolumeShader::init(int size, glm::vec2 x, glm::vec2 y, glm::vec2 z) {
     this->xBounds = x;
     this->yBounds = y;
     this->zBounds = z;
+    this->volQuad = s;
 
     addAttribute("vertPos");
 
@@ -45,14 +46,13 @@ void VolumeShader::initVolume() {
     CHECK_GL_CALL(glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
     CHECK_GL_CALL(glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE));
     generateVolume();
+    CHECK_GL_CALL(glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA32F, volumeSize, volumeSize, volumeSize, 0, GL_RGBA, GL_FLOAT, nullptr));
 }
 
 void VolumeShader::generateVolume() {
     // TODO : does this free previously allocated memory?
-    CHECK_GL_CALL(glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA32F, volumeSize, volumeSize, volumeSize, 0, GL_RGBA, GL_FLOAT, nullptr));
+    //CHECK_GL_CALL(glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA32F, volumeSize, volumeSize, volumeSize, 0, GL_RGBA, GL_FLOAT, nullptr));
     //CHECK_GL_CALL(glTexStorage3D(GL_TEXTURE_3D, 1, GL_RGBA32F, volumeSize, volumeSize, volumeSize));
-    clearVolume();
-    CHECK_GL_CALL(glBindTexture(GL_TEXTURE_3D, 0));
 }
 
 void VolumeShader::clearVolume() {
@@ -60,65 +60,46 @@ void VolumeShader::clearVolume() {
     voxelData.clear();
 }
 
-// TODO : Calculate and store ranges for reuse including in frag shader 
-glm::vec3 VolumeShader::reverseVoxelIndex(glm::ivec3 voxelIndex) {
-    float xRange = xBounds.y - xBounds.x;
-    float yRange = yBounds.y - yBounds.x;
-    float zRange = zBounds.y - zBounds.x;
-
-    float x = float(voxelIndex.x) * xRange / volumeSize + xBounds.x;
-    float y = float(voxelIndex.y) * yRange / volumeSize + yBounds.x;
-    float z = float(voxelIndex.z) * zRange / volumeSize + zBounds.x;
-
-    return glm::vec3(x, y, z);
-}
-//-------------------------------------------------
-glm::ivec3 get_3D_indices(int index,int bpp)//bytes (!!) per pixel
-{
-	int line = 32 * bpp;
-	int slice = 32 * line;
+/* bpp - bytes per pixel */
+glm::ivec3 VolumeShader::get3DIndices(int index, int bpp) {
+	int line = volumeSize * bpp;
+	int slice = volumeSize  * line;
 	int z = index / slice;
 	int y = (index - z * slice) / line;
 	int x = index - z * slice - y*line;
 	x /= bpp;
 	return glm::ivec3(x, y, z);
 }
-//-------------------------------------------------
-void VolumeShader::voxelize(Mesh *mesh, glm::vec3 position, glm::vec3 scale) {
+
+void VolumeShader::voxelize(Mesh *mesh) {
     CHECK_GL_CALL(glDisable(GL_DEPTH_TEST));
     CHECK_GL_CALL(glDisable(GL_CULL_FACE));
     CHECK_GL_CALL(glDepthMask(GL_FALSE));
     CHECK_GL_CALL(glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE));
 
-    if (dirtyVolume) {
-        generateVolume();
-        dirtyVolume = false;
-    }
+    /* Generate new volumer per frame*/
+    clearVolume();
+    generateVolume();
 
-    renderMesh(mesh, position, scale, true);
+    /* Draw call on mesh to populate volume */
+    renderMesh(mesh, true);
 
-    /* Pull 3D texture out of GPU */
+    /* Pull volume data out of GPU */
     std::vector<float> buffer(volumeSize * volumeSize * volumeSize * 4);
-    CHECK_GL_CALL(glBindTexture(GL_TEXTURE_3D, volumeHandle));
     CHECK_GL_CALL(glGetTexImage(GL_TEXTURE_3D, 0, GL_RGBA, GL_FLOAT, buffer.data()));
 
-    voxelData.clear();
-	int c = 0;
     for (int i = 0; i < buffer.size(); i+=4) 
-	{
-		glm::ivec3 in = get_3D_indices(i,4);
+    {
+    	glm::ivec3 in = get3DIndices(i,4);
         float r = buffer[i + 0];
-       /* float g = buffer[i + 1];
+        float g = buffer[i + 1];
         float b = buffer[i + 2];
-        float a = buffer[i + 3];*/
-        if (r) 		
-		{
-            // TODO : 1D buffer indices to 3D texture indices
-            voxelData.push_back(glm::vec3(in.x, in.y, in.z));
-			c++;
+        float a = buffer[i + 3];
+        if (r || g || b || a) 		
+    	{
+            voxelData.push_back(glm::vec3(in) - volumeSize/2.f);
         }
     }
-    std::cout << "Retrived " << voxelData.size() << " points from 3D Texture" << std::endl;
 
     CHECK_GL_CALL(glEnable(GL_DEPTH_TEST));
     CHECK_GL_CALL(glEnable(GL_CULL_FACE));
@@ -126,7 +107,7 @@ void VolumeShader::voxelize(Mesh *mesh, glm::vec3 position, glm::vec3 scale) {
     CHECK_GL_CALL(glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE));
 }
 
-void VolumeShader::renderMesh(Mesh *mesh, glm::vec3 position, glm::vec3 scale, bool voxelize) {
+void VolumeShader::renderMesh(Mesh *mesh, bool voxelize) {
     bind();
 
     loadMat4(getUniform("P"), &Camera::getP());
@@ -155,32 +136,12 @@ void VolumeShader::renderMesh(Mesh *mesh, glm::vec3 position, glm::vec3 scale, b
 
     /* Invoke draw call on a quad - this will write to the 3D texture */
     glm::mat4 M  = glm::mat4(1.f);
-    M *= glm::translate(glm::mat4(1.f), position);
-    M *= glm::scale(glm::mat4(1.f), scale);
+    M *= glm::translate(glm::mat4(1.f), volQuad->position);
+    M *= glm::scale(glm::mat4(1.f), glm::vec3(volQuad->scale.x));
     loadMat4(getUniform("M"), &M);
     CHECK_GL_CALL(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
 
     /* Wrap up shader */
     glBindVertexArray(0);
     unbind();
-}
-
-void VolumeShader::setXBounds(glm::vec2 in) {
-    this->xBounds = in;
-    dirtyVolume = true;
-}
-
-void VolumeShader::setYBounds(glm::vec2 in) {
-    this->yBounds = in;
-    dirtyVolume = true;
-}
-
-void VolumeShader::setZBounds(glm::vec2 in) {
-    this->zBounds = in;
-    dirtyVolume = true;
-}
-
-void VolumeShader::setVolumeSize(int in) {
-    this->volumeSize = in;
-    dirtyVolume = true;
 }

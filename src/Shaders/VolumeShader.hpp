@@ -5,6 +5,7 @@
 #include "Shader.hpp"
 
 #include "Model/Mesh.hpp"
+#include "Spatial.hpp"
 
 class VolumeShader : public Shader {
     public:
@@ -12,37 +13,30 @@ class VolumeShader : public Shader {
             Shader(vertex, fragment)
         {}
 
-        bool init(int, glm::vec2, glm::vec2, glm::vec2);
+        bool init(int, glm::vec2, glm::vec2, glm::vec2, Spatial *);
 
         /* Generate 3D volume */
-        void voxelize(Mesh *, glm::vec3 position, glm::vec3 scale);
+        void voxelize(Mesh *);
         void clearVolume();
-        void renderMesh(Mesh *, glm::vec3 position, glm::vec3 scale, bool);
+        void renderMesh(Mesh *, bool);
 
         /* Getters */
         std::vector<glm::vec3> & getVoxelData() { return voxelData; }
-        glm::vec2 getXBounds() { return xBounds; }
-        glm::vec2 getYBounds() { return yBounds; }
-        glm::vec2 getZBounds() { return zBounds; }
-        int getVolumeSize() { return volumeSize; }
 
-        /* Setters */
-        void setXBounds(glm::vec2 in);
-        void setYBounds(glm::vec2 in);
-        void setZBounds(glm::vec2 in);
-        void setVolumeSize(int);
-     private:
-        void initVolume();
-        void generateVolume();
-        glm::vec3 reverseVoxelIndex(glm::ivec3);
-
-        /* Volume vars */
-        GLuint volumeHandle;
-        bool dirtyVolume = true;
+        bool activeVoxelize = false;
         glm::vec2 xBounds;
         glm::vec2 yBounds;
         glm::vec2 zBounds;
         int volumeSize;
+ 
+     private:
+        void initVolume();
+        void generateVolume();
+        glm::ivec3 get3DIndices(int, int);
+
+        /* Volume vars */
+        GLuint volumeHandle;
+        Spatial *volQuad;
 
         /* Data stored in voxels */
         // TODO : a fixed-size array and write over values 
