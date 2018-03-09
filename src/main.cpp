@@ -41,7 +41,7 @@ int main() {
     srand((unsigned int)(time(0)));  
 
     /* Init window, keyboard, and mouse wrappers */
-    if (Window::init("Clouds", 13.f)) {
+    if (Window::init("Clouds", 20.f)) {
         std::cerr << "ERROR" << std::endl;
         return 1;
     }
@@ -112,7 +112,7 @@ void createImGuiPanes() {
     imGuiFuncs.push_back(
         [&]() {
             ImGui::Begin("Light");
-            ImGui::SliderFloat3("Position", glm::value_ptr(lightPos), -1000.f, 1000.f);
+            ImGui::SliderFloat3("Position", glm::value_ptr(lightPos), -100.f, 100.f);
             ImGui::End();
         } 
     );
@@ -120,10 +120,10 @@ void createImGuiPanes() {
         [&]() {
             ImGui::Begin("Billboards");
             static glm::vec3 pos(0.f);
-            static float scale(0.f);
+            static float scale(1.f);
             static float rotation(0.f);
             ImGui::SliderFloat3("Position", glm::value_ptr(pos), -100.f, 100.f);
-            ImGui::SliderFloat("Scale", &scale, 0.f, 100.f);
+            ImGui::SliderFloat("Scale", &scale, 1.f, 10.f);
             ImGui::SliderAngle("Rotation", &rotation);
             if (ImGui::Button("Add Single Billboard")) {
                 cloudsBillboards.push_back(new Spatial(

@@ -26,12 +26,12 @@ bool BillboardShader::init(std::string diffuseName, std::string normalName, Mesh
     /* Create textures */
     this->diffuseTex = new Texture(diffuseName);
     this->normalTex = new Texture(normalName);
-    this->texSize = glm::vec3(diffuseTex->width, diffuseTex->height, 1.f);
+    this->texSize = glm::normalize(glm::vec2(diffuseTex->width, diffuseTex->height));
 
     return true;
 }
 
-void BillboardShader::render(glm::vec3 lightPos, std::vector<Renderable *> &targets) {
+void BillboardShader::render(glm::vec3 lightPos, std::vector<Spatial *> &targets) {
     if (!enabled) {
         return;
     }
@@ -77,7 +77,7 @@ void BillboardShader::render(glm::vec3 lightPos, std::vector<Renderable *> &targ
         M *= glm::translate(glm::mat4(1.f), target->position);
         // TODO : fix rotation
         // M *= glm::rotate(glm::mat4(1.f), glm::radians(cloud->rotation), glm::vec3(0, 0, 1));
-        M *= glm::scale(glm::mat4(1.f), target->scale * texSize);
+        M *= glm::scale(glm::mat4(1.f), target->scale * glm::vec3(texSize, 1.f));
         loadMat4(getUniform("M"), &M);
 
         CHECK_GL_CALL(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));

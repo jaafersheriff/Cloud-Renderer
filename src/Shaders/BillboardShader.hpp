@@ -22,7 +22,7 @@ class BillboardShader : public Shader {
         Mesh *quad;
         Texture *diffuseTex;
         Texture *normalTex;
-        glm::vec3 texSize;
+        glm::vec2 texSize;
 };
 
 #endif
