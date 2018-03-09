@@ -178,8 +178,11 @@ void createImGuiPanes() {
             ImGui::Checkbox("Render underlying quad", &b);
             volumeShader->setEnabled(b);
 
-            ImGui::Checkbox("Generate Volume!", &volumeShader->activeVoxelize);
-            
+            ImGui::Checkbox("Voxelize!", &volumeShader->activeVoxelize);
+
+            if (ImGui::Button("Single voxelize")) {
+                volumeShader->voxelize(quad);
+            }
             if (ImGui::Button("Clear")) {
                 volumeShader->clearVolume();
             }
