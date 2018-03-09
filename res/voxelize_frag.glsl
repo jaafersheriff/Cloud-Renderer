@@ -31,7 +31,7 @@ void main() {
     color = vec4(1, 0, 0, 1);
     if(voxelize) {
         ivec3 i = voxelIndex(fragPos);
-        imageStore(volume, i, vec4(1,1,1, 1.0));
+        imageStore(volume, i, vec4(1, 1, 1, 1));
 
 		/*for(int xx=0;xx<3;xx++)
 			for(int yy=0;yy<3;yy++)

@@ -45,14 +45,9 @@ void VolumeShader::initVolume() {
     CHECK_GL_CALL(glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
     CHECK_GL_CALL(glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
     CHECK_GL_CALL(glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE));
-    generateVolume();
-    CHECK_GL_CALL(glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA32F, volumeSize, volumeSize, volumeSize, 0, GL_RGBA, GL_FLOAT, nullptr));
-}
-
-void VolumeShader::generateVolume() {
-    // TODO : does this free previously allocated memory?
-    //CHECK_GL_CALL(glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA32F, volumeSize, volumeSize, volumeSize, 0, GL_RGBA, GL_FLOAT, nullptr));
-    //CHECK_GL_CALL(glTexStorage3D(GL_TEXTURE_3D, 1, GL_RGBA32F, volumeSize, volumeSize, volumeSize));
+    CHECK_GL_CALL(glTexStorage3D(GL_TEXTURE_3D, 1, GL_RGBA32F, volumeSize, volumeSize, volumeSize));
+    clearVolume();
+    //CHECK_GL_CALL(glBindTexture(GL_TEXTURE_3D, 0));
 }
 
 void VolumeShader::clearVolume() {
@@ -60,47 +55,36 @@ void VolumeShader::clearVolume() {
     voxelData.clear();
 }
 
-/* bpp - bytes per pixel */
-glm::ivec3 VolumeShader::get3DIndices(int index, int bpp) {
-	int line = volumeSize * bpp;
-	int slice = volumeSize  * line;
-	int z = index / slice;
-	int y = (index - z * slice) / line;
-	int x = index - z * slice - y*line;
-	x /= bpp;
-	return glm::ivec3(x, y, z);
-}
-
 void VolumeShader::voxelize(Mesh *mesh) {
+    clearVolume();
+
     CHECK_GL_CALL(glDisable(GL_DEPTH_TEST));
     CHECK_GL_CALL(glDisable(GL_CULL_FACE));
     CHECK_GL_CALL(glDepthMask(GL_FALSE));
     CHECK_GL_CALL(glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE));
 
-    /* Generate new volumer per frame*/
-    clearVolume();
-    generateVolume();
-
     /* Draw call on mesh to populate volume */
+    bind();
+    CHECK_GL_CALL(glBindImageTexture(1, volumeHandle, 0, GL_TRUE, 0, GL_READ_WRITE, GL_RGBA32F));
     renderMesh(mesh, true);
+    unbind();
 
     /* Pull volume data out of GPU */
     std::vector<float> buffer(volumeSize * volumeSize * volumeSize * 4);
     CHECK_GL_CALL(glGetTexImage(GL_TEXTURE_3D, 0, GL_RGBA, GL_FLOAT, buffer.data()));
 
-    for (int i = 0; i < buffer.size(); i+=4) 
-    {
-    	glm::ivec3 in = get3DIndices(i,4);
+    for (int i = 0; i < buffer.size(); i += 4) {
+    	glm::ivec3 in = get3DIndices(i, 4);
         float r = buffer[i + 0];
         float g = buffer[i + 1];
         float b = buffer[i + 2];
         float a = buffer[i + 3];
-        if (r || g || b || a) 		
-    	{
+        if (r || g || b || a) {
             voxelData.push_back(glm::vec3(in) - volumeSize/2.f);
         }
     }
 
+    CHECK_GL_CALL(glBindImageTexture(1, 0, 0, GL_TRUE, 0, GL_READ_WRITE, GL_RGBA32F));
     CHECK_GL_CALL(glEnable(GL_DEPTH_TEST));
     CHECK_GL_CALL(glEnable(GL_CULL_FACE));
     CHECK_GL_CALL(glDepthMask(GL_TRUE));
@@ -108,8 +92,6 @@ void VolumeShader::voxelize(Mesh *mesh) {
 }
 
 void VolumeShader::renderMesh(Mesh *mesh, bool voxelize) {
-    bind();
-
     loadMat4(getUniform("P"), &Camera::getP());
     loadMat4(getUniform("V"), &Camera::getV());
     glm::mat4 Vi = Camera::getV();
@@ -117,7 +99,6 @@ void VolumeShader::renderMesh(Mesh *mesh, bool voxelize) {
     Vi = glm::transpose(Vi);
     loadMat4(getUniform("Vi"), &Vi);
 
-    glBindImageTexture(1, volumeHandle, 0, GL_TRUE, 0, GL_READ_WRITE, GL_RGBA32F);
     loadInt(getUniform("voxelSize"), volumeSize);
     loadVec2(getUniform("xBounds"), xBounds);
     loadVec2(getUniform("yBounds"), yBounds);
@@ -143,5 +124,14 @@ void VolumeShader::renderMesh(Mesh *mesh, bool voxelize) {
 
     /* Wrap up shader */
     glBindVertexArray(0);
-    unbind();
+}
+
+/* bpp - bytes per pixel */
+glm::ivec3 VolumeShader::get3DIndices(int index, int bpp) {
+	int line = volumeSize * bpp;
+	int slice = volumeSize  * line;
+	int z = index / slice;
+	int y = (index - z * slice) / line;
+	int x = (index - z * slice - y * line) / bpp;
+	return glm::ivec3(x, y, z);
 }

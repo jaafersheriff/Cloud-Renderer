@@ -31,7 +31,6 @@ class VolumeShader : public Shader {
  
      private:
         void initVolume();
-        void generateVolume();
         glm::ivec3 get3DIndices(int, int);
 
         /* Volume vars */

@@ -82,12 +82,13 @@ int main() {
 
         /* Render */
         CHECK_GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
-        CHECK_GL_CALL(glClearColor(0.f, 0.4f, 0.7f, 1.f));
-        if (volumeShader->isEnabled()) {
-            volumeShader->renderMesh(quad, false);
-        }
         if (volumeShader->activeVoxelize) {
             volumeShader->voxelize(quad);
+        }
+        if (volumeShader->isEnabled()) {
+            volumeShader->bind();
+            volumeShader->renderMesh(quad, false);
+            volumeShader->unbind();
         }
         billboardShader->render(lightPos, cloudsBillboards);
         diffuseShader->render(cube, volumeShader->getVoxelData(), lightPos);
@@ -168,10 +169,10 @@ void createImGuiPanes() {
             ImGui::Text("Voxels in scene : %d", volumeShader->getVoxelData().size());
             ImGui::SliderFloat3("Position", glm::value_ptr(volQuad.position), -100.f, 100.f);
             ImGui::SliderFloat("Scale", &volQuad.scale.x, 0.f, 10.f);
-            ImGui::SliderFloat2("XBounds", glm::value_ptr(volumeShader->xBounds), -20.f, 20.f);
-            ImGui::SliderFloat2("YBounds", glm::value_ptr(volumeShader->yBounds), -20.f, 20.f);
-            ImGui::SliderFloat2("ZBounds", glm::value_ptr(volumeShader->zBounds), -20.f, 20.f);
-            ImGui::SliderInt("Volume Size", &volumeShader->volumeSize, 0, 256);
+            //ImGui::SliderFloat2("XBounds", glm::value_ptr(volumeShader->xBounds), -20.f, 20.f);
+            //ImGui::SliderFloat2("YBounds", glm::value_ptr(volumeShader->yBounds), -20.f, 20.f);
+            //ImGui::SliderFloat2("ZBounds", glm::value_ptr(volumeShader->zBounds), -20.f, 20.f);
+            //ImGui::SliderInt("Volume Size", &volumeShader->volumeSize, 0, 256);
 
             bool b = volumeShader->isEnabled();
             ImGui::Checkbox("Render underlying quad", &b);
