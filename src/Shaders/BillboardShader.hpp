@@ -5,8 +5,8 @@
 #include "Shader.hpp"
 #include "Model/Mesh.hpp"
 #include "Model/Texture.hpp"
+#include "Spatial.hpp"
 
-class Cloud;
 class BillboardShader : public Shader {
     public:
         BillboardShader(std::string vertex, std::string fragment) :
@@ -16,20 +16,13 @@ class BillboardShader : public Shader {
         bool init(std::string, std::string, Mesh *);
 
         /* Render billboard list */
-        void render(glm::vec3);
+        void render(glm::vec3, std::vector<Spatial *> &);
 
-        /* Add billboard to list at a given position */
-        void addCloud(glm::vec3 pos, float scale, float rotation);
-        void clearClouds();
-
-        Mesh *quad;
     private:
-        /* List of render target */
-        std::vector<Cloud *> clouds;
-
-        /* Assets */
+        Mesh *quad;
         Texture *diffuseTex;
         Texture *normalTex;
+        glm::vec3 texSize;
 };
 
 #endif

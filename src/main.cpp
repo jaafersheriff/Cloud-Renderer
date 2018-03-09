@@ -7,8 +7,6 @@
 #include "Shaders/VolumeShader.hpp"
 #include "Shaders/DiffuseShader.hpp"
 
-#include "Cloud.hpp"
-
 #include "ThirdParty/imgui/imgui.h"
 
 #include <functional>
@@ -16,9 +14,7 @@
 
 /* Initial values */
 std::string RESOURCE_DIR = "../res/";
-
-/* Light position */
-glm::vec3 lightPos;
+glm::vec3 lightPos(100.f);
 
 /* Shaders */
 BillboardShader *billboardShader;
@@ -32,6 +28,9 @@ glm::vec3 volumeScale(8.f);
 /* Geometry */
 Mesh *quad;
 Mesh *cube;
+
+/* Render targets */
+std::vector<Spatial *> cloudsBillboards;
 
 /* ImGui functions */
 std::vector<std::function<void()>> imGuiFuncs;
@@ -49,9 +48,6 @@ int main() {
 
     /* Create quad and cube */
     initGeom();
-
-    /* Create light */
-    lightPos = glm::vec3(100.f, 100.f, 100.f);
 
     /* Create shaders */
     billboardShader = new BillboardShader(RESOURCE_DIR + "cloud_vert.glsl", RESOURCE_DIR + "cloud_frag.glsl");
@@ -88,7 +84,7 @@ int main() {
         /* Render */
         CHECK_GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
         CHECK_GL_CALL(glClearColor(0.f, 0.4f, 0.7f, 1.f));
-        billboardShader->render(lightPos);
+        billboardShader->render(lightPos, cloudsBillboards);
         diffuseShader->render(cube, volumeShader->getVoxelData(), lightPos);
         if (volumeShader->isEnabled()) {
 			
@@ -130,7 +126,11 @@ void createImGuiPanes() {
             ImGui::SliderFloat("Scale", &scale, 0.f, 100.f);
             ImGui::SliderAngle("Rotation", &rotation);
             if (ImGui::Button("Add Single Billboard")) {
-                billboardShader->addCloud(pos, scale, rotation);
+                cloudsBillboards.push_back(new Spatial(
+                    pos,
+                    glm::vec3(scale),
+                    glm::vec3(rotation)
+                ));
             }
             static int numClouds = 1;
             static float posJitter = 0.f;
@@ -142,14 +142,18 @@ void createImGuiPanes() {
             ImGui::SliderFloat("Rotation Jitter", &rotJitter, 0.f, 360.f);
             if (ImGui::Button("Add Cluster")) {
                 for (int i = 0; i < numClouds; i++) {
-                    billboardShader->addCloud(
+                    cloudsBillboards.push_back(new Spatial(
                         pos + Util::genRandomVec3()*posJitter,
-                        scale + Util::genRandom()*scaleJitter,
-                        rotation + Util::genRandom()*rotJitter);
-                }
+                        glm::vec3(scale + Util::genRandom()*scaleJitter),
+                        glm::vec3(rotation + Util::genRandom()*rotJitter)
+                    ));
+               }
             }
             if (ImGui::Button("Clear Billboards")) {
-                billboardShader->clearClouds();
+                for (auto r : cloudsBillboards) {
+                    delete r;
+                }
+                cloudsBillboards.clear();
             }
             bool b = billboardShader->isEnabled();
             ImGui::Checkbox("Render", &b);

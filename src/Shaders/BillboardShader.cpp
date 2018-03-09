@@ -1,7 +1,6 @@
 #include "BillboardShader.hpp"
 
 #include "Camera.hpp"
-#include "Cloud.hpp"
 #include "Util.hpp"
 
 bool BillboardShader::init(std::string diffuseName, std::string normalName, Mesh *quad) {
@@ -27,11 +26,12 @@ bool BillboardShader::init(std::string diffuseName, std::string normalName, Mesh
     /* Create textures */
     this->diffuseTex = new Texture(diffuseName);
     this->normalTex = new Texture(normalName);
+    this->texSize = glm::vec3(diffuseTex->width, diffuseTex->height, 1.f);
 
     return true;
 }
 
-void BillboardShader::render(glm::vec3 lightPos) {
+void BillboardShader::render(glm::vec3 lightPos, std::vector<Renderable *> &targets) {
     if (!enabled) {
         return;
     }
@@ -72,12 +72,12 @@ void BillboardShader::render(glm::vec3 lightPos) {
     CHECK_GL_CALL(glBindTexture(GL_TEXTURE_2D, normalTex->textureId));
 
     glm::mat4 M;
-    for (auto cloud : clouds) {
+    for (auto target : targets) {
         M  = glm::mat4(1.f);
-        M *= glm::translate(glm::mat4(1.f), cloud->position);
+        M *= glm::translate(glm::mat4(1.f), target->position);
         // TODO : fix rotation
         // M *= glm::rotate(glm::mat4(1.f), glm::radians(cloud->rotation), glm::vec3(0, 0, 1));
-         M = M*glm::scale(glm::mat4(1.f), glm::vec3(8,8,8));
+        M *= glm::scale(glm::mat4(1.f), target->scale * texSize);
         loadMat4(getUniform("M"), &M);
 
         CHECK_GL_CALL(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
@@ -91,19 +91,3 @@ void BillboardShader::render(glm::vec3 lightPos) {
     CHECK_GL_CALL(glEnable(GL_DEPTH_TEST));
 }
 
-void BillboardShader::addCloud(glm::vec3 pos, float scale, float rotation) {
-    Cloud *cloud = new Cloud;
-
-    cloud->position = pos;
-    cloud->size = scale * glm::normalize(glm::vec2(diffuseTex->width, diffuseTex->height));
-    cloud->rotation = rotation;
-
-    clouds.push_back(cloud);
-}
-
-void BillboardShader::clearClouds() {
-    for (auto c : clouds) {
-        delete c;
-    }
-    clouds.clear();
-}
