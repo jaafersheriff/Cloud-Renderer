@@ -14,5 +14,5 @@ void main() {
     worldPos = M * vertPos;
     gl_Position = P * V * worldPos;
 
-    fragNormal = vec3(transpose(inverse(M)) * vec4(vertNor, 0.0));
+    fragNormal = vec3(M * vec4(vertNor, 0.0));
 }

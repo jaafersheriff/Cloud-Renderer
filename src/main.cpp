@@ -14,7 +14,7 @@
 
 /* Initial values */
 std::string RESOURCE_DIR = "../res/";
-glm::vec3 lightPos(100.f);
+glm::vec3 lightPos(100.f, 100.f, -100.f);
 
 /* Shaders */
 BillboardShader *billboardShader;
@@ -40,7 +40,7 @@ int main() {
     srand((unsigned int)(time(0)));  
 
     /* Init window, keyboard, and mouse wrappers */
-    if (Window::init("Clouds", 20.f)) {
+    if (Window::init("Clouds", 13.f)) {
         std::cerr << "ERROR" << std::endl;
         return 1;
     }
@@ -215,31 +215,102 @@ void initGeom() {
         -0.5f,  0.5f,  0.5f
     };
     cube->norBuf = {
-         0.f, -1.f,  0.f,
-         0.f, -1.f,  0.f,
          0.f,  0.f, -1.f,
-         0.f,  1.f,  0.f,
-         0.f,  1.f,  0.f,
+         0.f,  0.f, -1.f,
+         0.f,  0.f, -1.f,
+
+         0.f,  0.f, -1.f,
+         0.f,  0.f, -1.f,
+         0.f,  0.f, -1.f,
+
+         0.f, -1.f,  0.f,
+         0.f, -1.f,  0.f,
+         0.f, -1.f,  0.f,
+
+         0.f, -1.f,  0.f,
+         0.f, -1.f,  0.f,
+         0.f, -1.f,  0.f,
+
          0.f,  0.f,  1.f,
          0.f,  0.f,  1.f,
+         0.f,  0.f,  1.f,
+
+         0.f,  0.f,  1.f,
+         0.f,  0.f,  1.f,
+         0.f,  0.f,  1.f,
+
+         0.f,  1.f,  0.f,
+         0.f,  1.f,  0.f,
+         0.f,  1.f,  0.f,
+
+         0.f,  1.f,  0.f,
+         0.f,  1.f,  0.f,
+         0.f,  1.f,  0.f,
+
          1.f,  0.f,  0.f,
          1.f,  0.f,  0.f,
+         1.f,  0.f,  0.f,
+
+         1.f,  0.f,  0.f,
+         1.f,  0.f,  0.f,
+         1.f,  0.f,  0.f,
+
         -1.f,  0.f,  0.f,
         -1.f,  0.f,  0.f,
+        -1.f,  0.f,  0.f,
+
+        -1.f,  0.f,  0.f,
+        -1.f,  0.f,  0.f,
+        -1.f,  0.f,  0.f
     };
     cube->eleBuf = {
 		0, 1, 2,
+		2, 0, 1,
+		1, 2, 0,
+
 		2, 3, 0,
+		0, 2, 3,
+		3, 0, 2,
+
 		1, 5, 6,
+		6, 1, 5,
+		5, 6, 1,
+
 		6, 2, 1,
+		1, 6, 2,
+		2, 1, 6,
+
+		5, 7, 6,
+		6, 5, 7,
 		7, 6, 5,
+
 		5, 4, 7,
+		7, 5, 4,
+		4, 7, 5,
+
 		4, 0, 3,
+		3, 4, 0,
+		0, 3, 4,
+
 		3, 7, 4,
+		4, 3, 7,
+		7, 4, 3,
+
 		4, 5, 1,
+		1, 4, 5,
+		5, 1, 4,
+
 		1, 0, 4,
+		4, 1, 0,
+		0, 4, 1,
+
 		3, 2, 6,
+		6, 3, 2,
+		2, 6, 3,
+
 		6, 7, 3,
+		3, 6, 7,
+		7, 3, 6,
     };
     cube->init();
 }

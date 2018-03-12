@@ -15,8 +15,8 @@ bool DiffuseShader::init() {
     addAttribute("vertNor"); 
 
     addUniform("P");
-    addUniform("M");
     addUniform("V");
+    addUniform("M");
 
     addUniform("lightPos");
 }

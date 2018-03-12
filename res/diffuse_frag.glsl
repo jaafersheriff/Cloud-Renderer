@@ -8,8 +8,7 @@ uniform vec3 lightPos;
 out vec4 color;
 
 void main() {
-    vec3 lightDir = lightPos - worldPos.xyz;
-    vec3 L = normalize(lightDir);
+    vec3 L = normalize(lightPos - worldPos.xyz);
     vec3 N = normalize(fragNormal);
 
     /* Diffuse */
