@@ -28,7 +28,7 @@ bool Shader::init() {
         return false;
     }
 
-    pid = CHECK_GL_CALL(glCreateProgram());
+    pid = glCreateProgram();
     CHECK_GL_CALL(glAttachShader(pid, vShaderId));
     CHECK_GL_CALL(glAttachShader(pid, fShaderId));
     CHECK_GL_CALL(glLinkProgram(pid));

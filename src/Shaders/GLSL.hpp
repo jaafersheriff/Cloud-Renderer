@@ -28,7 +28,7 @@ std::string NumberToString(T x)
 
 namespace GLSL {
 
-    void printOpenGLErrors(const char * const Function, char const * const File, char const * const Line);
+    void printOpenGLErrors(char const * const Function, char const * const File, int const Line);
 	void printProgramInfoLog(GLuint program);
 	void printShaderInfoLog(GLuint shader);
 	void checkVersion();
@@ -37,7 +37,7 @@ namespace GLSL {
     GLuint createShader(std::string name, GLenum type);
 }
 
-#ifdef DISABLE_OPENGL_ERROR_CHECKS
+#ifdef OPENGL_ERROR_CHECKS
 #define CHECK_GL_CALL(x) do { GLSL::printOpenGLErrors("{{BEFORE}} "#x, __FILE__, __LINE__); (x); GLSL::printOpenGLErrors(#x, __FILE__, __LINE__); } while (0)
 #else
 #define CHECK_GL_CALL(x) (x)
