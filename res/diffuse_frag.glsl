@@ -14,5 +14,6 @@ void main() {
     /* Diffuse */
     float diffuseContrib = clamp(dot(L, N), 0.0, 1.0);
 
-    color = vec4(vec3(diffuseContrib), 1.0);
+    //color = vec4(vec3(diffuseContrib), 1.0);
+    color = vec4(N*0.5 + 0.5, 1.0);
 }

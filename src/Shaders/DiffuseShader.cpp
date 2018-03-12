@@ -42,16 +42,20 @@ void DiffuseShader::render(Mesh *mesh, std::vector<glm::vec3> & diffuses, glm::v
 
     /* Vertices VBO */
     int pos = getAttribute("vertPos");
-    CHECK_GL_CALL(glEnableVertexAttribArray(pos));
-    CHECK_GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, mesh->vertBufId));
-    CHECK_GL_CALL(glVertexAttribPointer(pos, 3, GL_FLOAT, GL_FALSE, 0, nullptr));
+    if (pos >= 0 && mesh->vertBufId) {
+        CHECK_GL_CALL(glEnableVertexAttribArray(pos));
+        CHECK_GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, mesh->vertBufId));
+        CHECK_GL_CALL(glVertexAttribPointer(pos, 3, GL_FLOAT, GL_FALSE, 0, nullptr));
+    }
 
     /* Normals VBO */
     pos = getAttribute("vertNor");
-    CHECK_GL_CALL(glEnableVertexAttribArray(pos));
-    CHECK_GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, mesh->norBufId));
-    CHECK_GL_CALL(glVertexAttribPointer(pos, 3, GL_FLOAT, GL_FALSE, 0, nullptr));
- 
+    if (pos >= 0 && mesh->norBufId) {
+        CHECK_GL_CALL(glEnableVertexAttribArray(pos));
+        CHECK_GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, mesh->norBufId));
+        CHECK_GL_CALL(glVertexAttribPointer(pos, 3, GL_FLOAT, GL_FALSE, 0, nullptr));
+    }
+
     /* IBO */
     CHECK_GL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->eleBufId));
 
