@@ -21,13 +21,14 @@ class VolumeShader : public Shader {
         void renderMesh(Mesh *, bool);
 
         /* Getters */
-        std::vector<glm::vec3> & getVoxelData() { return voxelData; }
+        std::vector<Spatial> & getVoxelData() { return voxelData; }
 
         bool activeVoxelize = false;
         glm::vec2 xBounds;
         glm::vec2 yBounds;
         glm::vec2 zBounds;
         int volumeSize;
+        float radius;
  
      private:
         void initVolume();
@@ -39,7 +40,7 @@ class VolumeShader : public Shader {
 
         /* Data stored in voxels */
         // TODO : a fixed-size array and write over values 
-        std::vector<glm::vec3> voxelData;
+        std::vector<Spatial> voxelData;
 };
 
 #endif

@@ -52,7 +52,7 @@ int main() {
     billboardShader = new BillboardShader(RESOURCE_DIR + "cloud_vert.glsl", RESOURCE_DIR + "cloud_frag.glsl");
     billboardShader->init(RESOURCE_DIR + "cloud.png", RESOURCE_DIR + "cloudMap.png", quad);
     volumeShader = new VolumeShader(RESOURCE_DIR + "voxelize_vert.glsl", RESOURCE_DIR + "voxelize_frag.glsl");
-    volumeShader->init(32, glm::vec2(-16.f, 16.f), glm::vec2(-16.f, 16.f), glm::vec2(-16.f, 16.f), &volQuad);
+    volumeShader->init(64, glm::vec2(-4.f, 4.f), glm::vec2(-4.f, 4.f), glm::vec2(-4.f, 4.f), &volQuad);
     diffuseShader = new DiffuseShader(RESOURCE_DIR + "diffuse_vert.glsl", RESOURCE_DIR + "diffuse_frag.glsl");
     diffuseShader->init();
 
@@ -82,6 +82,7 @@ int main() {
 
         /* Render */
         CHECK_GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+        CHECK_GL_CALL(glClearColor(0.2f, 0.3f, 0.4f, 1.f));
         if (volumeShader->activeVoxelize) {
             volumeShader->voxelize(quad);
         }

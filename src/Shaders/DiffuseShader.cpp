@@ -2,6 +2,7 @@
 
 #include "Camera.hpp"
 #include "Model/Mesh.hpp"
+#include "Spatial.hpp"
 
 #include "glm/gtc/matrix_transform.hpp"
 
@@ -22,7 +23,7 @@ bool DiffuseShader::init() {
 }
 
 // TODO : pass in voxel size
-void DiffuseShader::render(Mesh *mesh, std::vector<glm::vec3> & diffuses, glm::vec3 lightPos) {
+void DiffuseShader::render(Mesh *mesh, std::vector<Spatial> & spatials, glm::vec3 lightPos) {
     if (!enabled) {
         return;
     }
@@ -60,10 +61,10 @@ void DiffuseShader::render(Mesh *mesh, std::vector<glm::vec3> & diffuses, glm::v
     CHECK_GL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->eleBufId));
 
     glm::mat4 M;
-    for (auto position : diffuses) {
+    for (auto sp : spatials) {
         M  = glm::mat4(1.f);
-        M *= glm::translate(glm::mat4(1.f), position);
-        // TODO : scale by voxel size
+        M *= glm::scale(glm::mat4(1.f), sp.scale);
+        M *= glm::translate(glm::mat4(1.f), sp.position);
         loadMat4(getUniform("M"), &M);
 
         CHECK_GL_CALL(glDrawElements(GL_TRIANGLES, (int)mesh->eleBuf.size(), GL_UNSIGNED_INT, nullptr));

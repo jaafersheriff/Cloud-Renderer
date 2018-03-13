@@ -29,6 +29,11 @@ bool VolumeShader::init(int size, glm::vec2 x, glm::vec2 y, glm::vec2 z, Spatial
     addUniform("voxelSize");
     addUniform("voxelize");
 
+    addUniform("center");
+    addUniform("scale");
+
+    addUniform("camPos");
+
     addUniform("volume");
 
     initVolume();
@@ -80,7 +85,12 @@ void VolumeShader::voxelize(Mesh *mesh) {
         float b = buffer[i + 2];
         float a = buffer[i + 3];
         if (r || g || b || a) {
-            voxelData.push_back(glm::vec3(in) - volumeSize/2.f);
+            glm::vec3 pos = glm::vec3(in) - volumeSize / 2.f;
+            glm::vec3 scale = glm::vec3(
+                (xBounds.y - xBounds.x) / volumeSize,
+                (yBounds.y - yBounds.x) / volumeSize,
+                (zBounds.y - zBounds.x) / volumeSize);
+            voxelData.push_back(Spatial(pos, scale, glm::vec3(0.f)));
         }
     }
 
@@ -104,6 +114,9 @@ void VolumeShader::renderMesh(Mesh *mesh, bool voxelize) {
     loadVec2(getUniform("yBounds"), yBounds);
     loadVec2(getUniform("zBounds"), zBounds);
     loadBool(getUniform("voxelize"), voxelize);
+    loadVec3(getUniform("center"), volQuad->position);
+    loadFloat(getUniform("scale"), volQuad->scale.x);
+    loadVec3(getUniform("camPos"), Camera::getPosition());
  
     /* Bind quad */
     /* VAO */

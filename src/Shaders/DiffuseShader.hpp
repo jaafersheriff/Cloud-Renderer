@@ -7,6 +7,7 @@
 #include <vector>
 
 class Mesh;
+class Spatial;
 class DiffuseShader : public Shader {
     public:
         DiffuseShader(std::string vertex, std::string fragment) :
@@ -15,7 +16,7 @@ class DiffuseShader : public Shader {
 
         bool init();
 
-        void render(Mesh *mesh, std::vector<glm::vec3> &, glm::vec3);
+        void render(Mesh *mesh, std::vector<Spatial> &, glm::vec3);
 };
 
 #endif

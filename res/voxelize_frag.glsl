@@ -9,6 +9,11 @@ uniform vec2 zBounds;
 uniform int voxelSize;
 uniform bool voxelize;
 
+uniform vec3 center;
+uniform float scale;
+
+uniform vec3 camPos;
+
 layout(binding=1, rgba32f) uniform image3D volume;
 
 out vec4 color;
@@ -28,14 +33,14 @@ ivec3 voxelIndex(vec3 pos) {
 }
 
 void main() {
-    color = vec4(1, 0, 0, 1);
+    float dist = (distance(center, fragPos)/scale) * -1 + 1;
+    color = vec4(dist);
     if(voxelize) {
+        float radius = 10;
+        vec3 dir = camPos - fragPos;
         ivec3 i = voxelIndex(fragPos);
-        imageStore(volume, i, vec4(1, 1, 1, 1));
-
-		/*for(int xx=0;xx<3;xx++)
-			for(int yy=0;yy<3;yy++)
-				for(int zz=0;zz<3;zz++)
-					imageStore(volume, ivec3(3+xx*2,3+yy*2,3+zz*2), vec4(1,0,0,0));*/
+        for(float j = 0; j < radius * dist; j += 1) {
+            imageStore(volume, i + ivec3(dir * j), vec4(1, 0, 0, 0));
+        }
     }
 }
