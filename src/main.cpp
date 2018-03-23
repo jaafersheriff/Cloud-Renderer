@@ -52,7 +52,7 @@ int main() {
     billboardShader = new BillboardShader(RESOURCE_DIR + "cloud_vert.glsl", RESOURCE_DIR + "cloud_frag.glsl");
     billboardShader->init(RESOURCE_DIR + "cloud.png", RESOURCE_DIR + "cloudMap.png", quad);
     volumeShader = new VolumeShader(RESOURCE_DIR + "voxelize_vert.glsl", RESOURCE_DIR + "voxelize_frag.glsl");
-    volumeShader->init(64, glm::vec2(-4.f, 4.f), glm::vec2(-4.f, 4.f), glm::vec2(-4.f, 4.f), &volQuad);
+    volumeShader->init(32, glm::vec2(-8.f, 8.f), glm::vec2(-8.f, 8.f), glm::vec2(-8.f, 8.f), &volQuad);
     diffuseShader = new DiffuseShader(RESOURCE_DIR + "diffuse_vert.glsl", RESOURCE_DIR + "diffuse_frag.glsl");
     diffuseShader->init();
 
@@ -79,10 +79,12 @@ int main() {
                 func();
             }
         }
-
-        /* Render */
+    
+        ///////////////////////////////////////////////////
+        //                   RENDER                      //       
+        ///////////////////////////////////////////////////
         CHECK_GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
-        CHECK_GL_CALL(glClearColor(0.2f, 0.3f, 0.4f, 1.f));
+        CHECK_GL_CALL(glClearColor(0.2f, 0.3f, 0.5f, 1.f));
         if (volumeShader->activeVoxelize) {
             volumeShader->voxelize(quad);
         }
@@ -168,11 +170,11 @@ void createImGuiPanes() {
         [&]() {
             ImGui::Begin("Volume");
             ImGui::Text("Voxels in scene : %d", volumeShader->getVoxelData().size());
-            ImGui::SliderFloat3("Position", glm::value_ptr(volQuad.position), -100.f, 100.f);
+            ImGui::SliderFloat3("Position", glm::value_ptr(volQuad.position), -20.f, 20.f);
             ImGui::SliderFloat("Scale", &volQuad.scale.x, 0.f, 10.f);
-            //ImGui::SliderFloat2("XBounds", glm::value_ptr(volumeShader->xBounds), -20.f, 20.f);
-            //ImGui::SliderFloat2("YBounds", glm::value_ptr(volumeShader->yBounds), -20.f, 20.f);
-            //ImGui::SliderFloat2("ZBounds", glm::value_ptr(volumeShader->zBounds), -20.f, 20.f);
+            ImGui::SliderFloat2("XBounds", glm::value_ptr(volumeShader->xBounds), -20.f, 20.f);
+            ImGui::SliderFloat2("YBounds", glm::value_ptr(volumeShader->yBounds), -20.f, 20.f);
+            ImGui::SliderFloat2("ZBounds", glm::value_ptr(volumeShader->zBounds), -20.f, 20.f);
             //ImGui::SliderInt("Volume Size", &volumeShader->volumeSize, 0, 256);
 
             bool b = volumeShader->isEnabled();
