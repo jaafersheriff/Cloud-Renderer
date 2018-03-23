@@ -9,7 +9,7 @@ class LightShader : public Shader {
     public:
         LightShader(const std::string vert, const std::string frag);
 
-        bool init(int);
+        bool init();
 
         void render();
 

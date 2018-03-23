@@ -6,6 +6,7 @@
 #include "Shaders/BillboardShader.hpp"
 #include "Shaders/VolumeShader.hpp"
 #include "Shaders/DiffuseShader.hpp"
+#include "Shaders/LightShader.hpp"
 
 #include "ThirdParty/imgui/imgui.h"
 
@@ -17,9 +18,10 @@ std::string RESOURCE_DIR = "../res/";
 glm::vec3 lightPos(100.f, 100.f, -100.f);
 
 /* Shaders */
-BillboardShader *billboardShader;
-VolumeShader *volumeShader;
-DiffuseShader *diffuseShader;
+BillboardShader * billboardShader;
+VolumeShader * volumeShader;
+DiffuseShader * diffuseShader;
+LightShader * lightShader;
 
 /* Volume quad */
 Spatial volQuad(glm::vec3(5.f, 0.f, 0.f), glm::vec3(4.f), glm::vec3(0.f));
@@ -55,6 +57,8 @@ int main() {
     volumeShader->init(32, glm::vec2(-8.f, 8.f), glm::vec2(-8.f, 8.f), glm::vec2(-8.f, 8.f), &volQuad);
     diffuseShader = new DiffuseShader(RESOURCE_DIR + "diffuse_vert.glsl", RESOURCE_DIR + "diffuse_frag.glsl");
     diffuseShader->init();
+    lightShader = new LightShader(RESOURCE_DIR + "light_vert.glsl", RESOURCE_DIR + "light_frag.glsl");
+    lightShader->init();
 
     /* Init ImGui Panes */
     createImGuiPanes();
@@ -83,6 +87,8 @@ int main() {
         ///////////////////////////////////////////////////
         //                   RENDER                      //       
         ///////////////////////////////////////////////////
+        lightShader->render();
+
         CHECK_GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
         CHECK_GL_CALL(glClearColor(0.2f, 0.3f, 0.5f, 1.f));
         if (volumeShader->activeVoxelize) {

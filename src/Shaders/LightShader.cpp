@@ -1,18 +1,20 @@
 #include "LightShader.hpp"
 
+#define DEFAULT_SIZE 1024
+
 LightShader::LightShader(const std::string vert, const std::string frag) :
     Shader(vert, frag) {
     lightMap = new Texture();
 }
 
-bool LightShader::init(int size) {
+bool LightShader::init() {
     if (!Shader::init()) {
         return false;
     }
 
     addAttribute("vertPos");
 
-    lightMap->width = lightMap->height = size;
+    lightMap->width = lightMap->height = DEFAULT_SIZE;
     initFBO();
 
     return true;
