@@ -52,6 +52,9 @@
     <ClCompile Include="ThirdParty\imgui\imgui.cpp">
       <Filter>src\ThirdParty\imgui</Filter>
     </ClCompile>
+    <ClCompile Include="Shaders\LightShader.cpp">
+      <Filter>src\Shaders</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="ext">
@@ -142,6 +145,9 @@
     </ClInclude>
     <ClInclude Include="Spatial.hpp">
       <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="Shaders\LightShader.hpp">
+      <Filter>src\Shaders</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
