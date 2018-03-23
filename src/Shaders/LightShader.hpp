@@ -3,7 +3,9 @@
 #define _LIGHT_SHADER_HPP_
 
 #include "Shader.hpp"
+#include "Model/Mesh.hpp"
 #include "Model/Texture.hpp"
+#include "Spatial.hpp"
 
 class LightShader : public Shader {
     public:
@@ -11,10 +13,11 @@ class LightShader : public Shader {
 
         bool init();
 
-        void render();
+        void render(Mesh *, std::vector<Spatial> &);
 
-    private:
         Texture * lightMap;
+        void setTextureSize(int);
+    private:
         void initFBO();
         GLuint fboHandle;
 

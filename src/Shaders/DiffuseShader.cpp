@@ -22,7 +22,6 @@ bool DiffuseShader::init() {
     addUniform("lightPos");
 }
 
-// TODO : pass in voxel size
 void DiffuseShader::render(Mesh *mesh, std::vector<Spatial> & spatials, glm::vec3 lightPos) {
     if (!enabled) {
         return;

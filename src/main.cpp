@@ -87,8 +87,6 @@ int main() {
         ///////////////////////////////////////////////////
         //                   RENDER                      //       
         ///////////////////////////////////////////////////
-        lightShader->render();
-
         CHECK_GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
         CHECK_GL_CALL(glClearColor(0.2f, 0.3f, 0.5f, 1.f));
         if (volumeShader->activeVoxelize) {
@@ -101,6 +99,8 @@ int main() {
         }
         billboardShader->render(lightPos, cloudsBillboards);
         diffuseShader->render(cube, volumeShader->getVoxelData(), lightPos);
+        lightShader->render(cube, volumeShader->getVoxelData());
+
         if (Window::isImGuiEnabled()) {
             ImGui::Render();
         }
@@ -124,6 +124,10 @@ void createImGuiPanes() {
         [&]() {
             ImGui::Begin("Light");
             ImGui::SliderFloat3("Position", glm::value_ptr(lightPos), -100.f, 100.f);
+            int size = lightShader->lightMap->width;
+            ImGui::SliderInt("Map size", &size, 512, 4096);
+            lightShader->setTextureSize(size);
+            ImGui::Image((ImTextureID) lightShader->lightMap->textureId, ImVec2(256, 256));
             ImGui::End();
         } 
     );
