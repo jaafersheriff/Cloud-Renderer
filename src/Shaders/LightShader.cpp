@@ -18,6 +18,9 @@ bool LightShader::init() {
 
     addAttribute("vertPos");
 
+    addUniform("L");
+    addUniform("M");
+
     lightMap->width = lightMap->height = DEFAULT_SIZE;
     initFBO();
 
@@ -33,7 +36,9 @@ void LightShader::render(Mesh *mesh, std::vector<Spatial> & spatials) {
     bind();
     
     /* Calculate L */
-    this->L = Camera::getP() * Camera::getV();
+    glm::mat4 lightP = glm::ortho(-10.f, 10.f, -10.f, 10.f, 0.01f, 100.f);
+    glm::mat4 lightV = glm::lookAt(glm::vec3(1, -1, -1) * 5.f, glm::vec3(0.f), glm::vec3(0, 1, 0));
+    this->L = lightP * lightV;
     loadMat4(getUniform("L"), &L);
 
     /* Bind mesh */

@@ -70,6 +70,8 @@
     <None Include="..\res\cloud_vert.glsl" />
     <None Include="..\res\diffuse_frag.glsl" />
     <None Include="..\res\diffuse_vert.glsl" />
+    <None Include="..\res\light_frag.glsl" />
+    <None Include="..\res\light_vert.glsl" />
     <None Include="..\res\voxelize_frag.glsl" />
     <None Include="..\res\voxelize_vert.glsl" />
     <None Include="ThirdParty\imgui\LICENSE" />

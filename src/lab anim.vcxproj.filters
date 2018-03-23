@@ -175,5 +175,11 @@
     <None Include="ThirdParty\imgui\LICENSE">
       <Filter>src\ThirdParty\imgui</Filter>
     </None>
+    <None Include="..\res\light_vert.glsl">
+      <Filter>glsl</Filter>
+    </None>
+    <None Include="..\res\light_frag.glsl">
+      <Filter>glsl</Filter>
+    </None>
   </ItemGroup>
 </Project>
