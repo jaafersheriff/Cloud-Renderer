@@ -1,15 +1,15 @@
 #pragma once
-#ifndef _LIGHT_SHADER_HPP_
-#define _LIGHT_SHADER_HPP_
+#ifndef _LIGHT_DEPTH_SHADER_HPP_
+#define _LIGHT_DEPTH_SHADER_HPP_
 
 #include "Shader.hpp"
 #include "Model/Mesh.hpp"
 #include "Model/Texture.hpp"
 #include "Spatial.hpp"
 
-class LightShader : public Shader {
+class LightDepthShader : public Shader {
     public:
-        LightShader(const std::string vert, const std::string frag);
+        LightDepthShader(const std::string vert, const std::string frag);
 
         bool init();
 

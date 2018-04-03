@@ -1,4 +1,4 @@
-#include "LightShader.hpp"
+#include "LightDepthShader.hpp"
 
 #include "Camera.hpp"
 
@@ -6,12 +6,12 @@
 
 #define DEFAULT_SIZE 1024
 
-LightShader::LightShader(const std::string vert, const std::string frag) :
+LightDepthShader::LightDepthShader(const std::string vert, const std::string frag) :
     Shader(vert, frag) {
     lightMap = new Texture();
 }
 
-bool LightShader::init() {
+bool LightDepthShader::init() {
     if (!Shader::init()) {
         return false;
     }
@@ -27,7 +27,7 @@ bool LightShader::init() {
     return true;
 }
 
-void LightShader::render(Mesh *mesh, std::vector<Spatial> & spatials) {
+void LightDepthShader::render(Mesh *mesh, std::vector<Spatial> & spatials) {
     /* Reset light map */
     CHECK_GL_CALL(glViewport(0, 0, lightMap->width, lightMap->height));
     CHECK_GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, fboHandle));
@@ -70,14 +70,14 @@ void LightShader::render(Mesh *mesh, std::vector<Spatial> & spatials) {
     CHECK_GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 }
 
-void LightShader::setTextureSize(int size) {
+void LightDepthShader::setTextureSize(int size) {
     lightMap->width = lightMap->height = size;
     CHECK_GL_CALL(glBindTexture(GL_TEXTURE_2D, lightMap->textureId));
     CHECK_GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, size, size, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL));
     CHECK_GL_CALL(glBindTexture(GL_TEXTURE_2D, 0));
 }
 
-void LightShader::initFBO() {
+void LightDepthShader::initFBO() {
     /* Generate the FBO for the shadow depth */
     CHECK_GL_CALL(glGenFramebuffers(1, &fboHandle));
 

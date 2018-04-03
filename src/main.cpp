@@ -6,7 +6,7 @@
 #include "Shaders/BillboardShader.hpp"
 #include "Shaders/VolumeShader.hpp"
 #include "Shaders/DiffuseShader.hpp"
-#include "Shaders/LightShader.hpp"
+#include "Shaders/LightDepthShader.hpp"
 
 #include "ThirdParty/imgui/imgui.h"
 
@@ -21,7 +21,7 @@ glm::vec3 lightPos(100.f, 100.f, -100.f);
 BillboardShader * billboardShader;
 VolumeShader * volumeShader;
 DiffuseShader * diffuseShader;
-LightShader * lightShader;
+LightDepthShader * lightDepthShader;
 
 /* Volume quad */
 Spatial volQuad(glm::vec3(5.f, 0.f, 0.f), glm::vec3(4.f), glm::vec3(0.f));
@@ -57,8 +57,8 @@ int main() {
     volumeShader->init(32, glm::vec2(-8.f, 8.f), glm::vec2(-8.f, 8.f), glm::vec2(-8.f, 8.f), &volQuad);
     diffuseShader = new DiffuseShader(RESOURCE_DIR + "diffuse_vert.glsl", RESOURCE_DIR + "diffuse_frag.glsl");
     diffuseShader->init();
-    lightShader = new LightShader(RESOURCE_DIR + "light_vert.glsl", RESOURCE_DIR + "light_frag.glsl");
-    lightShader->init();
+    lightDepthShader = new LightDepthShader(RESOURCE_DIR + "light_vert.glsl", RESOURCE_DIR + "light_frag.glsl");
+    lightDepthShader->init();
 
     /* Init ImGui Panes */
     createImGuiPanes();
@@ -99,7 +99,7 @@ int main() {
         }
         billboardShader->render(lightPos, cloudsBillboards);
         diffuseShader->render(cube, volumeShader->getVoxelData(), lightPos);
-        lightShader->render(cube, volumeShader->getVoxelData());
+        lightDepthShader->render(cube, volumeShader->getVoxelData());
 
         if (Window::isImGuiEnabled()) {
             ImGui::Render();
@@ -124,10 +124,10 @@ void createImGuiPanes() {
         [&]() {
             ImGui::Begin("Light");
             ImGui::SliderFloat3("Position", glm::value_ptr(lightPos), -100.f, 100.f);
-            int size = lightShader->lightMap->width;
+            int size = lightDepthShader->lightMap->width;
             ImGui::SliderInt("Map size", &size, 512, 4096);
-            lightShader->setTextureSize(size);
-            ImGui::Image((ImTextureID) lightShader->lightMap->textureId, ImVec2(256, 256));
+            lightDepthShader->setTextureSize(size);
+            ImGui::Image((ImTextureID) lightDepthShader->lightMap->textureId, ImVec2(256, 256));
             ImGui::End();
         } 
     );

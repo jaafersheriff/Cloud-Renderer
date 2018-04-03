@@ -30,7 +30,7 @@
     <ClCompile Include="Shaders\BillboardShader.cpp" />
     <ClCompile Include="Shaders\GLSL.cpp" />
     <ClCompile Include="Shaders\DiffuseShader.cpp" />
-    <ClCompile Include="Shaders\LightShader.cpp" />
+    <ClCompile Include="Shaders\LightDepthShader.cpp" />
     <ClCompile Include="Shaders\Shader.cpp" />
     <ClCompile Include="Shaders\VolumeShader.cpp" />
     <ClCompile Include="ThirdParty\imgui\imgui.cpp" />
@@ -40,7 +40,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.hpp" />
-    <ClInclude Include="Shaders\LightShader.hpp" />
+    <ClInclude Include="Shaders\LightDepthShader.hpp" />
     <ClInclude Include="Spatial.hpp" />
     <ClInclude Include="IO\Keyboard.hpp" />
     <ClInclude Include="IO\Mouse.hpp" />
