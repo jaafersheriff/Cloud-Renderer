@@ -36,10 +36,7 @@ void main() {
     float dist = (distance(center, fragPos)/scale) * -1 + 1;
     color = vec4(dist);
     if(voxelize) {
-        imageStore(volume, voxelIndex(fragPos), vec4(1, 0, 0, 0));
-
         float radius = scale/2;
-        ivec3 i = voxelIndex(fragPos);
         for(float j = 0; j < radius * dist; j += 0.2f) {
             imageStore(volume, voxelIndex(fragPos + normal * j), vec4(1, 0, 0, 0));
         }
