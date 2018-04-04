@@ -27,7 +27,7 @@ bool LightDepthShader::init() {
     return true;
 }
 
-void LightDepthShader::render(Mesh *mesh, std::vector<Spatial> & spatials) {
+void LightDepthShader::render(glm::vec3 lightPos, Mesh * mesh, std::vector<Spatial> & spatials) {
     /* Reset light map */
     CHECK_GL_CALL(glViewport(0, 0, lightMap->width, lightMap->height));
     CHECK_GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, fboHandle));
@@ -37,7 +37,7 @@ void LightDepthShader::render(Mesh *mesh, std::vector<Spatial> & spatials) {
     
     /* Calculate L */
     glm::mat4 lightP = glm::ortho(-10.f, 10.f, -10.f, 10.f, 0.01f, 100.f);
-    glm::mat4 lightV = glm::lookAt(glm::vec3(1, -1, -1) * 5.f, glm::vec3(0.f), glm::vec3(0, 1, 0));
+    glm::mat4 lightV = glm::lookAt(lightPos, glm::vec3(0.f), glm::vec3(0, 1, 0));
     this->L = lightP * lightV;
     loadMat4(getUniform("L"), &L);
 
