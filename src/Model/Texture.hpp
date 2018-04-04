@@ -15,6 +15,7 @@ class Texture {
         GLuint textureId = 0;
 
         Texture(std::string);
+        Texture();
 
         int width;
         int height;

@@ -32,7 +32,7 @@ bool VolumeShader::init(int size, glm::vec2 x, glm::vec2 y, glm::vec2 z, Spatial
     addUniform("center");
     addUniform("scale");
 
-    addUniform("camPos");
+    addUniform("normal");
 
     addUniform("volume");
 
@@ -79,13 +79,13 @@ void VolumeShader::voxelize(Mesh *mesh) {
     CHECK_GL_CALL(glGetTexImage(GL_TEXTURE_3D, 0, GL_RGBA, GL_FLOAT, buffer.data()));
 
     for (int i = 0; i < buffer.size(); i += 4) {
-    	glm::ivec3 in = get3DIndices(i, 4);
         float r = buffer[i + 0];
         float g = buffer[i + 1];
         float b = buffer[i + 2];
         float a = buffer[i + 3];
         if (r || g || b || a) {
-            glm::vec3 pos = glm::vec3(in) - volumeSize / 2.f;
+            glm::ivec3 in = get3DIndices(i);        // voxel index 
+            glm::vec3 pos = reverseVoxelIndex(in);  // world space
             glm::vec3 scale = glm::vec3(
                 (xBounds.y - xBounds.x) / volumeSize,
                 (yBounds.y - yBounds.x) / volumeSize,
@@ -116,7 +116,7 @@ void VolumeShader::renderMesh(Mesh *mesh, bool voxelize) {
     loadBool(getUniform("voxelize"), voxelize);
     loadVec3(getUniform("center"), volQuad->position);
     loadFloat(getUniform("scale"), volQuad->scale.x);
-    loadVec3(getUniform("camPos"), Camera::getPosition());
+    loadVec3(getUniform("normal"), glm::normalize(Camera::getPosition() - volQuad->position));
  
     /* Bind quad */
     /* VAO */
@@ -139,12 +139,24 @@ void VolumeShader::renderMesh(Mesh *mesh, bool voxelize) {
     glBindVertexArray(0);
 }
 
-/* bpp - bytes per pixel */
-glm::ivec3 VolumeShader::get3DIndices(int index, int bpp) {
-	int line = volumeSize * bpp;
+// Assume 4 bytes per voxel
+glm::ivec3 VolumeShader::get3DIndices(int index) {
+	int line = volumeSize * 4;
 	int slice = volumeSize  * line;
 	int z = index / slice;
 	int y = (index - z * slice) / line;
-	int x = (index - z * slice - y * line) / bpp;
+	int x = (index - z * slice - y * line) / 4;
 	return glm::ivec3(x, y, z);
+}
+
+glm::vec3 VolumeShader::reverseVoxelIndex(glm::ivec3 voxelIndex) {
+    float xRange = xBounds.y - xBounds.x;
+    float yRange = yBounds.y - yBounds.x;
+    float zRange = zBounds.y - zBounds.x;
+
+    float x = float(voxelIndex.x) * xRange / volumeSize + xBounds.x;
+    float y = float(voxelIndex.y) * yRange / volumeSize + yBounds.x;
+    float z = float(voxelIndex.z) * zRange / volumeSize + zBounds.x;
+
+    return glm::vec3(x, y, z);
 }

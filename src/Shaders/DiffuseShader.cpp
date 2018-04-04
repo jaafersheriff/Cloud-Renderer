@@ -19,11 +19,12 @@ bool DiffuseShader::init() {
     addUniform("V");
     addUniform("M");
 
+    addUniform("isOutline");
+
     addUniform("lightPos");
 }
 
-// TODO : pass in voxel size
-void DiffuseShader::render(Mesh *mesh, std::vector<Spatial> & spatials, glm::vec3 lightPos) {
+void DiffuseShader::render(glm::vec3 lightPos, Mesh *mesh, std::vector<Spatial> & spatials) {
     if (!enabled) {
         return;
     }
@@ -60,14 +61,23 @@ void DiffuseShader::render(Mesh *mesh, std::vector<Spatial> & spatials, glm::vec
     /* IBO */
     CHECK_GL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->eleBufId));
 
+
     glm::mat4 M;
     for (auto sp : spatials) {
         M  = glm::mat4(1.f);
-        M *= glm::scale(glm::mat4(1.f), sp.scale);
         M *= glm::translate(glm::mat4(1.f), sp.position);
+        M *= glm::scale(glm::mat4(1.f), sp.scale);
         loadMat4(getUniform("M"), &M);
 
+        /* Draw shape */
+        loadBool(getUniform("isOutline"), false);
         CHECK_GL_CALL(glDrawElements(GL_TRIANGLES, (int)mesh->eleBuf.size(), GL_UNSIGNED_INT, nullptr));
+
+        /* Draw outline */
+        loadBool(getUniform("isOutline"), true);
+        CHECK_GL_CALL(glPolygonMode(GL_FRONT_AND_BACK, GL_LINE));
+        CHECK_GL_CALL(glDrawElements(GL_TRIANGLES, (int)mesh->eleBuf.size(), GL_UNSIGNED_INT, nullptr));
+        CHECK_GL_CALL(glPolygonMode(GL_FRONT_AND_BACK, GL_FILL));
     }
 
     CHECK_GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, 0));

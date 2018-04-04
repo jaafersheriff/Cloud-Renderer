@@ -17,6 +17,11 @@ Texture::Texture(std::string fileName) {
     stbi_image_free(data);
 }
 
+Texture::Texture() {
+    width = height = components = -1;
+
+}
+
 uint8_t* Texture::loadImageData(const std::string fileName) {
     uint8_t *data;
 

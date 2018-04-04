@@ -6,6 +6,7 @@
 #include "Shaders/BillboardShader.hpp"
 #include "Shaders/VolumeShader.hpp"
 #include "Shaders/DiffuseShader.hpp"
+#include "Shaders/LightDepthShader.hpp"
 
 #include "ThirdParty/imgui/imgui.h"
 
@@ -17,9 +18,10 @@ std::string RESOURCE_DIR = "../res/";
 glm::vec3 lightPos(100.f, 100.f, -100.f);
 
 /* Shaders */
-BillboardShader *billboardShader;
-VolumeShader *volumeShader;
-DiffuseShader *diffuseShader;
+BillboardShader * billboardShader;
+VolumeShader * volumeShader;
+DiffuseShader * diffuseShader;
+LightDepthShader * lightDepthShader;
 
 /* Volume quad */
 Spatial volQuad(glm::vec3(5.f, 0.f, 0.f), glm::vec3(4.f), glm::vec3(0.f));
@@ -52,9 +54,11 @@ int main() {
     billboardShader = new BillboardShader(RESOURCE_DIR + "cloud_vert.glsl", RESOURCE_DIR + "cloud_frag.glsl");
     billboardShader->init(RESOURCE_DIR + "cloud.png", RESOURCE_DIR + "cloudMap.png", quad);
     volumeShader = new VolumeShader(RESOURCE_DIR + "voxelize_vert.glsl", RESOURCE_DIR + "voxelize_frag.glsl");
-    volumeShader->init(64, glm::vec2(-4.f, 4.f), glm::vec2(-4.f, 4.f), glm::vec2(-4.f, 4.f), &volQuad);
+    volumeShader->init(32, glm::vec2(-8.f, 8.f), glm::vec2(-8.f, 8.f), glm::vec2(-8.f, 8.f), &volQuad);
     diffuseShader = new DiffuseShader(RESOURCE_DIR + "diffuse_vert.glsl", RESOURCE_DIR + "diffuse_frag.glsl");
     diffuseShader->init();
+    lightDepthShader = new LightDepthShader(RESOURCE_DIR + "light_vert.glsl", RESOURCE_DIR + "light_frag.glsl");
+    lightDepthShader->init();
 
     /* Init ImGui Panes */
     createImGuiPanes();
@@ -79,10 +83,12 @@ int main() {
                 func();
             }
         }
-
-        /* Render */
+    
+        ///////////////////////////////////////////////////
+        //                   RENDER                      //       
+        ///////////////////////////////////////////////////
         CHECK_GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
-        CHECK_GL_CALL(glClearColor(0.2f, 0.3f, 0.4f, 1.f));
+        CHECK_GL_CALL(glClearColor(0.2f, 0.3f, 0.5f, 1.f));
         if (volumeShader->activeVoxelize) {
             volumeShader->voxelize(quad);
         }
@@ -92,7 +98,9 @@ int main() {
             volumeShader->unbind();
         }
         billboardShader->render(lightPos, cloudsBillboards);
-        diffuseShader->render(cube, volumeShader->getVoxelData(), lightPos);
+        diffuseShader->render(lightPos, cube, volumeShader->getVoxelData());
+        lightDepthShader->render(lightPos, cube, volumeShader->getVoxelData());
+
         if (Window::isImGuiEnabled()) {
             ImGui::Render();
         }
@@ -116,6 +124,10 @@ void createImGuiPanes() {
         [&]() {
             ImGui::Begin("Light");
             ImGui::SliderFloat3("Position", glm::value_ptr(lightPos), -100.f, 100.f);
+            int size = lightDepthShader->lightMap->width;
+            ImGui::SliderInt("Map size", &size, 512, 4096);
+            lightDepthShader->setTextureSize(size);
+            ImGui::Image((ImTextureID) lightDepthShader->lightMap->textureId, ImVec2(256, 256));
             ImGui::End();
         } 
     );
@@ -168,11 +180,11 @@ void createImGuiPanes() {
         [&]() {
             ImGui::Begin("Volume");
             ImGui::Text("Voxels in scene : %d", volumeShader->getVoxelData().size());
-            ImGui::SliderFloat3("Position", glm::value_ptr(volQuad.position), -100.f, 100.f);
+            ImGui::SliderFloat3("Position", glm::value_ptr(volQuad.position), -20.f, 20.f);
             ImGui::SliderFloat("Scale", &volQuad.scale.x, 0.f, 10.f);
-            //ImGui::SliderFloat2("XBounds", glm::value_ptr(volumeShader->xBounds), -20.f, 20.f);
-            //ImGui::SliderFloat2("YBounds", glm::value_ptr(volumeShader->yBounds), -20.f, 20.f);
-            //ImGui::SliderFloat2("ZBounds", glm::value_ptr(volumeShader->zBounds), -20.f, 20.f);
+            ImGui::SliderFloat2("XBounds", glm::value_ptr(volumeShader->xBounds), -20.f, 20.f);
+            ImGui::SliderFloat2("YBounds", glm::value_ptr(volumeShader->yBounds), -20.f, 20.f);
+            ImGui::SliderFloat2("ZBounds", glm::value_ptr(volumeShader->zBounds), -20.f, 20.f);
             //ImGui::SliderInt("Volume Size", &volumeShader->volumeSize, 0, 256);
 
             bool b = volumeShader->isEnabled();
@@ -206,42 +218,70 @@ void initGeom() {
     /* Create cube */
     cube = new Mesh;
     cube->vertBuf = {
+        -0.5f, -0.5f, -0.5f,
          0.5f,  0.5f, -0.5f,
          0.5f, -0.5f, -0.5f,
+        -0.5f,  0.5f, -0.5f,
         -0.5f, -0.5f, -0.5f,
+        -0.5f,  0.5f,  0.5f,
+        -0.5f,  0.5f, -0.5f,
+        -0.5f, -0.5f,  0.5f,
         -0.5f,  0.5f, -0.5f,
          0.5f,  0.5f,  0.5f,
+         0.5f,  0.5f, -0.5f,
+        -0.5f,  0.5f,  0.5f,
+         0.5f, -0.5f, -0.5f,
+         0.5f,  0.5f, -0.5f,
+         0.5f,  0.5f,  0.5f,
+         0.5f, -0.5f,  0.5f,
+        -0.5f, -0.5f, -0.5f,
+         0.5f, -0.5f, -0.5f,
          0.5f, -0.5f,  0.5f,
         -0.5f, -0.5f,  0.5f,
+        -0.5f, -0.5f,  0.5f,
+         0.5f, -0.5f,  0.5f,
+         0.5f,  0.5f,  0.5f,
         -0.5f,  0.5f,  0.5f
     };
     cube->norBuf = {
-         0.f, -1.f,  0.f,
-         0.f,  0.f, -1.f,
-         0.f, -1.f,  0.f,
-         0.f,  0.f, -1.f,
-         0.f,  1.f,  0.f,
-         0.f,  0.f,  1.f,
-         0.f,  1.f,  0.f,
-        -1.f,  0.f,  0.f,
-         0.f,  0.f,  1.f,
-         1.f,  0.f,  0.f,
-        -1.f,  0.f,  0.f,
-         1.f,  0.f,  0.f,
+         0,  0, -1,
+         0,  0, -1,
+         0,  0, -1,
+         0,  0, -1,
+        -1,  0,  0,
+        -1,  0,  0,
+        -1,  0,  0,
+        -1,  0,  0,
+         0,  1,  0,
+         0,  1,  0,
+         0,  1,  0,
+         0,  1,  0,
+         1,  0,  0,
+         1,  0,  0,
+         1,  0,  0,
+         1,  0,  0,
+         0, -1,  0,
+         0, -1,  0,
+         0, -1,  0,
+         0, -1,  0,
+         0,  0,  1,
+         0,  0,  1,
+         0,  0,  1,
+         0,  0,  1,
     };
     cube->eleBuf = {
-		0, 1, 2,
-		2, 3, 0,
-		1, 5, 6,
-		6, 2, 1,
-		5, 7, 6,
-		5, 4, 7,
-		4, 0, 3,
-		3, 7, 4,
-		4, 5, 1,
-		1, 0, 4,
-		3, 2, 6,
-		6, 7, 3,
+         0,  1,  2,
+         0,  3,  1,
+         4,  5,  6,
+         4,  7,  5,
+         8,  9, 10,
+         8, 11,  9,
+        12, 13, 14,
+        12, 14, 15,
+        16, 17, 18,
+        16, 18, 19,
+        20, 21, 22,
+        20, 22, 23,
     };
     cube->init();
 }

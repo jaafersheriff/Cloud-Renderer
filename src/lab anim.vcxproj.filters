@@ -52,6 +52,9 @@
     <ClCompile Include="ThirdParty\imgui\imgui.cpp">
       <Filter>src\ThirdParty\imgui</Filter>
     </ClCompile>
+    <ClCompile Include="Shaders\LightDepthShader.cpp">
+      <Filter>src\Shaders</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="ext">
@@ -143,6 +146,9 @@
     <ClInclude Include="Spatial.hpp">
       <Filter>src</Filter>
     </ClInclude>
+    <ClInclude Include="Shaders\LightDepthShader.hpp">
+      <Filter>src\Shaders</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\CMakeLists.txt" />
@@ -168,6 +174,12 @@
     </None>
     <None Include="ThirdParty\imgui\LICENSE">
       <Filter>src\ThirdParty\imgui</Filter>
+    </None>
+    <None Include="..\res\light_vert.glsl">
+      <Filter>glsl</Filter>
+    </None>
+    <None Include="..\res\light_frag.glsl">
+      <Filter>glsl</Filter>
     </None>
   </ItemGroup>
 </Project>
