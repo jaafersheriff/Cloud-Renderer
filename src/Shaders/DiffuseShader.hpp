@@ -16,7 +16,7 @@ class DiffuseShader : public Shader {
 
         bool init();
 
-        void render(Mesh *mesh, std::vector<Spatial> &, glm::vec3);
+        void render(glm::vec3, Mesh *mesh, std::vector<Spatial> &);
 };
 
 #endif

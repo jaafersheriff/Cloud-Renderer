@@ -24,7 +24,7 @@ bool DiffuseShader::init() {
     addUniform("lightPos");
 }
 
-void DiffuseShader::render(Mesh *mesh, std::vector<Spatial> & spatials, glm::vec3 lightPos) {
+void DiffuseShader::render(glm::vec3 lightPos, Mesh *mesh, std::vector<Spatial> & spatials) {
     if (!enabled) {
         return;
     }

@@ -98,8 +98,8 @@ int main() {
             volumeShader->unbind();
         }
         billboardShader->render(lightPos, cloudsBillboards);
-        diffuseShader->render(cube, volumeShader->getVoxelData(), lightPos);
-        lightDepthShader->render(cube, volumeShader->getVoxelData());
+        diffuseShader->render(lightPos, cube, volumeShader->getVoxelData());
+        lightDepthShader->render(lightPos, cube, volumeShader->getVoxelData());
 
         if (Window::isImGuiEnabled()) {
             ImGui::Render();
