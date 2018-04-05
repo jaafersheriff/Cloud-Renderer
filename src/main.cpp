@@ -2,6 +2,8 @@
 #include "Camera.hpp"
 #include "Util.hpp"
 
+#include "Light.hpp"
+
 #include "Shaders/GLSL.hpp"
 #include "Shaders/BillboardShader.hpp"
 #include "Shaders/VolumeShader.hpp"
@@ -15,7 +17,11 @@
 
 /* Initial values */
 std::string RESOURCE_DIR = "../res/";
-glm::vec3 lightPos(100.f, 100.f, -100.f);
+Spatial Light::spatial = Spatial(glm::vec3(100.f, 100.f, -100.f), glm::vec3(10.f), glm::vec3(0.f));
+glm::mat4 Light::P(1.f);
+glm::mat4 Light::V(1.f);
+bool cameraVoxelize = false;
+bool lightVoxelize = false;
 
 /* Shaders */
 BillboardShader * billboardShader;
@@ -70,12 +76,20 @@ int main() {
     CHECK_GL_CALL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
     Camera::update(Window::timeStep);
 
+    ///////////////////////////////////////////////////////////////////////////////
+    ////// add light spatial to cloud billboards so we can visualize light pos ////
+    ///////////////////////////////////////////////////////////////////////////////
+    cloudsBillboards.push_back(&Light::spatial);
+
     while (!Window::shouldClose()) {
         /* Update context */
         Window::update();
 
         /* Update camera */
         Camera::update(Window::timeStep);
+
+        /* Update light */
+        Light::update(volQuad.position);
 
         /* IMGUI */
         if (Window::isImGuiEnabled()) {
@@ -89,17 +103,30 @@ int main() {
         ///////////////////////////////////////////////////
         CHECK_GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
         CHECK_GL_CALL(glClearColor(0.2f, 0.3f, 0.5f, 1.f));
-        if (volumeShader->activeVoxelize) {
-            volumeShader->voxelize(quad);
+
+        /* Clear volume data if we're going to revoxelize */
+        if (cameraVoxelize || lightVoxelize) {
+            volumeShader->clearVolume();
         }
+
+        /* Voxelize from the camera's perspective */
+        if (cameraVoxelize) {
+            volumeShader->voxelize(Camera::getP(), Camera::getV(), Camera::getPosition(), quad);
+        }
+        /* Voxelize from the light's perspective */
+        if (lightVoxelize) {
+            volumeShader->voxelize(Light::P, Light::V, Light::spatial.position, quad);
+        }
+        /* Render underlying quad */
         if (volumeShader->isEnabled()) {
             volumeShader->bind();
-            volumeShader->renderMesh(quad, false);
+            volumeShader->renderMesh(Camera::getP(), Camera::getV(), Camera::getPosition(), quad, false);
             volumeShader->unbind();
         }
-        billboardShader->render(lightPos, cloudsBillboards);
-        diffuseShader->render(lightPos, cube, volumeShader->getVoxelData());
-        lightDepthShader->render(lightPos, cube, volumeShader->getVoxelData());
+
+        billboardShader->render(cloudsBillboards);
+        diffuseShader->render(cube, volumeShader->getVoxelData());
+        lightDepthShader->render(cube, volumeShader->getVoxelData());
 
         if (Window::isImGuiEnabled()) {
             ImGui::Render();
@@ -123,7 +150,7 @@ void createImGuiPanes() {
     imGuiFuncs.push_back(
         [&]() {
             ImGui::Begin("Light");
-            ImGui::SliderFloat3("Position", glm::value_ptr(lightPos), -100.f, 100.f);
+            ImGui::SliderFloat3("Position", glm::value_ptr(Light::spatial.position), -100.f, 100.f);
             int size = lightDepthShader->lightMap->width;
             ImGui::SliderInt("Map size", &size, 512, 4096);
             lightDepthShader->setTextureSize(size);
@@ -191,10 +218,11 @@ void createImGuiPanes() {
             ImGui::Checkbox("Render underlying quad", &b);
             volumeShader->setEnabled(b);
 
-            ImGui::Checkbox("Voxelize!", &volumeShader->activeVoxelize);
+            ImGui::Checkbox("Camera Voxelize!", &cameraVoxelize);
+            ImGui::Checkbox("Light Voxelize!", &lightVoxelize);
 
             if (ImGui::Button("Single voxelize")) {
-                volumeShader->voxelize(quad);
+                volumeShader->voxelize(Camera::getP(), Camera::getV(), Camera::getPosition(), quad);
             }
             if (ImGui::Button("Clear")) {
                 volumeShader->clearVolume();

@@ -16,14 +16,13 @@ class VolumeShader : public Shader {
         bool init(int, glm::vec2, glm::vec2, glm::vec2, Spatial *);
 
         /* Generate 3D volume */
-        void voxelize(Mesh *);
         void clearVolume();
-        void renderMesh(Mesh *, bool);
+        void voxelize(glm::mat4, glm::mat4, glm::vec3, Mesh *);
+        void renderMesh(glm::mat4, glm::mat4, glm::vec3, Mesh *, bool);
 
         /* Getters */
         std::vector<Spatial> & getVoxelData() { return voxelData; }
 
-        bool activeVoxelize = false;
         glm::vec2 xBounds;
         glm::vec2 yBounds;
         glm::vec2 zBounds;

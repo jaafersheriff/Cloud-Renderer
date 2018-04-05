@@ -60,8 +60,7 @@ void VolumeShader::clearVolume() {
     voxelData.clear();
 }
 
-void VolumeShader::voxelize(Mesh *mesh) {
-    clearVolume();
+void VolumeShader::voxelize(glm::mat4 P, glm::mat4 V, glm::vec3 camPos, Mesh *mesh) {
 
     CHECK_GL_CALL(glDisable(GL_DEPTH_TEST));
     CHECK_GL_CALL(glDisable(GL_CULL_FACE));
@@ -71,7 +70,7 @@ void VolumeShader::voxelize(Mesh *mesh) {
     /* Draw call on mesh to populate volume */
     bind();
     CHECK_GL_CALL(glBindImageTexture(1, volumeHandle, 0, GL_TRUE, 0, GL_READ_WRITE, GL_RGBA32F));
-    renderMesh(mesh, true);
+    renderMesh(P, V, camPos, mesh, true);
     unbind();
 
     /* Pull volume data out of GPU */
@@ -101,10 +100,10 @@ void VolumeShader::voxelize(Mesh *mesh) {
     CHECK_GL_CALL(glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE));
 }
 
-void VolumeShader::renderMesh(Mesh *mesh, bool voxelize) {
-    loadMat4(getUniform("P"), &Camera::getP());
-    loadMat4(getUniform("V"), &Camera::getV());
-    glm::mat4 Vi = Camera::getV();
+void VolumeShader::renderMesh(glm::mat4 P, glm::mat4 V, glm::vec3 camPos, Mesh *mesh, bool voxelize) {
+    loadMat4(getUniform("P"), &P);
+    loadMat4(getUniform("V"), &V);
+    glm::mat4 Vi = V;
     Vi[3][0] = Vi[3][1] = Vi[3][2] = 0.f;
     Vi = glm::transpose(Vi);
     loadMat4(getUniform("Vi"), &Vi);
@@ -116,7 +115,7 @@ void VolumeShader::renderMesh(Mesh *mesh, bool voxelize) {
     loadBool(getUniform("voxelize"), voxelize);
     loadVec3(getUniform("center"), volQuad->position);
     loadFloat(getUniform("scale"), volQuad->scale.x);
-    loadVec3(getUniform("normal"), glm::normalize(Camera::getPosition() - volQuad->position));
+    loadVec3(getUniform("normal"), glm::normalize(camPos - volQuad->position));
  
     /* Bind quad */
     /* VAO */
