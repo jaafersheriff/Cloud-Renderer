@@ -222,6 +222,7 @@ void createImGuiPanes() {
             ImGui::Checkbox("Light Voxelize!", &lightVoxelize);
 
             if (ImGui::Button("Single voxelize")) {
+                volumeShader->clearVolume();
                 volumeShader->voxelize(Camera::getP(), Camera::getV(), Camera::getPosition(), quad);
             }
             if (ImGui::Button("Clear")) {
