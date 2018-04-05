@@ -31,7 +31,7 @@ bool BillboardShader::init(std::string diffuseName, std::string normalName, Mesh
     return true;
 }
 
-void BillboardShader::render(glm::vec3 lightPos, std::vector<Spatial *> &targets) {
+void BillboardShader::render(std::vector<Spatial *> &targets) {
     if (!enabled) {
         return;
     }
@@ -51,7 +51,7 @@ void BillboardShader::render(glm::vec3 lightPos, std::vector<Spatial *> &targets
     loadMat4(getUniform("Vi"), &Vi);
 
     /* Bind light position */
-    loadVec3(getUniform("lightPos"), lightPos);
+    loadVec3(getUniform("lightPos"), Light::spatial.position);
 
     /* Bind mesh */
     /* VAO */

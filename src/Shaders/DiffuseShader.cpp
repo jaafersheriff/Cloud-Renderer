@@ -1,5 +1,6 @@
 #include "DiffuseShader.hpp"
 
+#include "Light.hpp"
 #include "Camera.hpp"
 #include "Model/Mesh.hpp"
 #include "Spatial.hpp"
@@ -24,7 +25,7 @@ bool DiffuseShader::init() {
     addUniform("lightPos");
 }
 
-void DiffuseShader::render(glm::vec3 lightPos, Mesh *mesh, std::vector<Spatial> & spatials) {
+void DiffuseShader::render(Mesh *mesh, std::vector<Spatial> & spatials) {
     if (!enabled) {
         return;
     }
@@ -36,7 +37,7 @@ void DiffuseShader::render(glm::vec3 lightPos, Mesh *mesh, std::vector<Spatial> 
     loadMat4(getUniform("V"), &Camera::getV());
 
     /* Bind light position */
-    loadVec3(getUniform("lightPos"), lightPos);
+    loadVec3(getUniform("lightPos"), Light::spatial.position);
 
     /* Bind mesh */
     /* VAO */

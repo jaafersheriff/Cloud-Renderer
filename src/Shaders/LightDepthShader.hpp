@@ -13,7 +13,7 @@ class LightDepthShader : public Shader {
 
         bool init();
 
-        void render(glm::vec3, Mesh *, std::vector<Spatial> &);
+        void render(Mesh *, std::vector<Spatial> &);
 
         Texture * lightMap;
         void setTextureSize(int);
