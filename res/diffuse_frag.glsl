@@ -5,6 +5,7 @@ in vec3 fragNormal;
 
 uniform vec3 lightPos;
 uniform bool isOutline;
+uniform float visibility;
 
 out vec4 color;
 
@@ -21,4 +22,5 @@ void main() {
     float diffuseContrib = clamp(dot(L, N), 0.0, 1.0);
 
     color = vec4(vec3(diffuseContrib), 1.0);
+    color = vec4(vec3(visibility), 1.0);
 }

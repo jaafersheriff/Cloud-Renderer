@@ -34,6 +34,9 @@ bool VolumeShader::init(int size, glm::vec2 x, glm::vec2 y, glm::vec2 z, Spatial
 
     addUniform("normal");
 
+    addUniform("normalStep");
+    addUniform("visibilityContrib");
+
     addUniform("volume");
 
     initVolume();
@@ -70,6 +73,8 @@ void VolumeShader::voxelize(glm::mat4 P, glm::mat4 V, glm::vec3 camPos, Mesh *me
     /* Draw call on mesh to populate volume */
     bind();
     CHECK_GL_CALL(glBindImageTexture(1, volumeHandle, 0, GL_TRUE, 0, GL_READ_WRITE, GL_RGBA32F));
+    loadFloat(getUniform("normalStep"), normalStep);
+    loadFloat(getUniform("visibilityContrib"), visibilityContrib);
     renderMesh(P, V, camPos, mesh, true);
     unbind();
 

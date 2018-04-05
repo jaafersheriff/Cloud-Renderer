@@ -34,6 +34,9 @@ class VolumeShader : public Shader {
         int volumeSize;
         float radius;
 
+        float normalStep = 0.2f;
+        float visibilityContrib = 0.02;
+ 
      private:
         void initVolume();
         glm::ivec3 get3DIndices(int);

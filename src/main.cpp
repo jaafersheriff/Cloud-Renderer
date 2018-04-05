@@ -17,7 +17,7 @@
 
 /* Initial values */
 std::string RESOURCE_DIR = "../res/";
-Spatial Light::spatial = Spatial(glm::vec3(100.f, 100.f, -100.f), glm::vec3(10.f), glm::vec3(0.f));
+Spatial Light::spatial = Spatial(glm::vec3(10.f, 10.f, -10.f), glm::vec3(10.f), glm::vec3(0.f));
 glm::mat4 Light::P(1.f);
 glm::mat4 Light::V(1.f);
 bool cameraVoxelize = false;
@@ -124,8 +124,8 @@ int main() {
             volumeShader->unbind();
         }
 
-        billboardShader->render(cloudsBillboards);
         diffuseShader->render(cube, volumeShader->getVoxelData());
+        billboardShader->render(cloudsBillboards);
         lightDepthShader->render(cube, volumeShader->getVoxelData());
 
         if (Window::isImGuiEnabled()) {
@@ -151,9 +151,9 @@ void createImGuiPanes() {
         [&]() {
             ImGui::Begin("Light");
             ImGui::SliderFloat3("Position", glm::value_ptr(Light::spatial.position), -100.f, 100.f);
-            int size = lightDepthShader->lightMap->width;
-            ImGui::SliderInt("Map size", &size, 512, 4096);
-            lightDepthShader->setTextureSize(size);
+            //int size = lightDepthShader->lightMap->width;
+            //ImGui::SliderInt("Map size", &size, 512, 4096);
+            //lightDepthShader->setTextureSize(size);
             ImGui::Image((ImTextureID) lightDepthShader->lightMap->textureId, ImVec2(256, 256));
             ImGui::End();
         } 
@@ -212,6 +212,8 @@ void createImGuiPanes() {
             ImGui::SliderFloat2("XBounds", glm::value_ptr(volumeShader->xBounds), -20.f, 20.f);
             ImGui::SliderFloat2("YBounds", glm::value_ptr(volumeShader->yBounds), -20.f, 20.f);
             ImGui::SliderFloat2("ZBounds", glm::value_ptr(volumeShader->zBounds), -20.f, 20.f);
+            ImGui::SliderFloat("Step", &volumeShader->normalStep, 0.05f, 0.5f);
+            ImGui::SliderFloat("Contrib", &volumeShader->visibilityContrib, 0.f, 0.2f);
             //ImGui::SliderInt("Volume Size", &volumeShader->volumeSize, 0, 256);
 
             bool b = volumeShader->isEnabled();

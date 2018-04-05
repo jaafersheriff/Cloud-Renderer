@@ -14,13 +14,16 @@ uniform float scale;
 
 uniform vec3 normal;
 
+uniform float normalStep;
+uniform float visibilityContrib;
+
 layout(binding=1, rgba32f) uniform image3D volume;
 
 out vec4 color;
 
 /* Linear map from aribtray box(?) in world space to 3D volume 
  * Voxel indices: [0, voxelSize - 1] */
-ivec3 voxelIndex(vec3 pos) {
+ivec3 calculateVoxelIndex(vec3 pos) {
     float rangeX = xBounds.y - xBounds.x;
     float rangeY = yBounds.y - yBounds.x;
     float rangeZ = zBounds.y - zBounds.x;
@@ -43,11 +46,13 @@ void main() {
 
     color = vec4(distR);
     if(voxelize) {
-        // Store data in the volume starting from the billboard and moving
-        // towards its normal in increments of 0.2 until reaching the edge of
+        // Update data in the volume starting from the billboard and moving
+        // towards its normal in increments until reaching the edge of
         // the sphere
-        for(float j = 0; j < radius * distR; j += 0.2f) {
-            imageStore(volume, voxelIndex(fragPos + normal * j), vec4(1, 0, 0, 0));
+        for(float j = 0; j < radius * distR; j += normalStep) {
+            ivec3 voxelIndex = calculateVoxelIndex(fragPos + normal * j);
+            vec4 voxelData = imageLoad(volume, voxelIndex);
+            imageStore(volume, voxelIndex, voxelData + vec4(0, 0, 0, visibilityContrib));
         }
     }
 }
