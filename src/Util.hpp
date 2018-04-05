@@ -10,14 +10,14 @@
 
 class Util {
     public:
-        static constexpr float PI = 3.14159265359;
+        static constexpr float PI = 3.14159265359f;
 
         //////////////////////////////////////////////
         //                  RANDOM                  //
         //////////////////////////////////////////////
         /* Generate a random float [-1, 1] */
         static inline float genRandom() {
-            return (rand() / (float) RAND_MAX - 0.5) * 2;
+            return (rand() / (float) RAND_MAX - 0.5f) * 2.f;
         }
         /* Generate a random float [0, 1] */
         static inline float genPosRandom() {
