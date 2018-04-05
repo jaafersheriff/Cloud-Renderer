@@ -9,6 +9,11 @@
 
 class VolumeShader : public Shader {
     public:
+        struct Voxel {
+            Spatial spatial;
+            float visibility;
+        };
+
         VolumeShader(std::string vertex, std::string fragment) :
             Shader(vertex, fragment)
         {}
@@ -21,14 +26,14 @@ class VolumeShader : public Shader {
         void renderMesh(glm::mat4, glm::mat4, glm::vec3, Mesh *, bool);
 
         /* Getters */
-        std::vector<Spatial> & getVoxelData() { return voxelData; }
+        std::vector<Voxel> & getVoxelData() { return voxelData; }
 
         glm::vec2 xBounds;
         glm::vec2 yBounds;
         glm::vec2 zBounds;
         int volumeSize;
         float radius;
- 
+
      private:
         void initVolume();
         glm::ivec3 get3DIndices(int);
@@ -40,7 +45,7 @@ class VolumeShader : public Shader {
 
         /* Data stored in voxels */
         // TODO : a fixed-size array and write over values 
-        std::vector<Spatial> voxelData;
+        std::vector<Voxel> voxelData;
 };
 
 #endif

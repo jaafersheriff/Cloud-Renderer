@@ -6,6 +6,7 @@
 #include "Model/Mesh.hpp"
 #include "Model/Texture.hpp"
 #include "Spatial.hpp"
+#include "VolumeShader.hpp"
 
 class LightDepthShader : public Shader {
     public:
@@ -13,7 +14,7 @@ class LightDepthShader : public Shader {
 
         bool init();
 
-        void render(Mesh *, std::vector<Spatial> &);
+        void render(Mesh *, std::vector<VolumeShader::Voxel> &);
 
         Texture * lightMap;
         void setTextureSize(int);

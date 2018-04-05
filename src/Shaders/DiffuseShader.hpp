@@ -3,11 +3,11 @@
 #define _DIFFUSE_SHADER_HPP_
 
 #include "Shader.hpp"
+#include "VolumeShader.hpp"
 
 #include <vector>
 
 class Mesh;
-class Spatial;
 class DiffuseShader : public Shader {
     public:
         DiffuseShader(std::string vertex, std::string fragment) :
@@ -16,7 +16,7 @@ class DiffuseShader : public Shader {
 
         bool init();
 
-        void render(Mesh *mesh, std::vector<Spatial> &);
+        void render(Mesh *mesh, std::vector<VolumeShader::Voxel> &);
 };
 
 #endif

@@ -89,7 +89,7 @@ void VolumeShader::voxelize(glm::mat4 P, glm::mat4 V, glm::vec3 camPos, Mesh *me
                 (xBounds.y - xBounds.x) / volumeSize,
                 (yBounds.y - yBounds.x) / volumeSize,
                 (zBounds.y - zBounds.x) / volumeSize);
-            voxelData.push_back(Spatial(pos, scale, glm::vec3(0.f)));
+            voxelData.push_back({Spatial(pos, scale, glm::vec3(0.f)), a});
         }
     }
 

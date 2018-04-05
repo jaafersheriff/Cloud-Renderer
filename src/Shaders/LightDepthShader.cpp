@@ -28,7 +28,7 @@ bool LightDepthShader::init() {
     return true;
 }
 
-void LightDepthShader::render(Mesh * mesh, std::vector<Spatial> & spatials) {
+void LightDepthShader::render(Mesh * mesh, std::vector<VolumeShader::Voxel> & voxels) {
     /* Reset light map */
     CHECK_GL_CALL(glViewport(0, 0, lightMap->width, lightMap->height));
     CHECK_GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, fboHandle));
@@ -58,10 +58,10 @@ void LightDepthShader::render(Mesh * mesh, std::vector<Spatial> & spatials) {
     CHECK_GL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->eleBufId));
 
     glm::mat4 M;
-    for (auto sp : spatials) {
+    for (auto v : voxels) {
         M  = glm::mat4(1.f);
-        M *= glm::translate(glm::mat4(1.f), sp.position);
-        M *= glm::scale(glm::mat4(1.f), sp.scale);
+        M *= glm::translate(glm::mat4(1.f), v.spatial.position);
+        M *= glm::scale(glm::mat4(1.f), v.spatial.scale);
         loadMat4(getUniform("M"), &M);
 
         CHECK_GL_CALL(glDrawElements(GL_TRIANGLES, (int)mesh->eleBuf.size(), GL_UNSIGNED_INT, nullptr));

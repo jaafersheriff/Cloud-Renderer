@@ -3,7 +3,6 @@
 #include "Light.hpp"
 #include "Camera.hpp"
 #include "Model/Mesh.hpp"
-#include "Spatial.hpp"
 
 #include "glm/gtc/matrix_transform.hpp"
 
@@ -22,10 +21,12 @@ bool DiffuseShader::init() {
 
     addUniform("isOutline");
 
+    addUniform("visibility");
+
     addUniform("lightPos");
 }
 
-void DiffuseShader::render(Mesh *mesh, std::vector<Spatial> & spatials) {
+void DiffuseShader::render(Mesh *mesh, std::vector<VolumeShader::Voxel> & voxels) {
     if (!enabled) {
         return;
     }
@@ -64,11 +65,13 @@ void DiffuseShader::render(Mesh *mesh, std::vector<Spatial> & spatials) {
 
 
     glm::mat4 M;
-    for (auto sp : spatials) {
+    for (auto v : voxels) {
         M  = glm::mat4(1.f);
-        M *= glm::translate(glm::mat4(1.f), sp.position);
-        M *= glm::scale(glm::mat4(1.f), sp.scale);
+        M *= glm::translate(glm::mat4(1.f), v.spatial.position);
+        M *= glm::scale(glm::mat4(1.f), v.spatial.scale);
         loadMat4(getUniform("M"), &M);
+
+        loadFloat(getUniform("visibility"), v.visibility);
 
         /* Draw shape */
         loadBool(getUniform("isOutline"), false);
