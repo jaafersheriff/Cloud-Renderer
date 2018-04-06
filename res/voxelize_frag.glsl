@@ -36,23 +36,17 @@ ivec3 calculateVoxelIndex(vec3 pos) {
 }
 
 void main() {
-    // Radius of circle contained within quad 
     float radius = scale/2;
 
-    // Calculate the distance ratio between the center of the circle and
-    // the current fragment. This value is 1 for fragments at the center of the 
-    // circle and 0 for fragments at the edge of the circle
-    float distR = (distance(center, fragPos)/radius) * -1 + 1;
-
+    // 1 at center of billboard, 0 at edges
+    float distR = 1 - (distance(center, fragPos)/radius);
     color = vec4(distR);
+
     if(voxelize) {
-        // Update data in the volume starting from the billboard and moving
-        // towards its normal in increments until reaching the edge of
-        // the sphere
         for(float j = 0; j < radius * distR; j += normalStep) {
             ivec3 voxelIndex = calculateVoxelIndex(fragPos + normal * j);
-            vec4 voxelData = imageLoad(volume, voxelIndex);
-            imageStore(volume, voxelIndex, voxelData + vec4(0, 0, 0, visibilityContrib));
+            vec4 voxelData = imageLoad(volume, voxelIndex) + vec4(0, 0, 0, visibilityContrib);
+            imageStore(volume, voxelIndex, voxelData);
         }
     }
 }
