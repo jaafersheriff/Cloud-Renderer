@@ -78,11 +78,13 @@ void DiffuseShader::render(Mesh *mesh, std::vector<VolumeShader::Voxel> & voxels
         CHECK_GL_CALL(glDrawElements(GL_TRIANGLES, (int)mesh->eleBuf.size(), GL_UNSIGNED_INT, nullptr));
 
         /* Draw outline */
-        loadBool(getUniform("isOutline"), true);
-        CHECK_GL_CALL(glPolygonMode(GL_FRONT_AND_BACK, GL_LINE));
-        CHECK_GL_CALL(glDrawElements(GL_TRIANGLES, (int)mesh->eleBuf.size(), GL_UNSIGNED_INT, nullptr));
-        CHECK_GL_CALL(glPolygonMode(GL_FRONT_AND_BACK, GL_FILL));
-    }
+        if (drawOutline) {
+            loadBool(getUniform("isOutline"), true);
+            CHECK_GL_CALL(glPolygonMode(GL_FRONT_AND_BACK, GL_LINE));
+            CHECK_GL_CALL(glDrawElements(GL_TRIANGLES, (int)mesh->eleBuf.size(), GL_UNSIGNED_INT, nullptr));
+            CHECK_GL_CALL(glPolygonMode(GL_FRONT_AND_BACK, GL_FILL));
+        }
+   }
 
     CHECK_GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, 0));
     CHECK_GL_CALL(glBindVertexArray(0));

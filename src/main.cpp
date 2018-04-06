@@ -220,6 +220,7 @@ void createImGuiPanes() {
             bool b = volumeShader->isEnabled();
             ImGui::Checkbox("Render underlying quad", &b);
             volumeShader->setEnabled(b);
+            ImGui::Checkbox("Outlines", &diffuseShader->drawOutline);
 
             ImGui::Checkbox("Camera Voxelize!", &cameraVoxelize);
             ImGui::Checkbox("Light Voxelize!", &lightVoxelize);
