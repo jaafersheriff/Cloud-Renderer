@@ -53,7 +53,7 @@ void VolumeShader::initVolume() {
     CHECK_GL_CALL(glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
     CHECK_GL_CALL(glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
     CHECK_GL_CALL(glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE));
-    CHECK_GL_CALL(glTexStorage3D(GL_TEXTURE_3D, 1, GL_RGBA32F, volumeSize, volumeSize, volumeSize));
+    CHECK_GL_CALL(glTexStorage3D(GL_TEXTURE_3D, 1, GL_RGBA16F, volumeSize, volumeSize, volumeSize));
     clearVolume();
     //CHECK_GL_CALL(glBindTexture(GL_TEXTURE_3D, 0));
 }
@@ -72,7 +72,7 @@ void VolumeShader::voxelize(glm::mat4 P, glm::mat4 V, glm::vec3 camPos, Mesh *me
 
     /* Draw call on mesh to populate volume */
     bind();
-    CHECK_GL_CALL(glBindImageTexture(1, volumeHandle, 0, GL_TRUE, 0, GL_READ_WRITE, GL_RGBA32F));
+    CHECK_GL_CALL(glBindImageTexture(1, volumeHandle, 0, GL_TRUE, 0, GL_READ_WRITE, GL_RGBA16F));
     loadFloat(getUniform("normalStep"), normalStep);
     loadFloat(getUniform("visibilityContrib"), visibilityContrib);
     renderMesh(P, V, camPos, mesh, true);
@@ -98,7 +98,7 @@ void VolumeShader::voxelize(glm::mat4 P, glm::mat4 V, glm::vec3 camPos, Mesh *me
         }
     }
 
-    CHECK_GL_CALL(glBindImageTexture(1, 0, 0, GL_TRUE, 0, GL_READ_WRITE, GL_RGBA32F));
+    CHECK_GL_CALL(glBindImageTexture(1, 0, 0, GL_TRUE, 0, GL_READ_WRITE, GL_RGBA16F));
     CHECK_GL_CALL(glEnable(GL_DEPTH_TEST));
     CHECK_GL_CALL(glEnable(GL_CULL_FACE));
     CHECK_GL_CALL(glDepthMask(GL_TRUE));

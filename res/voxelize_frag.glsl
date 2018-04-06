@@ -1,5 +1,9 @@
 #version 440 core
 
+#extension GL_NV_gpu_shader5: enable
+#extension GL_NV_shader_atomic_float: enable
+#extension GL_NV_shader_atomic_fp16_vector: enable
+
 in vec3 fragPos;
 in vec2 fragTex;
 
@@ -17,7 +21,7 @@ uniform vec3 normal;
 uniform float normalStep;
 uniform float visibilityContrib;
 
-layout(binding=1, rgba32f) uniform image3D volume;
+layout(binding=1, rgba16f) uniform image3D volume;
 
 out vec4 color;
 
@@ -45,8 +49,12 @@ void main() {
     if(voxelize) {
         for(float j = 0; j < radius * distR; j += normalStep) {
             ivec3 voxelIndex = calculateVoxelIndex(fragPos + normal * j);
+#if GL_NV_shader_atomic_fp16_vector
+            imageAtomicAdd(volume, voxelIndex, f16vec4(0, 0, 0, visibilityContrib));
+#else
             vec4 voxelData = imageLoad(volume, voxelIndex) + vec4(0, 0, 0, visibilityContrib);
             imageStore(volume, voxelIndex, voxelData);
+#endif
         }
     }
 }

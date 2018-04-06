@@ -103,6 +103,8 @@ int main() {
         ///////////////////////////////////////////////////
         //                   RENDER                      //       
         ///////////////////////////////////////////////////
+        lightPosShader->render(cube, volumeShader->getVoxelData());
+        
         CHECK_GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
         CHECK_GL_CALL(glClearColor(0.2f, 0.3f, 0.5f, 1.f));
 
@@ -128,7 +130,6 @@ int main() {
 
         diffuseShader->render(cube, volumeShader->getVoxelData());
         billboardShader->render(cloudsBillboards);
-        lightPosShader->render(cube, volumeShader->getVoxelData());
 
         if (Window::isImGuiEnabled()) {
             ImGui::Render();
