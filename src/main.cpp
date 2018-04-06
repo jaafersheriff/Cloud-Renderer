@@ -50,6 +50,7 @@ int main() {
     /* Init window, keyboard, and mouse wrappers */
     if (Window::init("Clouds", 13.f)) {
         std::cerr << "ERROR" << std::endl;
+        std::cin.get();
         return 1;
     }
 

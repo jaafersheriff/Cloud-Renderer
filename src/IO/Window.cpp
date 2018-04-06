@@ -63,7 +63,7 @@ int Window::init(std::string name, float fontSize = 15.f) {
         return 1;
     }
 
-    /* Request version 3.3 of OpenGL */
+    /* Request version 4.4 of OpenGL */
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
