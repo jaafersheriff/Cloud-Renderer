@@ -73,7 +73,7 @@ void LightPosShader::render(Mesh * mesh, std::vector<VolumeShader::Voxel> & voxe
 void LightPosShader::setTextureSize(int size) {
     lightMap->width = lightMap->height = size;
     CHECK_GL_CALL(glBindTexture(GL_TEXTURE_2D, lightMap->textureId));
-    //CHECK_GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, size, size, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL));
+    CHECK_GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, size, size, 0, GL_RGB, GL_FLOAT, NULL));
     CHECK_GL_CALL(glBindTexture(GL_TEXTURE_2D, 0));
 }
 
@@ -82,9 +82,9 @@ void LightPosShader::initFBO() {
     CHECK_GL_CALL(glGenFramebuffers(1, &fboHandle));
 
     /* Generate the texture */
-    glGenTextures(1, &lightMap->textureId);
-    glBindTexture(GL_TEXTURE_2D, lightMap->textureId);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, lightMap->width, lightMap->height, 0, GL_RGB, GL_FLOAT, NULL);
+    CHECK_GL_CALL(glGenTextures(1, &lightMap->textureId));
+    CHECK_GL_CALL(glBindTexture(GL_TEXTURE_2D, lightMap->textureId));
+    CHECK_GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, lightMap->width, lightMap->height, 0, GL_RGB, GL_FLOAT, NULL));
 
     CHECK_GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
     CHECK_GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));

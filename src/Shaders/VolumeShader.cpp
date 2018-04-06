@@ -140,7 +140,7 @@ void VolumeShader::renderMesh(glm::mat4 P, glm::mat4 V, glm::vec3 camPos, Mesh *
     CHECK_GL_CALL(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
 
     /* Wrap up shader */
-    glBindVertexArray(0);
+    CHECK_GL_CALL(glBindVertexArray(0));
 }
 
 // Assume 4 bytes per voxel
