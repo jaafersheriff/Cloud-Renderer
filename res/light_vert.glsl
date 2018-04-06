@@ -2,9 +2,13 @@
 
 in vec3 vertPos;
 
-uniform mat4 L;
+uniform mat4 P;
+uniform mat4 V;
 uniform mat4 M;
 
+out vec4 worldPos;
+
 void main() {
-    gl_Position = L * M * vec4(vertPos, 1.0);
+    worldPos = M * vec4(vertPos, 1.0);
+    gl_Position = P * V * worldPos;
 }

@@ -8,7 +8,7 @@
 #include "Shaders/BillboardShader.hpp"
 #include "Shaders/VolumeShader.hpp"
 #include "Shaders/DiffuseShader.hpp"
-#include "Shaders/LightDepthShader.hpp"
+#include "Shaders/LightPosShader.hpp"
 
 #include "ThirdParty/imgui/imgui.h"
 
@@ -16,6 +16,7 @@
 #include <time.h>
 
 /* Initial values */
+#define IMGUI_FONT_SIZE 20.f
 std::string RESOURCE_DIR = "../res/";
 Spatial Light::spatial = Spatial(glm::vec3(10.f, 10.f, -10.f), glm::vec3(10.f), glm::vec3(0.f));
 glm::mat4 Light::P(1.f);
@@ -27,7 +28,7 @@ bool lightVoxelize = false;
 BillboardShader * billboardShader;
 VolumeShader * volumeShader;
 DiffuseShader * diffuseShader;
-LightDepthShader * lightDepthShader;
+LightPosShader * lightPosShader;
 
 /* Volume quad */
 Spatial volQuad(glm::vec3(5.f, 0.f, 0.f), glm::vec3(4.f), glm::vec3(0.f));
@@ -48,7 +49,7 @@ int main() {
     srand((unsigned int)(time(0)));  
 
     /* Init window, keyboard, and mouse wrappers */
-    if (Window::init("Clouds", 13.f)) {
+    if (Window::init("Clouds", IMGUI_FONT_SIZE)) {
         std::cerr << "ERROR" << std::endl;
         std::cin.get();
         return 1;
@@ -64,8 +65,8 @@ int main() {
     volumeShader->init(32, glm::vec2(-8.f, 8.f), glm::vec2(-8.f, 8.f), glm::vec2(-8.f, 8.f), &volQuad);
     diffuseShader = new DiffuseShader(RESOURCE_DIR + "diffuse_vert.glsl", RESOURCE_DIR + "diffuse_frag.glsl");
     diffuseShader->init();
-    lightDepthShader = new LightDepthShader(RESOURCE_DIR + "light_vert.glsl", RESOURCE_DIR + "light_frag.glsl");
-    lightDepthShader->init();
+    lightPosShader = new LightPosShader(RESOURCE_DIR + "light_vert.glsl", RESOURCE_DIR + "light_frag.glsl");
+    lightPosShader->init();
 
     /* Init ImGui Panes */
     createImGuiPanes();
@@ -127,7 +128,7 @@ int main() {
 
         diffuseShader->render(cube, volumeShader->getVoxelData());
         billboardShader->render(cloudsBillboards);
-        lightDepthShader->render(cube, volumeShader->getVoxelData());
+        lightPosShader->render(cube, volumeShader->getVoxelData());
 
         if (Window::isImGuiEnabled()) {
             ImGui::Render();
@@ -152,10 +153,10 @@ void createImGuiPanes() {
         [&]() {
             ImGui::Begin("Light");
             ImGui::SliderFloat3("Position", glm::value_ptr(Light::spatial.position), -100.f, 100.f);
-            //int size = lightDepthShader->lightMap->width;
+            //int size = lightPosShader->lightMap->width;
             //ImGui::SliderInt("Map size", &size, 512, 4096);
-            //lightDepthShader->setTextureSize(size);
-            ImGui::Image((ImTextureID) lightDepthShader->lightMap->textureId, ImVec2(256, 256));
+            //lightPosShader->setTextureSize(size);
+            ImGui::Image((ImTextureID) lightPosShader->lightMap->textureId, ImVec2(256, 256));
             ImGui::End();
         } 
     );

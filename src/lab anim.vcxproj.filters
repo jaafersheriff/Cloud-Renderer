@@ -52,7 +52,7 @@
     <ClCompile Include="ThirdParty\imgui\imgui.cpp">
       <Filter>src\ThirdParty\imgui</Filter>
     </ClCompile>
-    <ClCompile Include="Shaders\LightDepthShader.cpp">
+    <ClCompile Include="Shaders\LightPosShader.cpp">
       <Filter>src\Shaders</Filter>
     </ClCompile>
   </ItemGroup>
@@ -146,11 +146,11 @@
     <ClInclude Include="Spatial.hpp">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="Shaders\LightDepthShader.hpp">
-      <Filter>src\Shaders</Filter>
-    </ClInclude>
     <ClInclude Include="Light.hpp">
       <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="Shaders\LightPosShader.hpp">
+      <Filter>src\Shaders</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
