@@ -82,19 +82,19 @@ void VolumeShader::voxelize(glm::mat4 P, glm::mat4 V, glm::vec3 camPos, Mesh *me
     std::vector<float> buffer(volumeSize * volumeSize * volumeSize * 4);
     CHECK_GL_CALL(glGetTexImage(GL_TEXTURE_3D, 0, GL_RGBA, GL_FLOAT, buffer.data()));
 
+    glm::vec3 voxelScale = glm::vec3(
+                (xBounds.y - xBounds.x) / volumeSize,
+                (yBounds.y - yBounds.x) / volumeSize,
+                (zBounds.y - zBounds.x) / volumeSize);
     for (int i = 0; i < buffer.size(); i += 4) {
         float r = buffer[i + 0];
         float g = buffer[i + 1];
         float b = buffer[i + 2];
         float a = buffer[i + 3];
         if (r || g || b || a) {
-            glm::ivec3 in = get3DIndices(i);        // voxel index 
-            glm::vec3 pos = reverseVoxelIndex(in);  // world space
-            glm::vec3 scale = glm::vec3(
-                (xBounds.y - xBounds.x) / volumeSize,
-                (yBounds.y - yBounds.x) / volumeSize,
-                (zBounds.y - zBounds.x) / volumeSize);
-            voxelData.push_back({Spatial(pos, scale, glm::vec3(0.f)), a});
+            glm::ivec3 in = get3DIndices(i);         // voxel index 
+            glm::vec3 wPos = reverseVoxelIndex(in);  // world space
+            voxelData.push_back({Spatial(wPos, voxelScale, glm::vec3(0.f)), a});
         }
     }
 
