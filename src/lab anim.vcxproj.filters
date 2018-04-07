@@ -49,10 +49,10 @@
     <ClCompile Include="ThirdParty\imgui\imgui.cpp">
       <Filter>src\ThirdParty\imgui</Filter>
     </ClCompile>
-    <ClCompile Include="Shaders\LightPosShader.cpp">
+    <ClCompile Include="Shaders\VoxelShader.cpp">
       <Filter>src\Shaders</Filter>
     </ClCompile>
-    <ClCompile Include="Shaders\VoxelShader.cpp">
+    <ClCompile Include="Shaders\LightMapWriteShader.cpp">
       <Filter>src\Shaders</Filter>
     </ClCompile>
   </ItemGroup>
@@ -146,13 +146,13 @@
     <ClInclude Include="Light.hpp">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="Shaders\LightPosShader.hpp">
-      <Filter>src\Shaders</Filter>
-    </ClInclude>
     <ClInclude Include="Library.hpp">
       <Filter>src</Filter>
     </ClInclude>
     <ClInclude Include="Shaders\VoxelShader.hpp">
+      <Filter>src\Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="Shaders\LightMapWriteShader.hpp">
       <Filter>src\Shaders</Filter>
     </ClInclude>
   </ItemGroup>

@@ -9,7 +9,7 @@
 #include "Shaders/BillboardShader.hpp"
 #include "Shaders/VolumeShader.hpp"
 #include "Shaders/VoxelShader.hpp"
-#include "Shaders/LightPosShader.hpp"
+#include "Shaders/LightMapWriteShader.hpp"
 
 #include "ThirdParty/imgui/imgui.h"
 
@@ -39,7 +39,7 @@ Texture * Library::cloudNormalTexture;
 BillboardShader * billboardShader;
 VolumeShader * volumeShader;
 VoxelShader * voxelShader;
-LightPosShader * lightPosShader;
+LightMapWriteShader * lightWriteShader;
 
 /* Volume quad */
 Spatial volQuad(glm::vec3(5.f, 0.f, 0.f), glm::vec3(4.f), glm::vec3(0.f));
@@ -71,8 +71,8 @@ int main() {
     volumeShader->init(I_VOLUME_VOXELS, I_VOLUME_BOUNDS, I_VOLUME_BOUNDS, I_VOLUME_BOUNDS, &volQuad);
     voxelShader = new VoxelShader(RESOURCE_DIR + "voxel_vert.glsl", RESOURCE_DIR + "voxel_frag.glsl");
     voxelShader->init();
-    lightPosShader = new LightPosShader(RESOURCE_DIR + "light_vert.glsl", RESOURCE_DIR + "light_frag.glsl");
-    lightPosShader->init();
+    lightWriteShader = new LightMapWriteShader(RESOURCE_DIR + "light_vert.glsl", RESOURCE_DIR + "light_frag.glsl");
+    lightWriteShader->init();
 
     /* Init ImGui Panes */
     createImGuiPanes();
@@ -131,7 +131,7 @@ int main() {
         voxelShader->render(volumeShader->getVoxelData());
 
         /* Render voxel world positions from the light's perspective to an FBO */
-        lightPosShader->render(volumeShader->getVoxelData());
+        lightWriteShader->render(volumeShader->getVoxelData());
 
         /* Render underlying quad */
         if (volumeShader->isEnabled()) {
@@ -169,7 +169,7 @@ void createImGuiPanes() {
             ImGui::SliderFloat3("Position", glm::value_ptr(Light::spatial.position), -100.f, 100.f);
             ImGui::SliderFloat("Bounds", &Light::boxBounds, 1.f, 100.f);
             ImGui::SliderFloat2("Near/Far", glm::value_ptr(Light::zBounds), 0.1f, 1000.f);
-            ImGui::Image((ImTextureID) lightPosShader->lightMap->textureId, ImVec2(256, 256));
+            ImGui::Image((ImTextureID) lightWriteShader->lightMap->textureId, ImVec2(256, 256));
             ImGui::End();
         } 
     );

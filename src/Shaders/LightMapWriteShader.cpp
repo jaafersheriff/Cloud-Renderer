@@ -1,4 +1,4 @@
-#include "LightPosShader.hpp"
+#include "LightMapWriteShader.hpp"
 
 #include "IO/Window.hpp"
 #include "Library.hpp"
@@ -10,12 +10,12 @@
 
 #define DEFAULT_SIZE 1024
 
-LightPosShader::LightPosShader(const std::string vert, const std::string frag) :
+LightMapWriteShader::LightMapWriteShader(const std::string vert, const std::string frag) :
     Shader(vert, frag) {
     lightMap = new Texture();
 }
 
-bool LightPosShader::init() {
+bool LightMapWriteShader::init() {
     if (!Shader::init()) {
         return false;
     }
@@ -32,7 +32,7 @@ bool LightPosShader::init() {
     return true;
 }
 
-void LightPosShader::render(std::vector<VolumeShader::Voxel> & voxels) {
+void LightMapWriteShader::render(std::vector<VolumeShader::Voxel> & voxels) {
     /* Reset light map */
     CHECK_GL_CALL(glViewport(0, 0, lightMap->width, lightMap->height));
     CHECK_GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, fboHandle));
@@ -77,7 +77,7 @@ void LightPosShader::render(std::vector<VolumeShader::Voxel> & voxels) {
     CHECK_GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 }
 
-void LightPosShader::initFBO() {
+void LightMapWriteShader::initFBO() {
     /* Generate the FBO for the shadow depth */
     CHECK_GL_CALL(glGenFramebuffers(1, &fboHandle));
 
