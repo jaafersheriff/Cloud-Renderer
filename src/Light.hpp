@@ -12,8 +12,11 @@ class Light {
         static glm::mat4 P;
         static glm::mat4 V;
 
+        static float boxBounds;
+        static glm::vec2 zBounds;
+
         static void update(glm::vec3 lookAt) {
-            P = glm::ortho(-10.f, 10.f, -10.f, 10.f, 0.01f, 1000.f);
+            P = glm::ortho(-boxBounds, boxBounds, -boxBounds, boxBounds, zBounds.x, zBounds.y);
             V = glm::lookAt(spatial.position, lookAt, glm::vec3(0, 1, 0));
         }
 };

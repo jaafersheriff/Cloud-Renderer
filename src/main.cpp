@@ -21,6 +21,8 @@ std::string RESOURCE_DIR = "../res/";
 Spatial Light::spatial = Spatial(glm::vec3(10.f, 10.f, -10.f), glm::vec3(10.f), glm::vec3(0.f));
 glm::mat4 Light::P(1.f);
 glm::mat4 Light::V(1.f);
+float Light::boxBounds = 10.f;
+glm::vec2 Light::zBounds(0.01f, 1000.f);
 bool cameraVoxelize = false;
 bool lightVoxelize = false;
 
@@ -112,13 +114,21 @@ int main() {
         }
 
         /* Voxelize from the camera's perspective */
-        if (cameraVoxelize) {
-            volumeShader->voxelize(Camera::getP(), Camera::getV(), Camera::getPosition(), quad);
-        }
+        // if (cameraVoxelize) {
+        //     volumeShader->voxelize(Camera::getP(), Camera::getV(), Camera::getPosition(), quad);
+        // }
+
         /* Voxelize from the light's perspective */
         if (lightVoxelize) {
             volumeShader->voxelize(Light::P, Light::V, Light::spatial.position, quad);
         }
+
+        /* Draw voxels to the screen */
+        diffuseShader->render(cube, volumeShader->getVoxelData());
+
+        /* Render voxel world positions from the light's perspective to an FBO */
+        lightPosShader->render(cube, volumeShader->getVoxelData());
+
         /* Render underlying quad */
         if (volumeShader->isEnabled()) {
             volumeShader->bind();
@@ -126,8 +136,6 @@ int main() {
             volumeShader->unbind();
         }
 
-        // lightPosShader->render(cube, volumeShader->getVoxelData());
-        diffuseShader->render(cube, volumeShader->getVoxelData());
         billboardShader->render(cloudsBillboards);
 
         if (Window::isImGuiEnabled()) {
@@ -155,9 +163,8 @@ void createImGuiPanes() {
         [&]() {
             ImGui::Begin("Light");
             ImGui::SliderFloat3("Position", glm::value_ptr(Light::spatial.position), -100.f, 100.f);
-            //int size = lightPosShader->lightMap->width;
-            //ImGui::SliderInt("Map size", &size, 512, 4096);
-            //lightPosShader->setTextureSize(size);
+            ImGui::SliderFloat("Bounds", &Light::boxBounds, 1.f, 100.f);
+            ImGui::SliderFloat2("Near/Far", glm::value_ptr(Light::zBounds), 0.1f, 1000.f);
             ImGui::Image((ImTextureID) lightPosShader->lightMap->textureId, ImVec2(256, 256));
             ImGui::End();
         } 
@@ -223,9 +230,12 @@ void createImGuiPanes() {
             bool b = volumeShader->isEnabled();
             ImGui::Checkbox("Render underlying quad", &b);
             volumeShader->setEnabled(b);
+            b = diffuseShader->isEnabled();
+            ImGui::Checkbox("Render voxels", &b);
+            diffuseShader->setEnabled(b);
             ImGui::Checkbox("Outlines", &diffuseShader->drawOutline);
 
-            ImGui::Checkbox("Camera Voxelize!", &cameraVoxelize);
+            // ImGui::Checkbox("Camera Voxelize!", &cameraVoxelize);
             ImGui::Checkbox("Light Voxelize!", &lightVoxelize);
 
             if (ImGui::Button("Single voxelize")) {
