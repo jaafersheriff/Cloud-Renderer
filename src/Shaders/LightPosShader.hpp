@@ -14,7 +14,7 @@ class LightPosShader : public Shader {
 
         bool init();
 
-        void render(Mesh *, std::vector<VolumeShader::Voxel> &);
+        void render(std::vector<VolumeShader::Voxel> &);
 
         Texture * lightMap;
     private:

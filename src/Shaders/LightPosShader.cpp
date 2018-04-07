@@ -1,6 +1,7 @@
 #include "LightPosShader.hpp"
 
 #include "IO/Window.hpp"
+#include "Library.hpp"
 
 #include "Light.hpp"
 #include "Camera.hpp"
@@ -31,7 +32,7 @@ bool LightPosShader::init() {
     return true;
 }
 
-void LightPosShader::render(Mesh * mesh, std::vector<VolumeShader::Voxel> & voxels) {
+void LightPosShader::render(std::vector<VolumeShader::Voxel> & voxels) {
     /* Reset light map */
     CHECK_GL_CALL(glViewport(0, 0, lightMap->width, lightMap->height));
     CHECK_GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, fboHandle));
@@ -43,20 +44,20 @@ void LightPosShader::render(Mesh * mesh, std::vector<VolumeShader::Voxel> & voxe
     loadMat4(getUniform("P"), &Light::P);
     loadMat4(getUniform("V"), &Light::V);
 
-    /* Bind mesh */
+    /* Bind Library::cube */
     /* VAO */
-    CHECK_GL_CALL(glBindVertexArray(mesh->vaoId));
+    CHECK_GL_CALL(glBindVertexArray(Library::cube->vaoId));
 
     /* Vertices VBO */
     int pos = getAttribute("vertPos");
-    if (pos >= 0 && mesh->vertBufId) {
+    if (pos >= 0 && Library::cube->vertBufId) {
         CHECK_GL_CALL(glEnableVertexAttribArray(pos));
-        CHECK_GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, mesh->vertBufId));
+        CHECK_GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, Library::cube->vertBufId));
         CHECK_GL_CALL(glVertexAttribPointer(pos, 3, GL_FLOAT, GL_FALSE, 0, nullptr));
     }
 
     /* IBO */
-    CHECK_GL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->eleBufId));
+    CHECK_GL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Library::cube->eleBufId));
 
     glm::mat4 M;
     for (auto v : voxels) {
@@ -65,7 +66,7 @@ void LightPosShader::render(Mesh * mesh, std::vector<VolumeShader::Voxel> & voxe
         M *= glm::scale(glm::mat4(1.f), v.spatial.scale);
         loadMat4(getUniform("M"), &M);
 
-        CHECK_GL_CALL(glDrawElements(GL_TRIANGLES, (int)mesh->eleBuf.size(), GL_UNSIGNED_INT, nullptr));
+        CHECK_GL_CALL(glDrawElements(GL_TRIANGLES, (int)Library::cube->eleBuf.size(), GL_UNSIGNED_INT, nullptr));
     }
 
     CHECK_GL_CALL(glBindVertexArray(0));

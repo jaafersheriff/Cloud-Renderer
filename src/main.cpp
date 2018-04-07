@@ -1,6 +1,7 @@
 #include "IO/Window.hpp"
 #include "Camera.hpp"
 #include "Util.hpp"
+#include "Library.hpp"
 
 #include "Light.hpp"
 
@@ -19,14 +20,20 @@
 #define IMGUI_FONT_SIZE 13.f
 #define I_VOLUME_BOUNDS glm::vec2(-10.f, 10.f)
 #define I_VOLUME_VOXELS 32
-std::string RESOURCE_DIR = "../res/";
+const std::string RESOURCE_DIR = "../res/";
+bool cameraVoxelize = false;
+bool lightVoxelize = false;
+
 Spatial Light::spatial = Spatial(glm::vec3(10.f, 10.f, -10.f), glm::vec3(10.f), glm::vec3(0.f));
 glm::mat4 Light::P(1.f);
 glm::mat4 Light::V(1.f);
 float Light::boxBounds = 10.f;
 glm::vec2 Light::zBounds(0.01f, 1000.f);
-bool cameraVoxelize = false;
-bool lightVoxelize = false;
+
+Mesh * Library::cube;
+Mesh * Library::quad;
+Texture * Library::cloudDiffuseTexture;
+Texture * Library::cloudNormalTexture;
 
 /* Shaders */
 BillboardShader * billboardShader;
@@ -37,17 +44,12 @@ LightPosShader * lightPosShader;
 /* Volume quad */
 Spatial volQuad(glm::vec3(5.f, 0.f, 0.f), glm::vec3(4.f), glm::vec3(0.f));
 
-/* Geometry */
-Mesh *quad;
-Mesh *cube;
-
 /* Render targets */
 std::vector<Spatial *> cloudsBillboards;
 
 /* ImGui functions */
 std::vector<std::function<void()>> imGuiFuncs;
 
-void initGeom();
 void createImGuiPanes();
 int main() {
     srand((unsigned int)(time(0)));  
@@ -59,12 +61,12 @@ int main() {
         return 1;
     }
 
-    /* Create quad and cube */
-    initGeom();
+    /* Create meshes and textures */
+    Library::init(RESOURCE_DIR + "cloud.png", RESOURCE_DIR + "cloudMap.png");
 
     /* Create shaders */
     billboardShader = new BillboardShader(RESOURCE_DIR + "cloud_vert.glsl", RESOURCE_DIR + "cloud_frag.glsl");
-    billboardShader->init(RESOURCE_DIR + "cloud.png", RESOURCE_DIR + "cloudMap.png", quad);
+    billboardShader->init();
     volumeShader = new VolumeShader(RESOURCE_DIR + "voxelize_vert.glsl", RESOURCE_DIR + "voxelize_frag.glsl");
     volumeShader->init(I_VOLUME_VOXELS, I_VOLUME_BOUNDS, I_VOLUME_BOUNDS, I_VOLUME_BOUNDS, &volQuad);
     diffuseShader = new DiffuseShader(RESOURCE_DIR + "diffuse_vert.glsl", RESOURCE_DIR + "diffuse_frag.glsl");
@@ -122,19 +124,19 @@ int main() {
 
         /* Voxelize from the light's perspective */
         if (lightVoxelize) {
-            volumeShader->voxelize(Light::P, Light::V, Light::spatial.position, quad);
+            volumeShader->voxelize(Light::P, Light::V, Light::spatial.position);
         }
 
         /* Draw voxels to the screen */
-        diffuseShader->render(cube, volumeShader->getVoxelData());
+        diffuseShader->render(volumeShader->getVoxelData());
 
         /* Render voxel world positions from the light's perspective to an FBO */
-        lightPosShader->render(cube, volumeShader->getVoxelData());
+        lightPosShader->render(volumeShader->getVoxelData());
 
         /* Render underlying quad */
         if (volumeShader->isEnabled()) {
             volumeShader->bind();
-            volumeShader->renderMesh(Camera::getP(), Camera::getV(), Camera::getPosition(), quad, false);
+            volumeShader->renderMesh(Camera::getP(), Camera::getV(), Camera::getPosition(), false);
             volumeShader->unbind();
         }
 
@@ -242,7 +244,7 @@ void createImGuiPanes() {
 
             if (ImGui::Button("Single voxelize")) {
                 volumeShader->clearVolume();
-                volumeShader->voxelize(Camera::getP(), Camera::getV(), Camera::getPosition(), quad);
+                volumeShader->voxelize(Camera::getP(), Camera::getV(), Camera::getPosition());
             }
             if (ImGui::Button("Clear")) {
                 volumeShader->clearVolume();
@@ -250,87 +252,5 @@ void createImGuiPanes() {
             ImGui::End();
         }
     );
-}
-
-void initGeom() {
-    /* Create quad */
-    quad = new Mesh;
-    quad->vertBuf = {
-        -0.5f, -0.5f,  0.f,
-         0.5f, -0.5f,  0.f,
-        -0.5f,  0.5f,  0.f,
-         0.5f,  0.5f,  0.f
-    };
-    quad->init();
-
-    /* Create cube */
-    cube = new Mesh;
-    cube->vertBuf = {
-        -0.5f, -0.5f, -0.5f,
-         0.5f,  0.5f, -0.5f,
-         0.5f, -0.5f, -0.5f,
-        -0.5f,  0.5f, -0.5f,
-        -0.5f, -0.5f, -0.5f,
-        -0.5f,  0.5f,  0.5f,
-        -0.5f,  0.5f, -0.5f,
-        -0.5f, -0.5f,  0.5f,
-        -0.5f,  0.5f, -0.5f,
-         0.5f,  0.5f,  0.5f,
-         0.5f,  0.5f, -0.5f,
-        -0.5f,  0.5f,  0.5f,
-         0.5f, -0.5f, -0.5f,
-         0.5f,  0.5f, -0.5f,
-         0.5f,  0.5f,  0.5f,
-         0.5f, -0.5f,  0.5f,
-        -0.5f, -0.5f, -0.5f,
-         0.5f, -0.5f, -0.5f,
-         0.5f, -0.5f,  0.5f,
-        -0.5f, -0.5f,  0.5f,
-        -0.5f, -0.5f,  0.5f,
-         0.5f, -0.5f,  0.5f,
-         0.5f,  0.5f,  0.5f,
-        -0.5f,  0.5f,  0.5f
-    };
-    cube->norBuf = {
-         0,  0, -1,
-         0,  0, -1,
-         0,  0, -1,
-         0,  0, -1,
-        -1,  0,  0,
-        -1,  0,  0,
-        -1,  0,  0,
-        -1,  0,  0,
-         0,  1,  0,
-         0,  1,  0,
-         0,  1,  0,
-         0,  1,  0,
-         1,  0,  0,
-         1,  0,  0,
-         1,  0,  0,
-         1,  0,  0,
-         0, -1,  0,
-         0, -1,  0,
-         0, -1,  0,
-         0, -1,  0,
-         0,  0,  1,
-         0,  0,  1,
-         0,  0,  1,
-         0,  0,  1,
-    };
-    cube->eleBuf = {
-         0,  1,  2,
-         0,  3,  1,
-         4,  5,  6,
-         4,  7,  5,
-         8,  9, 10,
-         8, 11,  9,
-        12, 13, 14,
-        12, 14, 15,
-        16, 17, 18,
-        16, 18, 19,
-        20, 21, 22,
-        20, 22, 23,
-    };
-    cube->init();
 }
 

@@ -1,9 +1,10 @@
 #include "BillboardShader.hpp"
 
+#include "Library.hpp"
 #include "Camera.hpp"
 #include "Util.hpp"
 
-bool BillboardShader::init(std::string diffuseName, std::string normalName, Mesh *quad) {
+bool BillboardShader::init() {
     if (!Shader::init()) {
         std::cerr << "Error initializing billboard shader" << std::endl;
         return false;
@@ -20,13 +21,6 @@ bool BillboardShader::init(std::string diffuseName, std::string normalName, Mesh
     addUniform("normalTex");
 
     addUniform("lightPos");
-
-    this->quad = quad;
-
-    /* Create textures */
-    this->diffuseTex = new Texture(diffuseName);
-    this->normalTex = new Texture(normalName);
-    this->texSize = glm::normalize(glm::vec2(diffuseTex->width, diffuseTex->height));
 
     return true;
 }
@@ -55,21 +49,21 @@ void BillboardShader::render(std::vector<Spatial *> &targets) {
 
     /* Bind mesh */
     /* VAO */
-    CHECK_GL_CALL(glBindVertexArray(quad->vaoId));
+    CHECK_GL_CALL(glBindVertexArray(Library::quad->vaoId));
 
     /* Vertices VBO */
     int pos = getAttribute("vertPos");
     CHECK_GL_CALL(glEnableVertexAttribArray(pos));
-    CHECK_GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, quad->vertBufId));
+    CHECK_GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, Library::quad->vertBufId));
     CHECK_GL_CALL(glVertexAttribPointer(pos, 3, GL_FLOAT, GL_FALSE, 0, nullptr));
 
     /* Bind textures */
-    loadInt(getUniform("diffuseTex"), diffuseTex->textureId);
-    CHECK_GL_CALL(glActiveTexture(GL_TEXTURE0 + diffuseTex->textureId));
-    CHECK_GL_CALL(glBindTexture(GL_TEXTURE_2D, diffuseTex->textureId));
-    loadInt(getUniform("normalTex"), normalTex->textureId);
-    CHECK_GL_CALL(glActiveTexture(GL_TEXTURE0 + normalTex->textureId));
-    CHECK_GL_CALL(glBindTexture(GL_TEXTURE_2D, normalTex->textureId));
+    loadInt(getUniform("diffuseTex"), Library::cloudDiffuseTexture->textureId);
+    CHECK_GL_CALL(glActiveTexture(GL_TEXTURE0 + Library::cloudDiffuseTexture->textureId));
+    CHECK_GL_CALL(glBindTexture(GL_TEXTURE_2D, Library::cloudDiffuseTexture->textureId));
+    loadInt(getUniform("normalTex"), Library::cloudNormalTexture->textureId);
+    CHECK_GL_CALL(glActiveTexture(GL_TEXTURE0 + Library::cloudNormalTexture->textureId));
+    CHECK_GL_CALL(glBindTexture(GL_TEXTURE_2D, Library::cloudNormalTexture->textureId));
 
     glm::mat4 M;
     for (auto target : targets) {
@@ -77,7 +71,8 @@ void BillboardShader::render(std::vector<Spatial *> &targets) {
         M *= glm::translate(glm::mat4(1.f), target->position);
         // TODO : fix rotation
         // M *= glm::rotate(glm::mat4(1.f), glm::radians(cloud->rotation), glm::vec3(0, 0, 1));
-        M *= glm::scale(glm::mat4(1.f), target->scale * glm::vec3(texSize, 1.f));
+        glm::vec2 tScale(Library::cloudDiffuseTexture->width, Library::cloudDiffuseTexture->height);
+        M *= glm::scale(glm::mat4(1.f), target->scale * glm::vec3(glm::normalize(tScale), 1.f));
         loadMat4(getUniform("M"), &M);
 
         CHECK_GL_CALL(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));

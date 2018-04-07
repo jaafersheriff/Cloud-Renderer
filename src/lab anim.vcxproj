@@ -40,6 +40,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.hpp" />
+    <ClInclude Include="Library.hpp" />
     <ClInclude Include="Light.hpp" />
     <ClInclude Include="Shaders\LightPosShader.hpp" />
     <ClInclude Include="Spatial.hpp" />

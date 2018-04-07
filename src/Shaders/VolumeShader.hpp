@@ -22,8 +22,8 @@ class VolumeShader : public Shader {
 
         /* Generate 3D volume */
         void clearVolume();
-        void voxelize(glm::mat4, glm::mat4, glm::vec3, Mesh *);
-        void renderMesh(glm::mat4, glm::mat4, glm::vec3, Mesh *, bool);
+        void voxelize(glm::mat4, glm::mat4, glm::vec3);
+        void renderMesh(glm::mat4, glm::mat4, glm::vec3, bool);
 
         /* Getters */
         std::vector<Voxel> & getVoxelData() { return voxelData; }

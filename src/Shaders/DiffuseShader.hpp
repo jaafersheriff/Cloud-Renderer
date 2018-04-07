@@ -16,7 +16,7 @@ class DiffuseShader : public Shader {
 
         bool init();
 
-        void render(Mesh *mesh, std::vector<VolumeShader::Voxel> &);
+        void render(std::vector<VolumeShader::Voxel> &);
 
         bool drawOutline = true;
 };

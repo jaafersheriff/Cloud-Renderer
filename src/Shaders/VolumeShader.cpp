@@ -1,5 +1,6 @@
 #include "VolumeShader.hpp"
 
+#include "Library.hpp"
 #include "Camera.hpp"
 
 #include "glm/gtc/matrix_transform.hpp"
@@ -63,7 +64,7 @@ void VolumeShader::clearVolume() {
     voxelData.clear();
 }
 
-void VolumeShader::voxelize(glm::mat4 P, glm::mat4 V, glm::vec3 camPos, Mesh *mesh) {
+void VolumeShader::voxelize(glm::mat4 P, glm::mat4 V, glm::vec3 camPos) {
 
     CHECK_GL_CALL(glDisable(GL_DEPTH_TEST));
     CHECK_GL_CALL(glDisable(GL_CULL_FACE));
@@ -75,7 +76,7 @@ void VolumeShader::voxelize(glm::mat4 P, glm::mat4 V, glm::vec3 camPos, Mesh *me
     CHECK_GL_CALL(glBindImageTexture(1, volumeHandle, 0, GL_TRUE, 0, GL_READ_WRITE, GL_RGBA16F));
     loadFloat(getUniform("normalStep"), normalStep);
     loadFloat(getUniform("visibilityContrib"), visibilityContrib);
-    renderMesh(P, V, camPos, mesh, true);
+    renderMesh(P, V, camPos, true);
     unbind();
 
     /* Pull volume data out of GPU */
@@ -105,7 +106,7 @@ void VolumeShader::voxelize(glm::mat4 P, glm::mat4 V, glm::vec3 camPos, Mesh *me
     CHECK_GL_CALL(glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE));
 }
 
-void VolumeShader::renderMesh(glm::mat4 P, glm::mat4 V, glm::vec3 camPos, Mesh *mesh, bool voxelize) {
+void VolumeShader::renderMesh(glm::mat4 P, glm::mat4 V, glm::vec3 camPos, bool voxelize) {
     loadMat4(getUniform("P"), &P);
     loadMat4(getUniform("V"), &V);
     glm::mat4 Vi = V;
@@ -124,12 +125,12 @@ void VolumeShader::renderMesh(glm::mat4 P, glm::mat4 V, glm::vec3 camPos, Mesh *
  
     /* Bind quad */
     /* VAO */
-    CHECK_GL_CALL(glBindVertexArray(mesh->vaoId));
+    CHECK_GL_CALL(glBindVertexArray(Library::quad->vaoId));
 
     /* Vertices VBO */
     int pos = getAttribute("vertPos");
     CHECK_GL_CALL(glEnableVertexAttribArray(pos));
-    CHECK_GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, mesh->vertBufId));
+    CHECK_GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, Library::quad->vertBufId));
     CHECK_GL_CALL(glVertexAttribPointer(pos, 3, GL_FLOAT, GL_FALSE, 0, nullptr));
 
     /* Invoke draw call on a quad - this will write to the 3D texture */

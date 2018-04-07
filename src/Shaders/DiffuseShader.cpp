@@ -1,5 +1,6 @@
 #include "DiffuseShader.hpp"
 
+#include "Library.hpp"
 #include "Light.hpp"
 #include "Camera.hpp"
 #include "Model/Mesh.hpp"
@@ -26,7 +27,7 @@ bool DiffuseShader::init() {
     addUniform("lightPos");
 }
 
-void DiffuseShader::render(Mesh *mesh, std::vector<VolumeShader::Voxel> & voxels) {
+void DiffuseShader::render(std::vector<VolumeShader::Voxel> & voxels) {
     if (!enabled) {
         return;
     }
@@ -42,26 +43,26 @@ void DiffuseShader::render(Mesh *mesh, std::vector<VolumeShader::Voxel> & voxels
 
     /* Bind mesh */
     /* VAO */
-    CHECK_GL_CALL(glBindVertexArray(mesh->vaoId));
+    CHECK_GL_CALL(glBindVertexArray(Library::cube->vaoId));
 
     /* Vertices VBO */
     int pos = getAttribute("vertPos");
-    if (pos >= 0 && mesh->vertBufId) {
+    if (pos >= 0 && Library::cube->vertBufId) {
         CHECK_GL_CALL(glEnableVertexAttribArray(pos));
-        CHECK_GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, mesh->vertBufId));
+        CHECK_GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, Library::cube->vertBufId));
         CHECK_GL_CALL(glVertexAttribPointer(pos, 3, GL_FLOAT, GL_FALSE, 0, nullptr));
     }
 
     /* Normals VBO */
     pos = getAttribute("vertNor");
-    if (pos >= 0 && mesh->norBufId) {
+    if (pos >= 0 && Library::cube->norBufId) {
         CHECK_GL_CALL(glEnableVertexAttribArray(pos));
-        CHECK_GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, mesh->norBufId));
+        CHECK_GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, Library::cube->norBufId));
         CHECK_GL_CALL(glVertexAttribPointer(pos, 3, GL_FLOAT, GL_FALSE, 0, nullptr));
     }
 
     /* IBO */
-    CHECK_GL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->eleBufId));
+    CHECK_GL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Library::cube->eleBufId));
 
     glm::mat4 M;
     for (auto v : voxels) {
@@ -74,13 +75,13 @@ void DiffuseShader::render(Mesh *mesh, std::vector<VolumeShader::Voxel> & voxels
 
         /* Draw shape */
         loadBool(getUniform("isOutline"), false);
-        CHECK_GL_CALL(glDrawElements(GL_TRIANGLES, (int)mesh->eleBuf.size(), GL_UNSIGNED_INT, nullptr));
+        CHECK_GL_CALL(glDrawElements(GL_TRIANGLES, (int)Library::cube->eleBuf.size(), GL_UNSIGNED_INT, nullptr));
 
         /* Draw outline */
         if (drawOutline) {
             loadBool(getUniform("isOutline"), true);
             CHECK_GL_CALL(glPolygonMode(GL_FRONT_AND_BACK, GL_LINE));
-            CHECK_GL_CALL(glDrawElements(GL_TRIANGLES, (int)mesh->eleBuf.size(), GL_UNSIGNED_INT, nullptr));
+            CHECK_GL_CALL(glDrawElements(GL_TRIANGLES, (int)Library::cube->eleBuf.size(), GL_UNSIGNED_INT, nullptr));
             CHECK_GL_CALL(glPolygonMode(GL_FRONT_AND_BACK, GL_FILL));
         }
    }

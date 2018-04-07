@@ -15,16 +15,10 @@ class BillboardShader : public Shader {
             Shader(vertex, fragment)
         {}
 
-        bool init(std::string, std::string, Mesh *);
+        bool init();
 
         /* Render billboard list */
         void render(std::vector<Spatial *> &);
-
-    private:
-        Mesh *quad;
-        Texture *diffuseTex;
-        Texture *normalTex;
-        glm::vec2 texSize;
 };
 
 #endif
