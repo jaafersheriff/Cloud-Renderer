@@ -1,6 +1,6 @@
 #pragma once
-#ifndef _DIFFUSE_SHADER_HPP_
-#define _DIFFUSE_SHADER_HPP_
+#ifndef _VOXEL_SHADER_HPP_
+#define _VOXEL_SHADER_HPP_
 
 #include "Shader.hpp"
 #include "VolumeShader.hpp"
@@ -8,9 +8,9 @@
 #include <vector>
 
 class Mesh;
-class DiffuseShader : public Shader {
+class VoxelShader : public Shader {
     public:
-        DiffuseShader(std::string vertex, std::string fragment) :
+        VoxelShader(std::string vertex, std::string fragment) :
             Shader(vertex, fragment)
         {}
 

@@ -1,4 +1,4 @@
-#include "DiffuseShader.hpp"
+#include "VoxelShader.hpp"
 
 #include "Library.hpp"
 #include "Light.hpp"
@@ -7,7 +7,7 @@
 
 #include "glm/gtc/matrix_transform.hpp"
 
-bool DiffuseShader::init() {
+bool VoxelShader::init() {
     if (!Shader::init()) {
         std::cerr << "Error initializing diffuse shader" << std::endl;
         return false;
@@ -23,11 +23,9 @@ bool DiffuseShader::init() {
     addUniform("isOutline");
 
     addUniform("visibility");
-
-    addUniform("lightPos");
 }
 
-void DiffuseShader::render(std::vector<VolumeShader::Voxel> & voxels) {
+void VoxelShader::render(std::vector<VolumeShader::Voxel> & voxels) {
     if (!enabled) {
         return;
     }
@@ -38,9 +36,6 @@ void DiffuseShader::render(std::vector<VolumeShader::Voxel> & voxels) {
     loadMat4(getUniform("P"), &Camera::getP());
     loadMat4(getUniform("V"), &Camera::getV());
 
-    /* Bind light position */
-    loadVec3(getUniform("lightPos"), Light::spatial.position);
-
     /* Bind mesh */
     /* VAO */
     CHECK_GL_CALL(glBindVertexArray(Library::cube->vaoId));
@@ -50,14 +45,6 @@ void DiffuseShader::render(std::vector<VolumeShader::Voxel> & voxels) {
     if (pos >= 0 && Library::cube->vertBufId) {
         CHECK_GL_CALL(glEnableVertexAttribArray(pos));
         CHECK_GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, Library::cube->vertBufId));
-        CHECK_GL_CALL(glVertexAttribPointer(pos, 3, GL_FLOAT, GL_FALSE, 0, nullptr));
-    }
-
-    /* Normals VBO */
-    pos = getAttribute("vertNor");
-    if (pos >= 0 && Library::cube->norBufId) {
-        CHECK_GL_CALL(glEnableVertexAttribArray(pos));
-        CHECK_GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, Library::cube->norBufId));
         CHECK_GL_CALL(glVertexAttribPointer(pos, 3, GL_FLOAT, GL_FALSE, 0, nullptr));
     }
 

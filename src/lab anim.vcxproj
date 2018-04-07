@@ -29,7 +29,7 @@
     <ClCompile Include="Model\Texture.cpp" />
     <ClCompile Include="Shaders\BillboardShader.cpp" />
     <ClCompile Include="Shaders\GLSL.cpp" />
-    <ClCompile Include="Shaders\DiffuseShader.cpp" />
+    <ClCompile Include="Shaders\VoxelShader.cpp" />
     <ClCompile Include="Shaders\LightPosShader.cpp" />
     <ClCompile Include="Shaders\Shader.cpp" />
     <ClCompile Include="Shaders\VolumeShader.cpp" />
@@ -51,7 +51,7 @@
     <ClInclude Include="Model\Texture.hpp" />
     <ClInclude Include="Shaders\BillboardShader.hpp" />
     <ClInclude Include="Shaders\GLSL.hpp" />
-    <ClInclude Include="Shaders\DiffuseShader.hpp" />
+    <ClInclude Include="Shaders\VoxelShader.hpp" />
     <ClInclude Include="Shaders\Shader.hpp" />
     <ClInclude Include="Shaders\VolumeShader.hpp" />
     <ClInclude Include="stb_image.h" />
@@ -70,8 +70,8 @@
   <ItemGroup>
     <None Include="..\res\cloud_frag.glsl" />
     <None Include="..\res\cloud_vert.glsl" />
-    <None Include="..\res\diffuse_frag.glsl" />
-    <None Include="..\res\diffuse_vert.glsl" />
+    <None Include="..\res\voxel_frag.glsl" />
+    <None Include="..\res\voxel_vert.glsl" />
     <None Include="..\res\light_frag.glsl" />
     <None Include="..\res\light_vert.glsl" />
     <None Include="..\res\voxelize_frag.glsl" />

@@ -8,7 +8,7 @@
 #include "Shaders/GLSL.hpp"
 #include "Shaders/BillboardShader.hpp"
 #include "Shaders/VolumeShader.hpp"
-#include "Shaders/DiffuseShader.hpp"
+#include "Shaders/VoxelShader.hpp"
 #include "Shaders/LightPosShader.hpp"
 
 #include "ThirdParty/imgui/imgui.h"
@@ -38,7 +38,7 @@ Texture * Library::cloudNormalTexture;
 /* Shaders */
 BillboardShader * billboardShader;
 VolumeShader * volumeShader;
-DiffuseShader * diffuseShader;
+VoxelShader * voxelShader;
 LightPosShader * lightPosShader;
 
 /* Volume quad */
@@ -69,8 +69,8 @@ int main() {
     billboardShader->init();
     volumeShader = new VolumeShader(RESOURCE_DIR + "voxelize_vert.glsl", RESOURCE_DIR + "voxelize_frag.glsl");
     volumeShader->init(I_VOLUME_VOXELS, I_VOLUME_BOUNDS, I_VOLUME_BOUNDS, I_VOLUME_BOUNDS, &volQuad);
-    diffuseShader = new DiffuseShader(RESOURCE_DIR + "diffuse_vert.glsl", RESOURCE_DIR + "diffuse_frag.glsl");
-    diffuseShader->init();
+    voxelShader = new VoxelShader(RESOURCE_DIR + "voxel_vert.glsl", RESOURCE_DIR + "voxel_frag.glsl");
+    voxelShader->init();
     lightPosShader = new LightPosShader(RESOURCE_DIR + "light_vert.glsl", RESOURCE_DIR + "light_frag.glsl");
     lightPosShader->init();
 
@@ -128,7 +128,7 @@ int main() {
         }
 
         /* Draw voxels to the screen */
-        diffuseShader->render(volumeShader->getVoxelData());
+        voxelShader->render(volumeShader->getVoxelData());
 
         /* Render voxel world positions from the light's perspective to an FBO */
         lightPosShader->render(volumeShader->getVoxelData());
@@ -234,10 +234,10 @@ void createImGuiPanes() {
             bool b = volumeShader->isEnabled();
             ImGui::Checkbox("Render underlying quad", &b);
             volumeShader->setEnabled(b);
-            b = diffuseShader->isEnabled();
+            b = voxelShader->isEnabled();
             ImGui::Checkbox("Render voxels", &b);
-            diffuseShader->setEnabled(b);
-            ImGui::Checkbox("Outlines", &diffuseShader->drawOutline);
+            voxelShader->setEnabled(b);
+            ImGui::Checkbox("Outlines", &voxelShader->drawOutline);
 
             // ImGui::Checkbox("Camera Voxelize!", &cameraVoxelize);
             ImGui::Checkbox("Light Voxelize!", &lightVoxelize);
