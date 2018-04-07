@@ -8,7 +8,7 @@
 #include "Shaders/BillboardShader.hpp"
 #include "Shaders/VolumeShader.hpp"
 #include "Shaders/DiffuseShader.hpp"
-#include "Shaders/LightMapWriteShader.hpp"
+#include "Shaders/LightPosShader.hpp"
 
 #include "ThirdParty/imgui/imgui.h"
 
@@ -32,7 +32,7 @@ bool lightVoxelize = false;
 BillboardShader * billboardShader;
 VolumeShader * volumeShader;
 DiffuseShader * diffuseShader;
-LightMapWriteShader * lightWriteShader;
+LightPosShader * lightPosShader;
 
 /* Volume quad */
 Spatial volQuad(glm::vec3(5.f, 0.f, 0.f), glm::vec3(4.f), glm::vec3(0.f));
@@ -69,8 +69,8 @@ int main() {
     volumeShader->init(I_VOLUME_VOXELS, I_VOLUME_BOUNDS, I_VOLUME_BOUNDS, I_VOLUME_BOUNDS, &volQuad);
     diffuseShader = new DiffuseShader(RESOURCE_DIR + "diffuse_vert.glsl", RESOURCE_DIR + "diffuse_frag.glsl");
     diffuseShader->init();
-    lightWriteShader = new LightMapWriteShader(RESOURCE_DIR + "light_vert.glsl", RESOURCE_DIR + "light_frag.glsl");
-    lightWriteShader->init();
+    lightPosShader = new LightPosShader(RESOURCE_DIR + "light_vert.glsl", RESOURCE_DIR + "light_frag.glsl");
+    lightPosShader->init();
 
     /* Init ImGui Panes */
     createImGuiPanes();
@@ -129,7 +129,7 @@ int main() {
         diffuseShader->render(cube, volumeShader->getVoxelData());
 
         /* Render voxel world positions from the light's perspective to an FBO */
-        lightWriteShader->render(cube, volumeShader->getVoxelData());
+        lightPosShader->render(cube, volumeShader->getVoxelData());
 
         /* Render underlying quad */
         if (volumeShader->isEnabled()) {
@@ -167,7 +167,7 @@ void createImGuiPanes() {
             ImGui::SliderFloat3("Position", glm::value_ptr(Light::spatial.position), -100.f, 100.f);
             ImGui::SliderFloat("Bounds", &Light::boxBounds, 1.f, 100.f);
             ImGui::SliderFloat2("Near/Far", glm::value_ptr(Light::zBounds), 0.1f, 1000.f);
-            ImGui::Image((ImTextureID) lightWriteShader->lightMap->textureId, ImVec2(256, 256));
+            ImGui::Image((ImTextureID) lightPosShader->lightMap->textureId, ImVec2(256, 256));
             ImGui::End();
         } 
     );
