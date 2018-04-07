@@ -95,7 +95,7 @@ void VolumeShader::voxelize(glm::mat4 P, glm::mat4 V, glm::vec3 camPos) {
         if (r || g || b || a) {
             glm::ivec3 in = get3DIndices(i);         // voxel index 
             glm::vec3 wPos = reverseVoxelIndex(in);  // world space
-            voxelData.push_back({Spatial(wPos, voxelScale, glm::vec3(0.f)), a});
+            voxelData.push_back({Spatial(wPos, voxelScale, glm::vec3(0.f)), glm::vec4(r, g, b, a)});
         }
     }
 

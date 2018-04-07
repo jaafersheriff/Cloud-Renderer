@@ -2,9 +2,10 @@
 
 in vec4 worldPos;
 
-uniform vec3 lightPos;
 uniform bool isOutline;
-uniform float visibility;
+
+/* Voxel data */
+uniform vec4 voxelData;
 
 out vec4 color;
 
@@ -14,5 +15,5 @@ void main() {
         return;
     }
 
-    color = vec4(visibility);
+    color = voxelData;
 }

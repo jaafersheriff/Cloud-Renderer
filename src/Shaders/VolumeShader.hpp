@@ -10,8 +10,10 @@
 class VolumeShader : public Shader {
     public:
         struct Voxel {
+            /* Position and scale in world-space */
             Spatial spatial;
-            float visibility;
+            /* Data stored in voxel */
+            glm::vec4 data;
         };
 
         VolumeShader(std::string vertex, std::string fragment) :

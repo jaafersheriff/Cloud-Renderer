@@ -14,7 +14,6 @@ bool VoxelShader::init() {
     }
 
     addAttribute("vertPos"); 
-    addAttribute("vertNor"); 
 
     addUniform("P");
     addUniform("V");
@@ -22,7 +21,7 @@ bool VoxelShader::init() {
 
     addUniform("isOutline");
 
-    addUniform("visibility");
+    addUniform("voxelData");
 }
 
 void VoxelShader::render(std::vector<VolumeShader::Voxel> & voxels) {
@@ -58,7 +57,7 @@ void VoxelShader::render(std::vector<VolumeShader::Voxel> & voxels) {
         M *= glm::scale(glm::mat4(1.f), v.spatial.scale);
         loadMat4(getUniform("M"), &M);
 
-        loadFloat(getUniform("visibility"), v.visibility);
+        loadVec4(getUniform("voxelData"), v.data);
 
         /* Draw shape */
         loadBool(getUniform("isOutline"), false);

@@ -39,8 +39,9 @@ class Shader {
         void loadBool(const int, const bool) const;
         void loadInt(const int, const int) const;
         void loadFloat(const int, const float) const;
-        void loadVec2(const int, const glm::vec2) const;
-        void loadVec3(const int, const glm::vec3) const;
+        void loadVec2(const int, const glm::vec2 &) const;
+        void loadVec3(const int, const glm::vec3 &) const;
+        void loadVec4(const int, const glm::vec4 &) const;
         void loadMat4(const int, const glm::mat4*) const;
 
         /* Get shader location */
