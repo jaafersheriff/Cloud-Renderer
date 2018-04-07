@@ -8,7 +8,7 @@
 #include "Shaders/BillboardShader.hpp"
 #include "Shaders/VolumeShader.hpp"
 #include "Shaders/DiffuseShader.hpp"
-#include "Shaders/LightPosShader.hpp"
+#include "Shaders/LightMapWriteShader.hpp"
 
 #include "ThirdParty/imgui/imgui.h"
 
@@ -17,6 +17,8 @@
 
 /* Initial values */
 #define IMGUI_FONT_SIZE 13.f
+#define I_VOLUME_BOUNDS glm::vec2(-10.f, 10.f)
+#define I_VOLUME_VOXELS 32
 std::string RESOURCE_DIR = "../res/";
 Spatial Light::spatial = Spatial(glm::vec3(10.f, 10.f, -10.f), glm::vec3(10.f), glm::vec3(0.f));
 glm::mat4 Light::P(1.f);
@@ -30,7 +32,7 @@ bool lightVoxelize = false;
 BillboardShader * billboardShader;
 VolumeShader * volumeShader;
 DiffuseShader * diffuseShader;
-LightPosShader * lightPosShader;
+LightMapWriteShader * lightWriteShader;
 
 /* Volume quad */
 Spatial volQuad(glm::vec3(5.f, 0.f, 0.f), glm::vec3(4.f), glm::vec3(0.f));
@@ -64,11 +66,11 @@ int main() {
     billboardShader = new BillboardShader(RESOURCE_DIR + "cloud_vert.glsl", RESOURCE_DIR + "cloud_frag.glsl");
     billboardShader->init(RESOURCE_DIR + "cloud.png", RESOURCE_DIR + "cloudMap.png", quad);
     volumeShader = new VolumeShader(RESOURCE_DIR + "voxelize_vert.glsl", RESOURCE_DIR + "voxelize_frag.glsl");
-    volumeShader->init(32, glm::vec2(-8.f, 8.f), glm::vec2(-8.f, 8.f), glm::vec2(-8.f, 8.f), &volQuad);
+    volumeShader->init(I_VOLUME_VOXELS, I_VOLUME_BOUNDS, I_VOLUME_BOUNDS, I_VOLUME_BOUNDS, &volQuad);
     diffuseShader = new DiffuseShader(RESOURCE_DIR + "diffuse_vert.glsl", RESOURCE_DIR + "diffuse_frag.glsl");
     diffuseShader->init();
-    lightPosShader = new LightPosShader(RESOURCE_DIR + "light_vert.glsl", RESOURCE_DIR + "light_frag.glsl");
-    lightPosShader->init();
+    lightWriteShader = new LightMapWriteShader(RESOURCE_DIR + "light_vert.glsl", RESOURCE_DIR + "light_frag.glsl");
+    lightWriteShader->init();
 
     /* Init ImGui Panes */
     createImGuiPanes();
@@ -127,7 +129,7 @@ int main() {
         diffuseShader->render(cube, volumeShader->getVoxelData());
 
         /* Render voxel world positions from the light's perspective to an FBO */
-        lightPosShader->render(cube, volumeShader->getVoxelData());
+        lightWriteShader->render(cube, volumeShader->getVoxelData());
 
         /* Render underlying quad */
         if (volumeShader->isEnabled()) {
@@ -165,7 +167,7 @@ void createImGuiPanes() {
             ImGui::SliderFloat3("Position", glm::value_ptr(Light::spatial.position), -100.f, 100.f);
             ImGui::SliderFloat("Bounds", &Light::boxBounds, 1.f, 100.f);
             ImGui::SliderFloat2("Near/Far", glm::value_ptr(Light::zBounds), 0.1f, 1000.f);
-            ImGui::Image((ImTextureID) lightPosShader->lightMap->textureId, ImVec2(256, 256));
+            ImGui::Image((ImTextureID) lightWriteShader->lightMap->textureId, ImVec2(256, 256));
             ImGui::End();
         } 
     );

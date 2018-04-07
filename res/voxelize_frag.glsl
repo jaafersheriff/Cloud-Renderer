@@ -49,12 +49,14 @@ void main() {
     if(voxelize) {
         for(float j = 0; j < radius * distR; j += normalStep) {
             ivec3 voxelIndex = calculateVoxelIndex(fragPos + normal * j);
-#if GL_NV_shader_atomic_fp16_vector
-            imageAtomicAdd(volume, voxelIndex, f16vec4(0, 0, 0, visibilityContrib));
-#else
-            vec4 voxelData = imageLoad(volume, voxelIndex) + vec4(0, 0, 0, visibilityContrib);
-            imageStore(volume, voxelIndex, voxelData);
-#endif
+            /* Light voxelize - denote that this voxel has been voxelized by light */
+            imageStore(volume, voxelIndex, vec4(1, 0, 0, 0));
+// #if GL_NV_shader_atomic_fp16_vector
+//             imageAtomicAdd(volume, voxelIndex, f16vec4(0, 0, 0, visibilityContrib));
+// #else
+//             vec4 voxelData = imageLoad(volume, voxelIndex) + vec4(0, 0, 0, visibilityContrib);
+//             imageStore(volume, voxelIndex, voxelData);
+// #endif
         }
     }
 }
