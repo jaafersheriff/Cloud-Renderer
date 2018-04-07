@@ -17,7 +17,6 @@ class LightPosShader : public Shader {
         void render(Mesh *, std::vector<VolumeShader::Voxel> &);
 
         Texture * lightMap;
-        void setTextureSize(int);
     private:
         void initFBO();
         GLuint fboHandle;

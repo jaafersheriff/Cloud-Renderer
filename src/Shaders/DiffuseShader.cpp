@@ -63,7 +63,6 @@ void DiffuseShader::render(Mesh *mesh, std::vector<VolumeShader::Voxel> & voxels
     /* IBO */
     CHECK_GL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->eleBufId));
 
-
     glm::mat4 M;
     for (auto v : voxels) {
         M  = glm::mat4(1.f);
@@ -87,7 +86,7 @@ void DiffuseShader::render(Mesh *mesh, std::vector<VolumeShader::Voxel> & voxels
    }
 
     CHECK_GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, 0));
+    CHECK_GL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
     CHECK_GL_CALL(glBindVertexArray(0));
-
     unbind();
 }

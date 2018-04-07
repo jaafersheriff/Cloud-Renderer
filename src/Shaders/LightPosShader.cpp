@@ -1,5 +1,7 @@
 #include "LightPosShader.hpp"
 
+#include "IO/Window.hpp"
+
 #include "Light.hpp"
 #include "Camera.hpp"
 
@@ -66,15 +68,12 @@ void LightPosShader::render(Mesh * mesh, std::vector<VolumeShader::Voxel> & voxe
         CHECK_GL_CALL(glDrawElements(GL_TRIANGLES, (int)mesh->eleBuf.size(), GL_UNSIGNED_INT, nullptr));
     }
 
+    CHECK_GL_CALL(glBindVertexArray(0));
+    CHECK_GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, 0));
+    CHECK_GL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
     unbind();
+    CHECK_GL_CALL(glViewport(0, 0, Window::width, Window::height));
     CHECK_GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, 0));
-}
-
-void LightPosShader::setTextureSize(int size) {
-    lightMap->width = lightMap->height = size;
-    CHECK_GL_CALL(glBindTexture(GL_TEXTURE_2D, lightMap->textureId));
-    CHECK_GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, size, size, 0, GL_RGB, GL_FLOAT, NULL));
-    CHECK_GL_CALL(glBindTexture(GL_TEXTURE_2D, 0));
 }
 
 void LightPosShader::initFBO() {
