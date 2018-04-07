@@ -35,7 +35,7 @@ class VolumeShader : public Shader {
         float radius;
 
         float normalStep = 0.2f;
-        float visibilityContrib = 0.02;
+        float visibilityContrib = 0.02f;
  
      private:
         void initVolume();

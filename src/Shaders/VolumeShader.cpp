@@ -87,7 +87,7 @@ void VolumeShader::voxelize(glm::mat4 P, glm::mat4 V, glm::vec3 camPos) {
                 (xBounds.y - xBounds.x) / volumeSize,
                 (yBounds.y - yBounds.x) / volumeSize,
                 (zBounds.y - zBounds.x) / volumeSize);
-    for (int i = 0; i < buffer.size(); i += 4) {
+    for (unsigned int i = 0; i < buffer.size(); i += 4) {
         float r = buffer[i + 0];
         float g = buffer[i + 1];
         float b = buffer[i + 2];
