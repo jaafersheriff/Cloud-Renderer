@@ -47,6 +47,9 @@ public:
     static void toggleImgui();
     static bool isImGuiEnabled();
 
+    /* Vsync */
+    static void toggleVsync();
+
 private:
     /* Reference to GLFW window, mouse, keyboard */
     static GLFWwindow *window;
@@ -66,6 +69,9 @@ private:
     /* ImGui */
     static bool imGuiEnabled;
     static float imGuiTimer;
+
+    /* Vsync */
+    static bool vsyncEnabled;
 };
 
 #endif

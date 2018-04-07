@@ -19,6 +19,8 @@ int Window::nFrames = 0;
 float Window::imGuiTimer = 1.f;
 bool Window::imGuiEnabled = false;
 
+bool Window::vsyncEnabled = true;
+
 void Window::errorCallback(int error, const char *desc) {
     std::cerr << "Error " << error << ": " << desc << std::endl;
 }
@@ -165,11 +167,15 @@ void Window::shutDown() {
 }
 
 void Window::toggleImgui() {
-    Window::imGuiEnabled = !Window::imGuiEnabled;
+    imGuiEnabled = !imGuiEnabled;
 }
 
 bool Window::isImGuiEnabled() {
-    return Window::imGuiEnabled;
+    return imGuiEnabled;
 }
 
+void Window::toggleVsync() {
+    vsyncEnabled = !vsyncEnabled;
+    glfwSwapInterval(vsyncEnabled);
+}
 

@@ -16,7 +16,7 @@
 #include <time.h>
 
 /* Initial values */
-#define IMGUI_FONT_SIZE 20.f
+#define IMGUI_FONT_SIZE 13.f
 std::string RESOURCE_DIR = "../res/";
 Spatial Light::spatial = Spatial(glm::vec3(10.f, 10.f, -10.f), glm::vec3(10.f), glm::vec3(0.f));
 glm::mat4 Light::P(1.f);
@@ -103,8 +103,6 @@ int main() {
         ///////////////////////////////////////////////////
         //                   RENDER                      //       
         ///////////////////////////////////////////////////
-        lightPosShader->render(cube, volumeShader->getVoxelData());
-        
         CHECK_GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
         CHECK_GL_CALL(glClearColor(0.2f, 0.3f, 0.5f, 1.f));
 
@@ -128,6 +126,7 @@ int main() {
             volumeShader->unbind();
         }
 
+        // lightPosShader->render(cube, volumeShader->getVoxelData());
         diffuseShader->render(cube, volumeShader->getVoxelData());
         billboardShader->render(cloudsBillboards);
 
@@ -146,7 +145,9 @@ void createImGuiPanes() {
             glm::vec3 pos = Camera::getPosition();
             glm::vec3 look = Camera::getLookAt();
             ImGui::Text("CamPos:    (%f, %f, %f)", pos.x, pos.y, pos.z);
-            ImGui::Text("CamLookAt: (%f, %f, %f)", look.x, look.y, look.z);
+            if (ImGui::Button("Vsync")) {
+                Window::toggleVsync();
+            }
             ImGui::End();
         } 
     );
