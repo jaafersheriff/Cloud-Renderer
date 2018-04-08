@@ -48,16 +48,19 @@ std::vector<Spatial *> cloudsBillboards;
 
 /* ImGui functions */
 std::vector<std::function<void()>> imGuiFuncs;
-
 void createImGuiPanes();
+
+void exitError(std::string st) {
+    std::cerr << st << std::endl;
+    std::cin.get();
+    exit(EXIT_FAILURE);
+}
 int main() {
     srand((unsigned int)(time(0)));  
 
     /* Init window, keyboard, and mouse wrappers */
     if (Window::init("Clouds", IMGUI_FONT_SIZE)) {
-        std::cerr << "ERROR" << std::endl;
-        std::cin.get();
-        return 1;
+        exitError("Error initializing window");
     }
 
     /* Create meshes and textures */
@@ -65,13 +68,21 @@ int main() {
 
     /* Create shaders */
     billboardShader = new BillboardShader(RESOURCE_DIR + "cloud_vert.glsl", RESOURCE_DIR + "cloud_frag.glsl");
-    billboardShader->init();
+    if (!billboardShader->init()) {
+        exitError("Error initializing billboard shader");
+    }
     volumeShader = new VolumeShader(RESOURCE_DIR + "voxelize_vert.glsl", RESOURCE_DIR + "voxelize_frag.glsl");
-    volumeShader->init(I_VOLUME_VOXELS, I_VOLUME_BOUNDS, I_VOLUME_BOUNDS, I_VOLUME_BOUNDS, &volQuad);
+    if (!volumeShader->init(I_VOLUME_VOXELS, I_VOLUME_BOUNDS, I_VOLUME_BOUNDS, I_VOLUME_BOUNDS, &volQuad)) {
+        exitError("Error initializing volume shader");
+    }
     voxelShader = new VoxelShader(RESOURCE_DIR + "voxel_vert.glsl", RESOURCE_DIR + "voxel_frag.glsl");
-    voxelShader->init();
+    if (!voxelShader->init()) {
+        exitError("Error initializing voxel shader");
+    }
     lightWriteShader = new LightMapWriteShader(RESOURCE_DIR + "light_vert.glsl", RESOURCE_DIR + "light_frag.glsl");
-    lightWriteShader->init();
+    if (!lightWriteShader->init()) {
+        exitError("Error initializing light write shader");
+    }
 
     /* Init ImGui Panes */
     createImGuiPanes();
@@ -105,9 +116,7 @@ int main() {
             }
         }
     
-        ///////////////////////////////////////////////////
-        //                   RENDER                      //       
-        ///////////////////////////////////////////////////
+        /* Cloud render! */
         CHECK_GL_CALL(glClearColor(0.2f, 0.3f, 0.5f, 1.f));
         CHECK_GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
@@ -222,7 +231,6 @@ void createImGuiPanes() {
             ImGui::SliderFloat2("ZBounds", glm::value_ptr(volumeShader->zBounds), -20.f, 20.f);
             ImGui::SliderFloat("Step", &volumeShader->normalStep, 0.05f, 0.5f);
             ImGui::SliderFloat("Contrib", &volumeShader->visibilityContrib, 0.f, 0.2f);
-            //ImGui::SliderInt("Volume Size", &volumeShader->volumeSize, 0, 256);
 
             bool b = volumeShader->isEnabled();
             ImGui::Checkbox("Render underlying quad", &b);
