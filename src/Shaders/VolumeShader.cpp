@@ -67,7 +67,10 @@ void VolumeShader::initVolume() {
 }
 
 void VolumeShader::clearVolume() {
+    /* Reset GPU volume */
     CHECK_GL_CALL(glClearTexImage(volumeHandle, 0, GL_RGBA, GL_FLOAT, nullptr));
+
+    /* Reset CPU representation of volume */
     for (unsigned int i = 0; i < voxelData.size(); i++) {
         voxelData[i].spatial.position = glm::vec3(0.f);
         voxelData[i].spatial.scale = glm::vec3(0.f);
@@ -76,12 +79,13 @@ void VolumeShader::clearVolume() {
 }
 
 void VolumeShader::voxelize(glm::mat4 P, glm::mat4 V, glm::vec3 camPos, GLuint lightMap) {
+    /* Disable quad visualization */
     CHECK_GL_CALL(glDisable(GL_DEPTH_TEST));
     CHECK_GL_CALL(glDisable(GL_CULL_FACE));
     CHECK_GL_CALL(glDepthMask(GL_FALSE));
     CHECK_GL_CALL(glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE));
     
-    /* Draw call on mesh to populate volume */
+    /* Populate/update volume */
     bind();
     CHECK_GL_CALL(glBindImageTexture(1, volumeHandle, 0, GL_TRUE, 0, GL_READ_WRITE, GL_RGBA16F));
     loadFloat(getUniform("normalStep"), normalStep);
@@ -89,42 +93,49 @@ void VolumeShader::voxelize(glm::mat4 P, glm::mat4 V, glm::vec3 camPos, GLuint l
     renderMesh(P, V, camPos, true, lightMap);
     CHECK_GL_CALL(glBindImageTexture(1, 0, 0, GL_TRUE, 0, GL_READ_WRITE, GL_RGBA16F));
     unbind();
+
+    /* Reset state */
     CHECK_GL_CALL(glEnable(GL_DEPTH_TEST));
     CHECK_GL_CALL(glEnable(GL_CULL_FACE));
     CHECK_GL_CALL(glDepthMask(GL_TRUE));
     CHECK_GL_CALL(glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE));
 
+    /* Update CPU representation of volume */
     updateVoxelData();
 }
 
 void VolumeShader::renderMesh(glm::mat4 P, glm::mat4 V, glm::vec3 camPos, bool vox, GLuint lightMap) {
+    loadVec3(getUniform("normal"), glm::normalize(camPos - volQuad->position));
     loadInt(getUniform("voxelSize"), volumeSize);
     loadVec2(getUniform("xBounds"), xBounds);
     loadVec2(getUniform("yBounds"), yBounds);
     loadVec2(getUniform("zBounds"), zBounds);
-    loadBool(getUniform("voxelize"), vox);
     loadVec3(getUniform("center"), volQuad->position);
     loadFloat(getUniform("scale"), volQuad->scale.x);
-    loadVec3(getUniform("normal"), glm::normalize(camPos - volQuad->position));
+    /* Boolean denotes whether to voxelize or not */
+    loadBool(getUniform("voxelize"), vox);
 
     /* Bind quad */
     /* VAO */
     CHECK_GL_CALL(glBindVertexArray(Library::quad->vaoId));
 
     /* Vertices VBO */
+    // TODO : unnecessary?
     int pos = getAttribute("vertPos");
     CHECK_GL_CALL(glEnableVertexAttribArray(pos));
     CHECK_GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, Library::quad->vertBufId));
     CHECK_GL_CALL(glVertexAttribPointer(pos, 3, GL_FLOAT, GL_FALSE, 0, nullptr));
 
     glm::mat4 M = glm::mat4(1.f);
+    /* Render position frame buffer 
+     * Update existing voxels based on world positions */
     if (lightMap) {
-        /* Render full screen quad 
-         * Reuse frag voxelize functionality to update voxels nearest to camera */
+        /* Bind light map */
         loadInt(getUniform("lightMap"), lightMap);
         CHECK_GL_CALL(glActiveTexture(GL_TEXTURE0 + lightMap));
         CHECK_GL_CALL(glBindTexture(GL_TEXTURE_2D, lightMap));
         loadBool(getUniform("useLightMap"), true);
+        /* Reset matrices so quad renders to full screen */
         loadMat4(getUniform("P"), &M);
         loadMat4(getUniform("V"), &M);
         loadMat4(getUniform("Vi"), &M);
@@ -136,7 +147,7 @@ void VolumeShader::renderMesh(glm::mat4 P, glm::mat4 V, glm::vec3 camPos, bool v
     }
     else {
         /* Render cloud billboard 
-         * 'Tag' spherical voxels from billboard to light source */
+         * Initialize spherical voxels from billboard to light source */
         loadMat4(getUniform("P"), &P);
         loadMat4(getUniform("V"), &V);
         glm::mat4 Vi = V;
@@ -155,20 +166,22 @@ void VolumeShader::renderMesh(glm::mat4 P, glm::mat4 V, glm::vec3 camPos, bool v
 }
 
 void VolumeShader::updateVoxelData() {
-    voxelCount = 0;
     /* Pull volume data out of GPU */
     std::vector<float> buffer(voxelData.size() * 4);
     CHECK_GL_CALL(glGetTexImage(GL_TEXTURE_3D, 0, GL_RGBA, GL_FLOAT, buffer.data()));
 
+    /* Size of voxels in world-space */
     glm::vec3 voxelScale = glm::vec3(
                 (xBounds.y - xBounds.x) / volumeSize,
                 (yBounds.y - yBounds.x) / volumeSize,
                 (zBounds.y - zBounds.x) / volumeSize);
+    voxelCount = 0;
     for (unsigned int i = 0; i < voxelData.size(); i++) {
         float r = buffer[4*i + 0];
         float g = buffer[4*i + 1];
         float b = buffer[4*i + 2];
         float a = buffer[4*i + 3];
+        /* Update voxel data if data exists */
         if (r || g || b || a) {
             voxelCount++;
             glm::ivec3 in = get3DIndices(4*i);       // voxel index 

@@ -80,23 +80,22 @@ int main() {
         exitError("Error initializing voxel shader");
     }
     lightWriteShader = new LightMapWriteShader(RESOURCE_DIR + "light_vert.glsl", RESOURCE_DIR + "light_frag.glsl");
-    if (!lightWriteShader->init()) {
+    if (!lightWriteShader->init(Window::width, Window::height)) {
         exitError("Error initializing light write shader");
     }
 
     /* Init ImGui Panes */
     createImGuiPanes();
 
-    /* Init rendering */
+    /* Init rendering state */
     GLSL::checkVersion();
     CHECK_GL_CALL(glEnable(GL_DEPTH_TEST));
     CHECK_GL_CALL(glEnable(GL_BLEND));
     CHECK_GL_CALL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
     Camera::update(Window::timeStep);
 
-    ///////////////////////////////////////////////////////////////////////////////
-    ////// add light spatial to cloud billboards so we can visualize light pos ////
-    ///////////////////////////////////////////////////////////////////////////////
+    // add light spatial to cloud billboards so we can visualize light pos 
+    // TODO : replace with proper sun rendering
     cloudsBillboards.push_back(&Light::spatial);
 
     while (!Window::shouldClose()) {
@@ -122,26 +121,27 @@ int main() {
 
         /* Voxelize from the light's perspective */
         if (lightVoxelize) {
-            /* Clear volume */
+            /* Reset volume */
             volumeShader->clearVolume();
-            /* Voxelize from light source with black voxels */
+            /* Voxelize from light source with initial black voxels */
             volumeShader->voxelize(Light::P, Light::V, Light::spatial.position, 0);
             /* Create position FBO */
             lightWriteShader->render(volumeShader->getVoxelData());
-            /* Voxelize from light source with white voxels */
+            /* Revoxelize from light source using light map to update white/red voxels */
             volumeShader->voxelize(Light::P, Light::V, Light::spatial.position, lightWriteShader->lightMap->textureId);
         }
 
-        /* Draw voxels to the screen */
+        /* Draw voxels to the screen -- optional */
         voxelShader->render(volumeShader->getVoxelData());
 
-        /* Render underlying quad */
+        /* Render underlying quad -- optional*/
         if (volumeShader->isEnabled()) {
             volumeShader->bind();
             volumeShader->renderMesh(Camera::getP(), Camera::getV(), Camera::getPosition(), false, 0);
             volumeShader->unbind();
         }
 
+        /* Render cloud billboards */
         billboardShader->render(cloudsBillboards);
 
         if (Window::isImGuiEnabled()) {

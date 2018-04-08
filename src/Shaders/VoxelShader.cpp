@@ -24,6 +24,7 @@ bool VoxelShader::init() {
     addUniform("voxelData");
 }
 
+/* Visualize voxels */
 void VoxelShader::render(std::vector<VolumeShader::Voxel> & voxels) {
     if (!enabled) {
         return;
@@ -52,6 +53,7 @@ void VoxelShader::render(std::vector<VolumeShader::Voxel> & voxels) {
 
     glm::mat4 M;
     for (auto v : voxels) {
+        /* Only render voxels that contain data */
         if (v.data.r || v.data.g || v.data.b || v.data.a) {
             M = glm::mat4(1.f);
             M *= glm::translate(glm::mat4(1.f), v.spatial.position);

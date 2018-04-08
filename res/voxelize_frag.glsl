@@ -45,17 +45,20 @@ ivec3 calculateVoxelIndex(vec3 pos) {
 void main() {
     float radius = scale/2;
 
-    // 1 at center of billboard, 0 at edges
+    /* 1 at center of billboard, 0 at edges */
     float distR = 1 - (distance(center, fragPos)/radius);
     color = vec4(distR);
 
+    /* Update existing voxels based on position frame buffer */
     if (useLightMap) {
         vec4 worldPos = texture(lightMap, fragTex);
         ivec3 voxelIndex = calculateVoxelIndex(worldPos.xyz);
         vec4 exist = imageLoad(volume, voxelIndex);
+        /* Valid voxels are white */
         if (exist == vec4(0, 0, 0, 1) || exist == vec4(1, 1, 1, 1)) {
             imageStore(volume, voxelIndex, vec4(1, 1, 1, 1));
         }
+        /* Invalid voxels are red */
         else {
             imageStore(volume, voxelIndex, vec4(1, 0, 0, 1));
         }
@@ -66,6 +69,7 @@ void main() {
             ivec3 voxelIndex = calculateVoxelIndex(fragPos + normal * j);
             /* Light voxelize - denote that this voxel has been voxelized by light */
             imageStore(volume, voxelIndex, vec4(0, 0, 0, 1));
+
 // #if GL_NV_shader_atomic_fp16_vector
 //             imageAtomicAdd(volume, voxelIndex, f16vec4(0, 0, 0, visibilityContrib));
 // #else

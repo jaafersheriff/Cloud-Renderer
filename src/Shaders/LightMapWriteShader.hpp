@@ -12,7 +12,7 @@ class LightMapWriteShader : public Shader {
     public:
         LightMapWriteShader(const std::string vert, const std::string frag);
 
-        bool init();
+        bool init(int, int);
 
         void render(std::vector<VolumeShader::Voxel> &);
 

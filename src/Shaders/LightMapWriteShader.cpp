@@ -1,6 +1,5 @@
 #include "LightMapWriteShader.hpp"
 
-#include "IO/Window.hpp"
 #include "Library.hpp"
 
 #include "Light.hpp"
@@ -13,9 +12,9 @@ LightMapWriteShader::LightMapWriteShader(const std::string vert, const std::stri
     lightMap = new Texture();
 }
 
-bool LightMapWriteShader::init() {
-    lightMap->width = Window::width;
-    lightMap->height = Window::height;
+bool LightMapWriteShader::init(int width, int height) {
+    lightMap->width = width;
+    lightMap->height = height;
 
     if (!Shader::init()) {
         return false;
@@ -44,11 +43,12 @@ void LightMapWriteShader::render(std::vector<VolumeShader::Voxel> & voxels) {
     loadMat4(getUniform("P"), &Light::P);
     loadMat4(getUniform("V"), &Light::V);
 
-    /* Bind Library::cube */
+    /* Bind cube */
     /* VAO */
     CHECK_GL_CALL(glBindVertexArray(Library::cube->vaoId));
 
     /* Vertices VBO */
+    // TODO : unnecessary
     int pos = getAttribute("vertPos");
     if (pos >= 0 && Library::cube->vertBufId) {
         CHECK_GL_CALL(glEnableVertexAttribArray(pos));
@@ -57,10 +57,12 @@ void LightMapWriteShader::render(std::vector<VolumeShader::Voxel> & voxels) {
     }
 
     /* IBO */
+    // TODO : unnecessary?
     CHECK_GL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Library::cube->eleBufId));
 
     glm::mat4 M;
     for (auto v : voxels) {
+        /* If voxel contains any data, write its world positions to the light map */
         if (v.data.r || v.data.g || v.data.b || v.data.a) {
             M  = glm::mat4(1.f);
             M *= glm::translate(glm::mat4(1.f), v.spatial.position);
@@ -71,6 +73,7 @@ void LightMapWriteShader::render(std::vector<VolumeShader::Voxel> & voxels) {
         }
     }
 
+    /* Wrap up */
     CHECK_GL_CALL(glBindVertexArray(0));
     CHECK_GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, 0));
     CHECK_GL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
