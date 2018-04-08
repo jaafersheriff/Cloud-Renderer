@@ -52,7 +52,13 @@ void main() {
     if (useLightMap) {
         vec4 worldPos = texture(lightMap, fragTex);
         ivec3 voxelIndex = calculateVoxelIndex(worldPos.xyz);
-        imageStore(volume, voxelIndex, vec4(1, 1, 1, 1));
+        vec4 exist = imageLoad(volume, voxelIndex);
+        if (exist == vec4(0, 0, 0, 1) || exist == vec4(1, 1, 1, 1)) {
+            imageStore(volume, voxelIndex, vec4(1, 1, 1, 1));
+        }
+        else {
+            imageStore(volume, voxelIndex, vec4(1, 0, 0, 1));
+        }
     }
 
     if(voxelize) {
