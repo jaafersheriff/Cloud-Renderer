@@ -27,7 +27,7 @@ class VolumeShader : public Shader {
         void voxelize(glm::mat4, glm::mat4, glm::vec3, GLuint);
         void renderMesh(glm::mat4, glm::mat4, glm::vec3, bool, GLuint);
 
-        std::vector<Voxel> & getVoxelData() { updateVoxelData(); return voxelData; }
+        std::vector<Voxel> & getVoxelData() { return voxelData; }
         void updateVoxelData();
 
         glm::vec2 xBounds;
@@ -38,7 +38,7 @@ class VolumeShader : public Shader {
 
         float normalStep = 0.2f;
         float visibilityContrib = 0.02f;
- 
+
      private:
         void initVolume();
         glm::ivec3 get3DIndices(int);
@@ -46,7 +46,7 @@ class VolumeShader : public Shader {
 
         /* Volume vars */
         GLuint volumeHandle;
-        Spatial *volQuad;
+        Spatial * volQuad;
         std::vector<Voxel> voxelData;
 
 };

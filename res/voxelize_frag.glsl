@@ -59,9 +59,9 @@ void main() {
         else {
             imageStore(volume, voxelIndex, vec4(1, 0, 0, 1));
         }
+        color = worldPos;
     }
-
-    if(voxelize) {
+    else if(voxelize) {
         for(float j = 0; j < radius * distR; j += normalStep) {
             ivec3 voxelIndex = calculateVoxelIndex(fragPos + normal * j);
             /* Light voxelize - denote that this voxel has been voxelized by light */
