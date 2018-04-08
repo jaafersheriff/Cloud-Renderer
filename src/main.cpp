@@ -223,7 +223,7 @@ void createImGuiPanes() {
     imGuiFuncs.push_back(
         [&]() {
             ImGui::Begin("Volume");
-            ImGui::Text("Voxels in scene : %d", volumeShader->getVoxelData().size());
+            ImGui::Text("Voxels in scene : %d", volumeShader->voxelCount);
             ImGui::SliderFloat3("Position", glm::value_ptr(volQuad.position), -20.f, 20.f);
             ImGui::SliderFloat("Scale", &volQuad.scale.x, 0.f, 10.f);
             ImGui::SliderFloat2("XBounds", glm::value_ptr(volumeShader->xBounds), -20.f, 20.f);

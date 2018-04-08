@@ -29,6 +29,7 @@ class VolumeShader : public Shader {
 
         std::vector<Voxel> & getVoxelData() { return voxelData; }
         void updateVoxelData();
+        int voxelCount = 0;
 
         glm::vec2 xBounds;
         glm::vec2 yBounds;
@@ -48,7 +49,6 @@ class VolumeShader : public Shader {
         GLuint volumeHandle;
         Spatial * volQuad;
         std::vector<Voxel> voxelData;
-
 };
 
 #endif

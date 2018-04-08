@@ -154,7 +154,8 @@ void VolumeShader::renderMesh(glm::mat4 P, glm::mat4 V, glm::vec3 camPos, bool v
     CHECK_GL_CALL(glBindVertexArray(0));
 }
 
-void VolumeShader::updateVoxelData() { 
+void VolumeShader::updateVoxelData() {
+    voxelCount = 0;
     /* Pull volume data out of GPU */
     std::vector<float> buffer(voxelData.size() * 4);
     CHECK_GL_CALL(glGetTexImage(GL_TEXTURE_3D, 0, GL_RGBA, GL_FLOAT, buffer.data()));
@@ -169,6 +170,7 @@ void VolumeShader::updateVoxelData() {
         float b = buffer[4*i + 2];
         float a = buffer[4*i + 3];
         if (r || g || b || a) {
+            voxelCount++;
             glm::ivec3 in = get3DIndices(4*i);       // voxel index 
             glm::vec3 wPos = reverseVoxelIndex(in);  // world space
             voxelData[i].spatial.position = wPos;
