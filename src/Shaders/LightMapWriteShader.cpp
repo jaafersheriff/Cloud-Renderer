@@ -8,14 +8,15 @@
 
 #include "glm/gtc/matrix_transform.hpp"
 
-#define DEFAULT_SIZE 1024
-
 LightMapWriteShader::LightMapWriteShader(const std::string vert, const std::string frag) :
     Shader(vert, frag) {
     lightMap = new Texture();
 }
 
 bool LightMapWriteShader::init() {
+    lightMap->width = Window::width;
+    lightMap->height = Window::height;
+
     if (!Shader::init()) {
         return false;
     }
@@ -26,7 +27,6 @@ bool LightMapWriteShader::init() {
     addUniform("V");
     addUniform("M");
 
-    lightMap->width = lightMap->height = DEFAULT_SIZE;
     initFBO();
 
     return true;
@@ -34,7 +34,6 @@ bool LightMapWriteShader::init() {
 
 void LightMapWriteShader::render(std::vector<VolumeShader::Voxel> & voxels) {
     /* Reset light map */
-    CHECK_GL_CALL(glViewport(0, 0, lightMap->width, lightMap->height));
     CHECK_GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, fboHandle));
     CHECK_GL_CALL(glClearColor(0.f, 0.f, 0.f, 0.f));
     CHECK_GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
@@ -76,7 +75,6 @@ void LightMapWriteShader::render(std::vector<VolumeShader::Voxel> & voxels) {
     CHECK_GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, 0));
     CHECK_GL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
     unbind();
-    CHECK_GL_CALL(glViewport(0, 0, Window::width, Window::height));
     CHECK_GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 }
 
@@ -89,8 +87,8 @@ void LightMapWriteShader::initFBO() {
     CHECK_GL_CALL(glBindTexture(GL_TEXTURE_2D, lightMap->textureId));
     CHECK_GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, lightMap->width, lightMap->height, 0, GL_RGB, GL_FLOAT, NULL));
 
-    CHECK_GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
-    CHECK_GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
+    CHECK_GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
+    CHECK_GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
     CHECK_GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
     CHECK_GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
 
