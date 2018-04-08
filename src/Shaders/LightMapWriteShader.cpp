@@ -36,6 +36,7 @@ void LightMapWriteShader::render(std::vector<VolumeShader::Voxel> & voxels) {
     /* Reset light map */
     CHECK_GL_CALL(glViewport(0, 0, lightMap->width, lightMap->height));
     CHECK_GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, fboHandle));
+    CHECK_GL_CALL(glClearColor(0.f, 0.f, 0.f, 0.f));
     CHECK_GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
     bind();
@@ -61,12 +62,14 @@ void LightMapWriteShader::render(std::vector<VolumeShader::Voxel> & voxels) {
 
     glm::mat4 M;
     for (auto v : voxels) {
-        M  = glm::mat4(1.f);
-        M *= glm::translate(glm::mat4(1.f), v.spatial.position);
-        M *= glm::scale(glm::mat4(1.f), v.spatial.scale);
-        loadMat4(getUniform("M"), &M);
+        if (v.data.r || v.data.g || v.data.b || v.data.a) {
+            M  = glm::mat4(1.f);
+            M *= glm::translate(glm::mat4(1.f), v.spatial.position);
+            M *= glm::scale(glm::mat4(1.f), v.spatial.scale);
+            loadMat4(getUniform("M"), &M);
 
-        CHECK_GL_CALL(glDrawElements(GL_TRIANGLES, (int)Library::cube->eleBuf.size(), GL_UNSIGNED_INT, nullptr));
+            CHECK_GL_CALL(glDrawElements(GL_TRIANGLES, (int)Library::cube->eleBuf.size(), GL_UNSIGNED_INT, nullptr));
+        }
     }
 
     CHECK_GL_CALL(glBindVertexArray(0));

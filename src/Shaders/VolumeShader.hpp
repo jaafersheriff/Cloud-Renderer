@@ -24,11 +24,11 @@ class VolumeShader : public Shader {
 
         /* Generate 3D volume */
         void clearVolume();
-        void voxelize(glm::mat4, glm::mat4, glm::vec3);
-        void renderMesh(glm::mat4, glm::mat4, glm::vec3, bool);
+        void voxelize(glm::mat4, glm::mat4, glm::vec3, GLuint);
+        void renderMesh(glm::mat4, glm::mat4, glm::vec3, bool, GLuint);
 
-        /* Getters */
-        std::vector<Voxel> & getVoxelData() { return voxelData; }
+        std::vector<Voxel> & getVoxelData() { updateVoxelData(); return voxelData; }
+        void updateVoxelData();
 
         glm::vec2 xBounds;
         glm::vec2 yBounds;
@@ -47,10 +47,8 @@ class VolumeShader : public Shader {
         /* Volume vars */
         GLuint volumeHandle;
         Spatial *volQuad;
-
-        /* Data stored in voxels */
-        // TODO : a fixed-size array and write over values 
         std::vector<Voxel> voxelData;
+
 };
 
 #endif

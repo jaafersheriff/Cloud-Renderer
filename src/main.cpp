@@ -21,7 +21,6 @@
 #define I_VOLUME_BOUNDS glm::vec2(-10.f, 10.f)
 #define I_VOLUME_VOXELS 32
 const std::string RESOURCE_DIR = "../res/";
-bool cameraVoxelize = false;
 bool lightVoxelize = false;
 
 Spatial Light::spatial = Spatial(glm::vec3(10.f, 10.f, -10.f), glm::vec3(10.f), glm::vec3(0.f));
@@ -109,34 +108,28 @@ int main() {
         ///////////////////////////////////////////////////
         //                   RENDER                      //       
         ///////////////////////////////////////////////////
-        CHECK_GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
         CHECK_GL_CALL(glClearColor(0.2f, 0.3f, 0.5f, 1.f));
-
-        /* Clear volume data if we're going to revoxelize */
-        if (cameraVoxelize || lightVoxelize) {
-            volumeShader->clearVolume();
-        }
-
-        /* Voxelize from the camera's perspective */
-        // if (cameraVoxelize) {
-        //     volumeShader->voxelize(Camera::getP(), Camera::getV(), Camera::getPosition(), quad);
-        // }
+        CHECK_GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
         /* Voxelize from the light's perspective */
         if (lightVoxelize) {
-            volumeShader->voxelize(Light::P, Light::V, Light::spatial.position);
+            /* Clear volume */
+            volumeShader->clearVolume();
+            /* Voxelize from light source with black voxels */
+            volumeShader->voxelize(Light::P, Light::V, Light::spatial.position, 0);
+            /* Create position FBO */
+            lightWriteShader->render(volumeShader->getVoxelData());
+            /* Voxelize from light source with white voxels */
+            volumeShader->voxelize(Light::P, Light::V, Light::spatial.position, lightWriteShader->lightMap->textureId);
         }
 
         /* Draw voxels to the screen */
         voxelShader->render(volumeShader->getVoxelData());
 
-        /* Render voxel world positions from the light's perspective to an FBO */
-        lightWriteShader->render(volumeShader->getVoxelData());
-
         /* Render underlying quad */
         if (volumeShader->isEnabled()) {
             volumeShader->bind();
-            volumeShader->renderMesh(Camera::getP(), Camera::getV(), Camera::getPosition(), false);
+            volumeShader->renderMesh(Camera::getP(), Camera::getV(), Camera::getPosition(), false, 0);
             volumeShader->unbind();
         }
 
@@ -239,12 +232,13 @@ void createImGuiPanes() {
             voxelShader->setEnabled(b);
             ImGui::Checkbox("Outlines", &voxelShader->drawOutline);
 
-            // ImGui::Checkbox("Camera Voxelize!", &cameraVoxelize);
             ImGui::Checkbox("Light Voxelize!", &lightVoxelize);
 
             if (ImGui::Button("Single voxelize")) {
                 volumeShader->clearVolume();
-                volumeShader->voxelize(Camera::getP(), Camera::getV(), Camera::getPosition());
+                volumeShader->voxelize(Light::P, Light::V, Light::spatial.position, 0);
+                lightWriteShader->render(volumeShader->getVoxelData());
+                volumeShader->voxelize(Light::P, Light::V, Light::spatial.position, lightWriteShader->lightMap->textureId);
             }
             if (ImGui::Button("Clear")) {
                 volumeShader->clearVolume();
