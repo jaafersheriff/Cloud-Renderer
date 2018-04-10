@@ -31,6 +31,8 @@ uniform int mapHeight;
 uniform sampler2D lightMap;
 uniform bool useLight;
 
+uniform bool linear;
+
 out vec4 color;
 
 /* Linear map from aribtray box(?) in world space to 3D volume 
@@ -51,8 +53,9 @@ void main() {
     float radius = scale/2;
     vec3 normal = normalize(lightPos - center);
 
-    /* Quadratic sphere - 1 at center of billboard, 0 at edges */
+    /* Spherical distance - 1 at center of billboard, 0 at edges */
     float distR = (distance(center, fragPos)/radius);
+    distR = sqrt(max(0, 1 - distR * distR));
     distR = 1 - distR * distR;
     color = vec4(distR);
 
