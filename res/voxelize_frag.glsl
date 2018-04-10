@@ -9,7 +9,7 @@
 in vec3 fragPos;
 in vec2 fragTex;
 
-uniform vec3 camPos;
+uniform vec3 lightPos;
 
 uniform vec3 center;
 uniform float scale;
@@ -46,7 +46,7 @@ ivec3 calculateVoxelIndex(vec3 pos) {
 
 void main() {
     float radius = scale/2;
-    vec3 normal = normalize(camPos - center);
+    vec3 normal = normalize(lightPos - center);
 
     /* 1 at center of billboard, 0 at edges */
     float distR = 1 - (distance(center, fragPos)/radius);
@@ -60,7 +60,7 @@ void main() {
             ivec3 voxelIndex = calculateVoxelIndex(worldPos);
             imageStore(volume, voxelIndex, vec4(worldPos, 1));
 
-            if (distance(worldPos, camPos) < distance(nearestPos, camPos)) {
+            if (distance(worldPos, lightPos) < distance(nearestPos, lightPos)) {
                 nearestPos = worldPos;
             }
         }

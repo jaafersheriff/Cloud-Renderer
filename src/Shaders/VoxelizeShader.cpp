@@ -1,7 +1,8 @@
 #include "VoxelizeShader.hpp"
 
-#include "IO/Window.hpp"
 #include "Library.hpp"
+
+#include "Light.hpp"
 
 #include "glm/gtc/matrix_transform.hpp"
 
@@ -18,7 +19,7 @@ bool VoxelizeShader::init(Volume *vol, int width, int height) {
     addUniform("M");
     addUniform("Vi");
 
-    addUniform("camPos");
+    addUniform("lightPos");
 
     addUniform("center");
     addUniform("scale");
@@ -46,10 +47,11 @@ bool VoxelizeShader::init(Volume *vol, int width, int height) {
     return true;
 }
 
-void VoxelizeShader::voxelize(glm::mat4 P, glm::mat4 V, glm::vec3 camPos) {
+void VoxelizeShader::voxelize() {
     /* Reset volume and position map */
     volume->clear();
     clearPositionMap();
+    Light::boxBounds = volume->quadScale.x / 2; // TODO : weird
 
     /* Disable quad visualization */
     CHECK_GL_CALL(glDisable(GL_DEPTH_TEST));
@@ -71,7 +73,7 @@ void VoxelizeShader::voxelize(glm::mat4 P, glm::mat4 V, glm::vec3 camPos) {
 
     loadFloat(getUniform("normalStep"), normalStep);
     loadFloat(getUniform("visibilityContrib"), visibilityContrib);
-    renderMesh(P, V, camPos, true);
+    renderMesh(Light::P, Light::V, Light::spatial.position, true);
     CHECK_GL_CALL(glBindImageTexture(0, 0, 0, GL_TRUE, 0, GL_READ_WRITE, GL_RGBA16F));
     CHECK_GL_CALL(glBindImageTexture(1, 0, 0, GL_TRUE, 0, GL_READ_WRITE, GL_RGBA32F));
     unbind();
@@ -89,7 +91,7 @@ void VoxelizeShader::voxelize(glm::mat4 P, glm::mat4 V, glm::vec3 camPos) {
     volume->updateVoxelData();
 }
 
-void VoxelizeShader::renderMesh(glm::mat4 P, glm::mat4 V, glm::vec3 camPos, bool vox) {
+void VoxelizeShader::renderMesh(glm::mat4 P, glm::mat4 V, glm::vec3 lightPos, bool vox) {
     loadMat4(getUniform("P"), &P);
     loadMat4(getUniform("V"), &V);
     glm::mat4 Vi = V;
@@ -97,7 +99,7 @@ void VoxelizeShader::renderMesh(glm::mat4 P, glm::mat4 V, glm::vec3 camPos, bool
     Vi = glm::transpose(Vi);
     loadMat4(getUniform("Vi"), &Vi);
  
-    loadVec3(getUniform("camPos"), camPos);
+    loadVec3(getUniform("lightPos"), Light::spatial.position);
     loadInt(getUniform("dimension"), volume->dimension);
     loadVec2(getUniform("xBounds"), volume->xBounds);
     loadVec2(getUniform("yBounds"), volume->yBounds);

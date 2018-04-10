@@ -124,8 +124,7 @@ int main() {
         /* Voxelize from the light's perspective */
         if (lightVoxelize) {
             /* Voxelize from light source with initial black voxels */
-            Light::boxBounds = volume->quadScale.x / 2; // TODO : weird
-            voxelizeShader->voxelize(Light::P, Light::V, Light::spatial.position);
+            voxelizeShader->voxelize();
         }
 
         glm::mat4 P = showLightView ? Light::P : Camera::getP();
@@ -246,7 +245,7 @@ void createImGuiPanes() {
 
             if (ImGui::Button("Single voxelize")) {
                 volume->clear();
-                voxelizeShader->voxelize(Light::P, Light::V, Light::spatial.position);
+                voxelizeShader->voxelize();
             }
             if (ImGui::Button("Clear")) {
                 volume->clear();

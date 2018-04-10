@@ -4,7 +4,6 @@
 
 #include "Shader.hpp"
 
-#include "Model/Mesh.hpp"
 #include "Model/Texture.hpp"
 #include "Volume.hpp"
 
@@ -17,7 +16,7 @@ class VoxelizeShader : public Shader {
         bool init(Volume *, int, int);
 
         /* Generate 3D volume */
-        void voxelize(glm::mat4, glm::mat4, glm::vec3);
+        void voxelize();
         void renderMesh(glm::mat4, glm::mat4, glm::vec3, bool);
 
         float normalStep = 0.2f;
