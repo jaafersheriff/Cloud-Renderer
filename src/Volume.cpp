@@ -15,6 +15,7 @@ Volume::Volume(int dim, glm::vec2 bounds, glm::vec3 position, glm::vec2 size) {
     this->xBounds = bounds;
     this->yBounds = bounds;
     this->zBounds = bounds;
+    this->voxelSize = glm::vec3(0.f);
 
     /* Init volume */
     CHECK_GL_CALL(glGenTextures(1, &volId));
@@ -50,10 +51,10 @@ void Volume::updateVoxelData() {
     CHECK_GL_CALL(glBindTexture(GL_TEXTURE_3D, 0));
 
     /* Size of voxels in world-space */
-    glm::vec3 voxelScale = glm::vec3(
-                (xBounds.y - xBounds.x) / dimension,
-                (yBounds.y - yBounds.x) / dimension,
-                (zBounds.y - zBounds.x) / dimension);
+    voxelSize = glm::vec3(
+        (xBounds.y - xBounds.x) / dimension,
+        (yBounds.y - yBounds.x) / dimension,
+        (zBounds.y - zBounds.x) / dimension);
     voxelCount = 0;
     for (unsigned int i = 0; i < voxelData.size(); i++) {
         float r = buffer[4*i + 0];
@@ -66,7 +67,7 @@ void Volume::updateVoxelData() {
             glm::ivec3 in = get3DIndices(4*i);       // voxel index 
             glm::vec3 wPos = reverseVoxelIndex(in);  // world space
             voxelData[i].spatial.position = wPos;
-            voxelData[i].spatial.scale = voxelScale;
+            voxelData[i].spatial.scale = voxelSize;
             voxelData[i].data = glm::vec4(r, g, b, a);
         }
     }
