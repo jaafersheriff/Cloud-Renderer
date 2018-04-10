@@ -56,7 +56,6 @@ void main() {
     /* Spherical distance - 1 at center of billboard, 0 at edges */
     float distR = (distance(center, fragPos)/radius);
     distR = sqrt(max(0, 1 - distR * distR));
-    distR = 1 - distR * distR;
     color = vec4(distR);
 
     if(useLight) {
