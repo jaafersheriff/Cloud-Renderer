@@ -25,7 +25,7 @@ bool VoxelShader::init() {
 }
 
 /* Visualize voxels */
-void VoxelShader::render(std::vector<VolumeShader::Voxel> & voxels, glm::mat4 P, glm::mat4 V) {
+void VoxelShader::render(std::vector<Volume::Voxel> & voxels, glm::mat4 P, glm::mat4 V) {
     if (!enabled) {
         return;
     }

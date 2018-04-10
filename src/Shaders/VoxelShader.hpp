@@ -3,7 +3,7 @@
 #define _VOXEL_SHADER_HPP_
 
 #include "Shader.hpp"
-#include "VolumeShader.hpp"
+#include "Volume.hpp"
 
 #include <vector>
 
@@ -16,7 +16,7 @@ class VoxelShader : public Shader {
 
         bool init();
 
-        void render(std::vector<VolumeShader::Voxel> &, glm::mat4, glm::mat4);
+        void render(std::vector<Volume::Voxel> &, glm::mat4, glm::mat4);
 
         bool drawOutline = true;
 };

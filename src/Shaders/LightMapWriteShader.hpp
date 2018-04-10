@@ -6,7 +6,7 @@
 #include "Model/Mesh.hpp"
 #include "Model/Texture.hpp"
 #include "Spatial.hpp"
-#include "VolumeShader.hpp"
+#include "Volume.hpp"
 
 class LightMapWriteShader : public Shader {
     public:
@@ -14,7 +14,7 @@ class LightMapWriteShader : public Shader {
 
         bool init(int, int);
 
-        void render(std::vector<VolumeShader::Voxel> &);
+        void render(std::vector<Volume::Voxel> &);
 
         Texture * lightMap;
     private:

@@ -6,6 +6,12 @@
 
 class Spatial {
     public:
+        Spatial() :
+            position(0.f),
+            scale(0.f),
+            rotation(0.f)
+        {}
+
         Spatial(glm::vec3 p, glm::vec3 s, glm::vec3 r) :
             position(p),
             scale(s),

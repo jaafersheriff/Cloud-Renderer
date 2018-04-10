@@ -55,6 +55,9 @@
     <ClCompile Include="Shaders\LightMapWriteShader.cpp">
       <Filter>src\Shaders</Filter>
     </ClCompile>
+    <ClCompile Include="Volume.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="ext">
@@ -154,6 +157,9 @@
     </ClInclude>
     <ClInclude Include="Shaders\LightMapWriteShader.hpp">
       <Filter>src\Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="Volume.hpp">
+      <Filter>src</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

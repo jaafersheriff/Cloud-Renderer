@@ -31,7 +31,7 @@ bool LightMapWriteShader::init(int width, int height) {
     return true;
 }
 
-void LightMapWriteShader::render(std::vector<VolumeShader::Voxel> & voxels) {
+void LightMapWriteShader::render(std::vector<Volume::Voxel> & voxels) {
     /* Reset light map */
     CHECK_GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, fboHandle));
     CHECK_GL_CALL(glClearColor(0.f, 0.f, 0.f, 0.f));
