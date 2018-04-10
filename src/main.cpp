@@ -143,7 +143,7 @@ int main() {
         /* Render underlying quad -- optional*/
         if (voxelizeShader->isEnabled()) {
             voxelizeShader->bind();
-            voxelizeShader->renderMesh(P, V, camPos, false, false);
+            voxelizeShader->renderMesh(P, V, camPos);
             voxelizeShader->unbind();
         }
 
@@ -178,7 +178,6 @@ void createImGuiPanes() {
             ImGui::SliderFloat3("Position", glm::value_ptr(Light::spatial.position), -100.f, 100.f);
             ImGui::SliderFloat("Bounds", &Light::boxBounds, 1.f, 100.f);
             ImGui::SliderFloat2("Near/Far", glm::value_ptr(Light::zBounds), 0.1f, 1000.f);
-            ImGui::Image((ImTextureID) voxelizeShader->positionMap->textureId, ImVec2(256, 256));
             ImGui::End();
         } 
     );
@@ -236,8 +235,7 @@ void createImGuiPanes() {
             ImGui::SliderFloat2("XBounds", glm::value_ptr(volume->xBounds), -20.f, 20.f);
             ImGui::SliderFloat2("YBounds", glm::value_ptr(volume->yBounds), -20.f, 20.f);
             ImGui::SliderFloat2("ZBounds", glm::value_ptr(volume->zBounds), -20.f, 20.f);
-            ImGui::SliderFloat("Step", &voxelizeShader->normalStep, 0.05f, 0.5f);
-            ImGui::SliderFloat("Contrib", &voxelizeShader->visibilityContrib, 0.f, 0.2f);
+            ImGui::SliderFloat("Steps", &voxelizeShader->steps, 1.f, 10.f);
 
             bool b = voxelizeShader->isEnabled();
             ImGui::Checkbox("Render underlying quad", &b);

@@ -21,17 +21,7 @@ uniform vec2 zBounds;
 uniform int dimension;
 uniform bool voxelize;
 
-uniform float normalStep;
-uniform float visibilityContrib;
-
-layout(binding=1, rgba32f) uniform image2D positionMap;
-uniform int mapWidth;
-uniform int mapHeight;
-
-uniform sampler2D lightMap;
-uniform bool useLight;
-
-uniform bool linear;
+uniform float steps;
 
 out vec4 color;
 
@@ -58,32 +48,17 @@ void main() {
     distR = sqrt(max(0, 1 - distR * distR));
     color = vec4(distR);
 
-    if(useLight) {
-        vec4 worldPos = texture(lightMap, fragTex);
-        ivec3 voxelIndex = calculateVoxelIndex(worldPos.xyz);
-        imageStore(volume, voxelIndex, vec4(1, 1, 1, 1));
-    }
-    else if(voxelize) {
-        vec3 nearestPos = vec3(FLT_MAX, FLT_MAX, FLT_MAX);
-
-        for(float j = -radius * distR; j < radius * distR; j += normalStep) {
-            vec3 worldPos = fragPos + (normal * j);
-            ivec3 voxelIndex = calculateVoxelIndex(worldPos);
-            imageStore(volume, voxelIndex, vec4(0, 0, 0, 1));
-
-            if (distance(worldPos, lightPos) < distance(nearestPos, lightPos)) {
-                nearestPos = worldPos;
-            }
-        }
-        if (nearestPos.x != FLT_MAX) {
-            imageStore(positionMap, ivec2(fragTex.x * mapWidth, fragTex.y * mapHeight), vec4(nearestPos, 1.0));
-        }
+    if (length(fragTex*2-1) > 1) {
+        return;
     }
 
-// #if GL_NV_shader_atomic_fp16_vector
-//             imageAtomicAdd(volume, voxelIndex, f16vec4(0, 0, 0, visibilityContrib));
-// #else
-//             vec4 voxelData = imageLoad(volume, voxelIndex) + vec4(0, 0, 0, visibilityContrib);
-//             imageStore(volume, voxelIndex, voxelData);
-// #endif
+    float normalScale = radius * distR;
+    for(float j = -normalScale; j < normalScale; j += normalScale/steps) {
+        vec3 worldPos = fragPos + (normal * j);
+        ivec3 voxelIndex = calculateVoxelIndex(worldPos);
+        imageAtomicAdd(volume, voxelIndex, f16vec4(0, 0, 0, 1));
+    }
+    vec3 nPos = fragPos + normal * normalScale;
+    ivec3 nvoxel = calculateVoxelIndex(nPos);
+    imageStore(volume, nvoxel, vec4(1, 1, 1, 1));
 }
