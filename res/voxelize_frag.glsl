@@ -51,8 +51,9 @@ void main() {
     float radius = scale/2;
     vec3 normal = normalize(lightPos - center);
 
-    /* 1 at center of billboard, 0 at edges */
-    float distR = 1 - (distance(center, fragPos)/radius);
+    /* Quadratic sphere - 1 at center of billboard, 0 at edges */
+    float distR = (distance(center, fragPos)/radius);
+    distR = 1 - distR * distR;
     color = vec4(distR);
 
     if(useLight) {
