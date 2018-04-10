@@ -29,7 +29,6 @@ class VoxelizeShader : public Shader {
         Texture * positionMap;
     private:
         void initFBO();
-        GLuint positionMapFBOId;
 };
 
 #endif

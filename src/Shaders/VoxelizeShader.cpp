@@ -129,9 +129,6 @@ void VoxelizeShader::renderMesh(glm::mat4 P, glm::mat4 V, glm::vec3 camPos, bool
 }
 
 void VoxelizeShader::initFBO() {
-    ///* Generate the FBO for the shadow depth */
-    //CHECK_GL_CALL(glGenFramebuffers(1, &positionMapFBOId));
-
     /* Generate the texture */
     CHECK_GL_CALL(glGenTextures(1, &positionMap->textureId));
     CHECK_GL_CALL(glBindTexture(GL_TEXTURE_2D, positionMap->textureId));
@@ -142,10 +139,6 @@ void VoxelizeShader::initFBO() {
     CHECK_GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
     CHECK_GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
 
-    ///* Bind with framebuffer's depth buffer */
-    //CHECK_GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, positionMapFBOId));
-    //CHECK_GL_CALL(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, positionMap->textureId, 0));
-    //CHECK_GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, 0));
     CHECK_GL_CALL(glBindTexture(GL_TEXTURE_2D, 0));
 }
 
