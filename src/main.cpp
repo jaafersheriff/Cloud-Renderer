@@ -133,7 +133,12 @@ int main() {
         glm::vec3 camPos = showLightView ? Light::spatial.position : Camera::getPosition();
 
         /* Draw voxels to the screen -- optional */
-        voxelShader->render(volume->getVoxelData(), P, V);
+        if (voxelShader->isEnabled()) {
+            volume->updateVoxelData();
+            voxelShader->bind();
+            voxelShader->render(volume->getVoxelData(), P, V);
+            voxelShader->unbind();
+        }
 
         /* Render underlying quad -- optional*/
         if (voxelizeShader->isEnabled()) {

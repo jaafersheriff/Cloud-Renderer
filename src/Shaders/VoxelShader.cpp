@@ -26,12 +26,6 @@ bool VoxelShader::init() {
 
 /* Visualize voxels */
 void VoxelShader::render(std::vector<Volume::Voxel> & voxels, glm::mat4 P, glm::mat4 V) {
-    if (!enabled) {
-        return;
-    }
-
-    bind();
-
     /* Bind projeciton, view, inverise view matrices */
     loadMat4(getUniform("P"), &P);
     loadMat4(getUniform("V"), &V);
@@ -79,5 +73,4 @@ void VoxelShader::render(std::vector<Volume::Voxel> & voxels, glm::mat4 P, glm::
     CHECK_GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, 0));
     CHECK_GL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
     CHECK_GL_CALL(glBindVertexArray(0));
-    unbind();
 }

@@ -90,9 +90,6 @@ void VoxelizeShader::voxelize() {
     CHECK_GL_CALL(glActiveTexture(GL_TEXTURE0));
     CHECK_GL_CALL(glBindTexture(GL_TEXTURE_3D, 0));
     CHECK_GL_CALL(glBindTexture(GL_TEXTURE_2D, 0));
-
-    /* Update CPU representation of volume */
-    volume->updateVoxelData();
 }
 
 void VoxelizeShader::renderMesh(glm::mat4 P, glm::mat4 V, glm::vec3 lightPos, bool toVoxelize , bool useLight) {
