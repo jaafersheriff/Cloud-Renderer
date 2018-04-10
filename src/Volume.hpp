@@ -15,7 +15,7 @@ class Volume {
             glm::vec4 data;     // Data stored in voxel
         };
 
-        Volume(int, glm::vec2, glm::vec2, glm::vec2, glm::vec3, glm::vec2);
+        Volume(int, glm::vec2, glm::vec3, glm::vec2);
 
         std::vector<Voxel> & getVoxelData() { return voxelData; }
         void updateVoxelData();

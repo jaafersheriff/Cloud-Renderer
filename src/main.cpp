@@ -18,8 +18,6 @@
 
 /* Initial values */
 #define IMGUI_FONT_SIZE 13.f
-#define I_VOLUME_BOUNDS glm::vec2(-10.f, 10.f)
-#define I_VOLUME_VOXELS 32
 const std::string RESOURCE_DIR = "../res/";
 bool lightVoxelize = false;
 bool showLightView = false;
@@ -44,6 +42,10 @@ VoxelShader * voxelShader;
 LightMapWriteShader * lightWriteShader;
 
 /* Volume */
+#define I_VOLUME_DIMENSION 32
+#define I_VOLUME_BOUNDS glm::vec2(-10.f, 10.f)
+#define I_VOLUME_POSITION glm::vec3(5.f, 0.f, 0.f)
+#define I_VOLUME_SCALE glm::vec2(4.f)
 Volume * volume;
 
 /* Render targets */
@@ -67,7 +69,7 @@ int main() {
     }
 
     /* Create volume */
-    volume = new Volume(I_VOLUME_VOXELS, I_VOLUME_BOUNDS, I_VOLUME_BOUNDS, I_VOLUME_BOUNDS, glm::vec3(0.f), glm::vec2(4.f));
+    volume = new Volume(I_VOLUME_DIMENSION, I_VOLUME_BOUNDS, I_VOLUME_POSITION, I_VOLUME_SCALE);
 
     /* Create meshes and textures */
     Library::init(RESOURCE_DIR + "cloud.png", RESOURCE_DIR + "cloudMap.png");
