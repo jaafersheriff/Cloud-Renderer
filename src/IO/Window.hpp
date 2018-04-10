@@ -12,9 +12,6 @@
 
 #include <string>
 
-#define DEFAULT_WIDTH 1280
-#define DEFAULT_HEIGHT 960
-
 class Window {
 public:
     /* Window size */
@@ -50,6 +47,9 @@ public:
     /* Vsync */
     static void toggleVsync();
 
+    // TODO : messaging
+    static bool resize;
+
 private:
     /* Reference to GLFW window, mouse, keyboard */
     static GLFWwindow *window;
@@ -59,6 +59,7 @@ private:
     static void keyCallback(GLFWwindow *, int, int, int, int);
     static void mouseButtonCallback(GLFWwindow *, int, int, int);
     static void characterCallback(GLFWwindow *, unsigned int);
+    static void resizeCallback(GLFWwindow *, int, int);
 
     /* Timing */
     static double lastFpsTime;

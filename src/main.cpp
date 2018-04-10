@@ -22,6 +22,8 @@
 #define I_VOLUME_VOXELS 32
 const std::string RESOURCE_DIR = "../res/";
 bool lightVoxelize = false;
+int Window::width = 1920;
+int Window::height = 1080;
 
 Spatial Light::spatial = Spatial(glm::vec3(10.f, 10.f, -10.f), glm::vec3(10.f), glm::vec3(0.f));
 glm::mat4 Light::P(1.f);
@@ -225,7 +227,7 @@ void createImGuiPanes() {
             ImGui::Begin("Volume");
             ImGui::Text("Voxels in scene : %d", volumeShader->voxelCount);
             ImGui::SliderFloat3("Position", glm::value_ptr(volQuad.position), -20.f, 20.f);
-            ImGui::SliderFloat("Scale", &volQuad.scale.x, 0.f, 10.f);
+            ImGui::SliderFloat("Scale", &volQuad.scale.x, 0.f, 20.f);
             ImGui::SliderFloat2("XBounds", glm::value_ptr(volumeShader->xBounds), -20.f, 20.f);
             ImGui::SliderFloat2("YBounds", glm::value_ptr(volumeShader->yBounds), -20.f, 20.f);
             ImGui::SliderFloat2("ZBounds", glm::value_ptr(volumeShader->zBounds), -20.f, 20.f);

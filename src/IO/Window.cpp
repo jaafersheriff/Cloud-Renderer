@@ -5,8 +5,6 @@
 
 #include <iostream> /* cout, cerr */
 
-int Window::width = DEFAULT_WIDTH;
-int Window::height = DEFAULT_HEIGHT;
 GLFWwindow *Window::window;
 
 float Window::timeStep = 0.f;
@@ -86,6 +84,7 @@ int Window::init(std::string name, float fontSize = 15.f) {
     /* Set callbacks */
     glfwSetKeyCallback(window, keyCallback);
     glfwSetMouseButtonCallback(window, mouseButtonCallback);
+    glfwSetCharCallback(window, characterCallback);
 
     /* Init GLAD */
 	if (!gladLoadGL())
