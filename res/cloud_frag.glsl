@@ -38,4 +38,8 @@ void main() {
 
     color.rgb = d * diffuseTexColor.rgb;
     color.a = diffuseTexColor.a;
+
+    // sun viz - TODO : Remove
+    float distR = 1 - length(fragTex*2-1);
+    color = vec4(distR, distR, 0, distR);
 }

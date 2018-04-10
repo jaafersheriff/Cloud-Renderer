@@ -23,7 +23,7 @@ bool showLightView = false;
 int Window::width = 1280;
 int Window::height = 720;
 
-Spatial Light::spatial = Spatial(glm::vec3(10.f, 10.f, -10.f), glm::vec3(10.f), glm::vec3(0.f));
+Spatial Light::spatial = Spatial(glm::vec3(10.f, 10.f, -10.f), glm::vec3(3.f), glm::vec3(0.f));
 glm::mat4 Light::P(1.f);
 glm::mat4 Light::V(1.f);
 float Light::boxBounds = 10.f;
@@ -55,6 +55,7 @@ void createImGuiPanes();
 
 void exitError(std::string st) {
     std::cerr << st << std::endl;
+    std::cerr << "Enter to exit: " << std::endl;
     std::cin.get();
     exit(EXIT_FAILURE);
 }
