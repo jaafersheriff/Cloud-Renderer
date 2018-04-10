@@ -41,7 +41,7 @@ VoxelShader * voxelShader;
 
 /* Volume */
 #define I_VOLUME_DIMENSION 32
-#define I_VOLUME_BOUNDS glm::vec2(-10.f, 10.f)
+#define I_VOLUME_BOUNDS glm::vec2(-10.f, 15.f)
 #define I_VOLUME_POSITION glm::vec3(5.f, 0.f, 0.f)
 #define I_VOLUME_SCALE glm::vec2(4.f)
 Volume * volume;
