@@ -28,6 +28,9 @@ layout(binding=1, rgba32f) uniform image2D positionMap;
 uniform int mapWidth;
 uniform int mapHeight;
 
+uniform sampler2D lightMap;
+uniform bool useLight;
+
 out vec4 color;
 
 /* Linear map from aribtray box(?) in world space to 3D volume 
@@ -52,13 +55,18 @@ void main() {
     float distR = 1 - (distance(center, fragPos)/radius);
     color = vec4(distR);
 
-    if(voxelize) {
+    if(useLight) {
+        vec4 worldPos = texture(lightMap, fragTex);
+        ivec3 voxelIndex = calculateVoxelIndex(worldPos.xyz);
+        imageStore(volume, voxelIndex, vec4(1, 1, 1, 1));
+    }
+    else if(voxelize) {
         vec3 nearestPos = vec3(FLT_MAX, FLT_MAX, FLT_MAX);
 
         for(float j = -radius * distR; j < radius * distR; j += normalStep) {
             vec3 worldPos = fragPos + (normal * j);
             ivec3 voxelIndex = calculateVoxelIndex(worldPos);
-            imageStore(volume, voxelIndex, vec4(worldPos, 1));
+            imageStore(volume, voxelIndex, vec4(0, 0, 0, 1));
 
             if (distance(worldPos, lightPos) < distance(nearestPos, lightPos)) {
                 nearestPos = worldPos;

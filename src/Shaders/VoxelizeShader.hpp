@@ -17,7 +17,7 @@ class VoxelizeShader : public Shader {
 
         /* Generate 3D volume */
         void voxelize();
-        void renderMesh(glm::mat4, glm::mat4, glm::vec3, bool);
+        void renderMesh(glm::mat4, glm::mat4, glm::vec3, bool, bool);
 
         float normalStep = 0.2f;
         float visibilityContrib = 0.02f;

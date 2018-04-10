@@ -38,6 +38,9 @@ bool VoxelizeShader::init(Volume *vol, int width, int height) {
     addUniform("mapWidth");
     addUniform("mapHeight");
 
+    addUniform("lightMap");
+    addUniform("useLight");
+
     this->volume = vol;
     positionMap = new Texture();
     positionMap->width = width;
@@ -73,7 +76,8 @@ void VoxelizeShader::voxelize() {
 
     loadFloat(getUniform("normalStep"), normalStep);
     loadFloat(getUniform("visibilityContrib"), visibilityContrib);
-    renderMesh(Light::P, Light::V, Light::spatial.position, true);
+    renderMesh(Light::P, Light::V, Light::spatial.position, true, false);
+    renderMesh(Light::P, Light::V, Light::spatial.position, false, true);
     CHECK_GL_CALL(glBindImageTexture(0, 0, 0, GL_TRUE, 0, GL_READ_WRITE, GL_RGBA16F));
     CHECK_GL_CALL(glBindImageTexture(1, 0, 0, GL_TRUE, 0, GL_READ_WRITE, GL_RGBA32F));
     unbind();
@@ -91,14 +95,7 @@ void VoxelizeShader::voxelize() {
     volume->updateVoxelData();
 }
 
-void VoxelizeShader::renderMesh(glm::mat4 P, glm::mat4 V, glm::vec3 lightPos, bool vox) {
-    loadMat4(getUniform("P"), &P);
-    loadMat4(getUniform("V"), &V);
-    glm::mat4 Vi = V;
-    Vi[3][0] = Vi[3][1] = Vi[3][2] = 0.f;
-    Vi = glm::transpose(Vi);
-    loadMat4(getUniform("Vi"), &Vi);
- 
+void VoxelizeShader::renderMesh(glm::mat4 P, glm::mat4 V, glm::vec3 lightPos, bool toVoxelize , bool useLight) {
     loadVec3(getUniform("lightPos"), Light::spatial.position);
     loadInt(getUniform("dimension"), volume->dimension);
     loadVec2(getUniform("xBounds"), volume->xBounds);
@@ -106,8 +103,6 @@ void VoxelizeShader::renderMesh(glm::mat4 P, glm::mat4 V, glm::vec3 lightPos, bo
     loadVec2(getUniform("zBounds"), volume->zBounds);
     loadVec3(getUniform("center"), volume->quadPosition);
     loadFloat(getUniform("scale"), volume->quadScale.x);
-    /* Boolean denotes whether to voxelize or not */
-    loadBool(getUniform("voxelize"), vox);
 
     /* Bind quad */
     /* VAO */
@@ -120,11 +115,35 @@ void VoxelizeShader::renderMesh(glm::mat4 P, glm::mat4 V, glm::vec3 lightPos, bo
     CHECK_GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, Library::quad->vertBufId));
     CHECK_GL_CALL(glVertexAttribPointer(pos, 3, GL_FLOAT, GL_FALSE, 0, nullptr));
 
+    /* Boolean denotes whether to voxelize or not */
+    loadBool(getUniform("voxelize"), toVoxelize);
+    /* Boolean denotes whether to sample from light map or not */
+    loadBool(getUniform("useLight"), useLight);
+
     glm::mat4 M = glm::mat4(1.f);
-    M *= glm::translate(glm::mat4(1.f), volume->quadPosition);
-    M *= glm::scale(glm::mat4(1.f), glm::vec3(volume->quadScale.x));
-    loadMat4(getUniform("M"), &M);
-    CHECK_GL_CALL(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
+    if (useLight) {
+        loadInt(getUniform("lightMap"), positionMap->textureId);
+        loadMat4(getUniform("P"), &M);
+        loadMat4(getUniform("V"), &M);
+        loadMat4(getUniform("Vi"), &M);
+        M *= glm::scale(glm::mat4(1.f), glm::vec3(2.f));
+        loadMat4(getUniform("M"), &M);
+        CHECK_GL_CALL(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
+    }
+    else {
+        loadMat4(getUniform("P"), &P);
+        loadMat4(getUniform("V"), &V);
+        glm::mat4 Vi = V;
+        Vi[3][0] = Vi[3][1] = Vi[3][2] = 0.f;
+        Vi = glm::transpose(Vi);
+        loadMat4(getUniform("Vi"), &Vi);
+
+        M *= glm::translate(glm::mat4(1.f), volume->quadPosition);
+        M *= glm::scale(glm::mat4(1.f), glm::vec3(volume->quadScale.x));
+        loadMat4(getUniform("M"), &M);
+        CHECK_GL_CALL(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
+    }
+
 
     /* Wrap up shader */
     CHECK_GL_CALL(glBindVertexArray(0));

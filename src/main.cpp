@@ -137,7 +137,7 @@ int main() {
         /* Render underlying quad -- optional*/
         if (voxelizeShader->isEnabled()) {
             voxelizeShader->bind();
-            voxelizeShader->renderMesh(P, V, camPos, false);
+            voxelizeShader->renderMesh(P, V, camPos, false, false);
             voxelizeShader->unbind();
         }
 
