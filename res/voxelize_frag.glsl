@@ -4,28 +4,29 @@
 #extension GL_NV_shader_atomic_float: enable
 #extension GL_NV_shader_atomic_fp16_vector: enable
 
+#define FLT_MAX 3.402823466e+38
+
 in vec3 fragPos;
 in vec2 fragTex;
 
+uniform vec3 camPos;
+
+uniform vec3 center;
+uniform float scale;
+
+layout(binding=0, rgba16f) uniform image3D volume;
 uniform vec2 xBounds;
 uniform vec2 yBounds;
 uniform vec2 zBounds;
 uniform int dimension;
 uniform bool voxelize;
 
-uniform vec3 center;
-uniform float scale;
-
-uniform vec3 normal;
-
 uniform float normalStep;
 uniform float visibilityContrib;
 
-uniform sampler2D lightMap;
-uniform bool useLightMap;
-
-layout(binding=1, rgba16f) uniform image3D volume;
-// layout(binding=2, rgba32f) uniform image2D volume;
+layout(binding=1, rgba32f) uniform image2D positionMap;
+uniform int mapWidth;
+uniform int mapHeight;
 
 out vec4 color;
 
@@ -45,33 +46,27 @@ ivec3 calculateVoxelIndex(vec3 pos) {
 
 void main() {
     float radius = scale/2;
+    vec3 normal = normalize(camPos - center);
 
     /* 1 at center of billboard, 0 at edges */
     float distR = 1 - (distance(center, fragPos)/radius);
     color = vec4(distR);
 
-    /* Update existing voxels based on position frame buffer */
-    if (useLightMap) {
-        vec4 worldPos = texture(lightMap, fragTex);
-        ivec3 voxelIndex = calculateVoxelIndex(worldPos.xyz);
-        imageStore(volume, voxelIndex, vec4(1, 1, 1, 1));
-        color = worldPos;
-    }
-    else if(voxelize) {
-        // float minDistance = infinity;
-        for(float j = -radius*distR; j < radius * distR; j += normalStep) {
-            vec3 worldPos = fragPos + normal * j;
-            ivec3 voxelIndex = calculateVoxelIndex(worldPos);
-            /* Light voxelize - denote that this voxel has been voxelized by light */
-            imageStore(volume, voxelIndex, vec4(0, 0, 0, 1));
+    if(voxelize) {
+        vec3 nearestPos = vec3(FLT_MAX, FLT_MAX, FLT_MAX);
 
-            // vec3 nDistance = distance(worldPos, camPos);
-            // if (nDistance < minDistance) {
-            //     minDistance = nDistance;
-            // }
+        for(float j = -radius * distR; j < radius * distR; j += normalStep) {
+            vec3 worldPos = fragPos + (normal * j);
+            ivec3 voxelIndex = calculateVoxelIndex(worldPos);
+            imageStore(volume, voxelIndex, vec4(worldPos, 1));
+
+            if (distance(worldPos, camPos) < distance(nearestPos, camPos)) {
+                nearestPos = worldPos;
+            }
         }
-        /* Write out to frame buffer */
-        // imageStore(volume, fragTex, vec4(worldPos, 1.0));
+        if (nearestPos.x != FLT_MAX) {
+            imageStore(positionMap, ivec2(fragTex.x * mapWidth, fragTex.y * mapHeight), vec4(nearestPos, 1.0));
+        }
     }
 
 // #if GL_NV_shader_atomic_fp16_vector

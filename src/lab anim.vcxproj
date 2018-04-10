@@ -30,7 +30,6 @@
     <ClCompile Include="Shaders\BillboardShader.cpp" />
     <ClCompile Include="Shaders\GLSL.cpp" />
     <ClCompile Include="Shaders\VoxelShader.cpp" />
-    <ClCompile Include="Shaders\LightMapWriteShader.cpp" />
     <ClCompile Include="Shaders\Shader.cpp" />
     <ClCompile Include="Shaders\VoxelizeShader.cpp" />
     <ClCompile Include="ThirdParty\imgui\imgui.cpp" />
@@ -43,7 +42,6 @@
     <ClInclude Include="Camera.hpp" />
     <ClInclude Include="Library.hpp" />
     <ClInclude Include="Light.hpp" />
-    <ClInclude Include="Shaders\LightMapWriteShader.hpp" />
     <ClInclude Include="Spatial.hpp" />
     <ClInclude Include="IO\Keyboard.hpp" />
     <ClInclude Include="IO\Mouse.hpp" />
@@ -74,8 +72,6 @@
     <None Include="..\res\cloud_vert.glsl" />
     <None Include="..\res\voxel_frag.glsl" />
     <None Include="..\res\voxel_vert.glsl" />
-    <None Include="..\res\light_frag.glsl" />
-    <None Include="..\res\light_vert.glsl" />
     <None Include="..\res\voxelize_frag.glsl" />
     <None Include="..\res\voxelize_vert.glsl" />
     <None Include="ThirdParty\imgui\LICENSE" />

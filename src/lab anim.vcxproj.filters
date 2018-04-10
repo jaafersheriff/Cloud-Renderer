@@ -49,9 +49,6 @@
     <ClCompile Include="Shaders\VoxelShader.cpp">
       <Filter>src\Shaders</Filter>
     </ClCompile>
-    <ClCompile Include="Shaders\LightMapWriteShader.cpp">
-      <Filter>src\Shaders</Filter>
-    </ClCompile>
     <ClCompile Include="Volume.cpp">
       <Filter>src</Filter>
     </ClCompile>
@@ -152,9 +149,6 @@
     <ClInclude Include="Shaders\VoxelShader.hpp">
       <Filter>src\Shaders</Filter>
     </ClInclude>
-    <ClInclude Include="Shaders\LightMapWriteShader.hpp">
-      <Filter>src\Shaders</Filter>
-    </ClInclude>
     <ClInclude Include="Volume.hpp">
       <Filter>src</Filter>
     </ClInclude>
@@ -180,12 +174,6 @@
     </None>
     <None Include="ThirdParty\imgui\LICENSE">
       <Filter>src\ThirdParty\imgui</Filter>
-    </None>
-    <None Include="..\res\light_vert.glsl">
-      <Filter>glsl</Filter>
-    </None>
-    <None Include="..\res\light_frag.glsl">
-      <Filter>glsl</Filter>
     </None>
     <None Include="..\res\voxel_vert.glsl">
       <Filter>glsl</Filter>

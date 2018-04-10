@@ -9,7 +9,6 @@
 #include "Shaders/BillboardShader.hpp"
 #include "Shaders/VoxelizeShader.hpp"
 #include "Shaders/VoxelShader.hpp"
-#include "Shaders/LightMapWriteShader.hpp"
 
 #include "ThirdParty/imgui/imgui.h"
 
@@ -39,7 +38,6 @@ Texture * Library::cloudNormalTexture;
 BillboardShader * billboardShader;
 VoxelizeShader * voxelizeShader;
 VoxelShader * voxelShader;
-LightMapWriteShader * lightWriteShader;
 
 /* Volume */
 #define I_VOLUME_DIMENSION 32
@@ -80,16 +78,12 @@ int main() {
         exitError("Error initializing billboard shader");
     }
     voxelizeShader = new VoxelizeShader(RESOURCE_DIR + "voxelize_vert.glsl", RESOURCE_DIR + "voxelize_frag.glsl");
-    if (!voxelizeShader->init(volume)) {
+    if (!voxelizeShader->init(volume, Window::width, Window::height)) {
         exitError("Error initializing volume shader");
     }
     voxelShader = new VoxelShader(RESOURCE_DIR + "voxel_vert.glsl", RESOURCE_DIR + "voxel_frag.glsl");
     if (!voxelShader->init()) {
         exitError("Error initializing voxel shader");
-    }
-    lightWriteShader = new LightMapWriteShader(RESOURCE_DIR + "light_vert.glsl", RESOURCE_DIR + "light_frag.glsl");
-    if (!lightWriteShader->init(Window::width, Window::height)) {
-        exitError("Error initializing light write shader");
     }
 
     /* Init ImGui Panes */
@@ -129,14 +123,9 @@ int main() {
 
         /* Voxelize from the light's perspective */
         if (lightVoxelize) {
-            /* Reset volume */
-            volume->clear();
             /* Voxelize from light source with initial black voxels */
-            voxelizeShader->voxelize(Light::P, Light::V, Light::spatial.position, 0);
-             /* Create position FBO */
-            lightWriteShader->render(volume->getVoxelData());
-            /* Revoxelize from light source using light map to update white/red voxels */
-            voxelizeShader->voxelize(Light::P, Light::V, Light::spatial.position, lightWriteShader->lightMap->textureId);
+            Light::boxBounds = volume->quadScale.x / 2; // TODO : weird
+            voxelizeShader->voxelize(Light::P, Light::V, Light::spatial.position);
         }
 
         glm::mat4 P = showLightView ? Light::P : Camera::getP();
@@ -149,7 +138,7 @@ int main() {
         /* Render underlying quad -- optional*/
         if (voxelizeShader->isEnabled()) {
             voxelizeShader->bind();
-            voxelizeShader->renderMesh(P, V, camPos, false, 0);
+            voxelizeShader->renderMesh(P, V, camPos, false);
             voxelizeShader->unbind();
         }
 
@@ -184,7 +173,7 @@ void createImGuiPanes() {
             ImGui::SliderFloat3("Position", glm::value_ptr(Light::spatial.position), -100.f, 100.f);
             ImGui::SliderFloat("Bounds", &Light::boxBounds, 1.f, 100.f);
             ImGui::SliderFloat2("Near/Far", glm::value_ptr(Light::zBounds), 0.1f, 1000.f);
-            ImGui::Image((ImTextureID) lightWriteShader->lightMap->textureId, ImVec2(256, 256));
+            ImGui::Image((ImTextureID) voxelizeShader->positionMap->textureId, ImVec2(256, 256));
             ImGui::End();
         } 
     );
@@ -257,9 +246,7 @@ void createImGuiPanes() {
 
             if (ImGui::Button("Single voxelize")) {
                 volume->clear();
-                voxelizeShader->voxelize(Light::P, Light::V, Light::spatial.position, 0);
-                lightWriteShader->render(volume->getVoxelData());
-                voxelizeShader->voxelize(Light::P, Light::V, Light::spatial.position, lightWriteShader->lightMap->textureId);
+                voxelizeShader->voxelize(Light::P, Light::V, Light::spatial.position);
             }
             if (ImGui::Button("Clear")) {
                 volume->clear();

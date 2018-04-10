@@ -19,15 +19,15 @@ Volume::Volume(int dim, glm::vec2 bounds, glm::vec3 position, glm::vec2 size) {
     /* Init volume */
     CHECK_GL_CALL(glGenTextures(1, &volId));
     CHECK_GL_CALL(glBindTexture(GL_TEXTURE_3D, volId));
+    CHECK_GL_CALL(glTexStorage3D(GL_TEXTURE_3D, 1, GL_RGBA16F, dimension, dimension, dimension));
 
     CHECK_GL_CALL(glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
     CHECK_GL_CALL(glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
     CHECK_GL_CALL(glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
     CHECK_GL_CALL(glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
     CHECK_GL_CALL(glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE));
-    CHECK_GL_CALL(glTexStorage3D(GL_TEXTURE_3D, 1, GL_RGBA16F, dimension, dimension, dimension));
     clear();
-    //CHECK_GL_CALL(glBindTexture(GL_TEXTURE_3D, 0));
+    CHECK_GL_CALL(glBindTexture(GL_TEXTURE_3D, 0));
 }
 
 void Volume::clear() {
@@ -45,7 +45,9 @@ void Volume::clear() {
 void Volume::updateVoxelData() {
     /* Pull volume data out of GPU */
     std::vector<float> buffer(voxelData.size() * 4);
+    CHECK_GL_CALL(glBindTexture(GL_TEXTURE_3D, volId));
     CHECK_GL_CALL(glGetTexImage(GL_TEXTURE_3D, 0, GL_RGBA, GL_FLOAT, buffer.data()));
+    CHECK_GL_CALL(glBindTexture(GL_TEXTURE_3D, 0));
 
     /* Size of voxels in world-space */
     glm::vec3 voxelScale = glm::vec3(
