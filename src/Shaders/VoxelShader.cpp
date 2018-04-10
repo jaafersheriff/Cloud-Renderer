@@ -25,7 +25,7 @@ bool VoxelShader::init() {
 }
 
 /* Visualize voxels */
-void VoxelShader::render(std::vector<VolumeShader::Voxel> & voxels) {
+void VoxelShader::render(std::vector<VolumeShader::Voxel> & voxels, glm::mat4 P, glm::mat4 V) {
     if (!enabled) {
         return;
     }
@@ -33,8 +33,8 @@ void VoxelShader::render(std::vector<VolumeShader::Voxel> & voxels) {
     bind();
 
     /* Bind projeciton, view, inverise view matrices */
-    loadMat4(getUniform("P"), &Camera::getP());
-    loadMat4(getUniform("V"), &Camera::getV());
+    loadMat4(getUniform("P"), &P);
+    loadMat4(getUniform("V"), &V);
 
     /* Bind mesh */
     /* VAO */

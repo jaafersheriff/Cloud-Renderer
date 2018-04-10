@@ -22,8 +22,9 @@
 #define I_VOLUME_VOXELS 32
 const std::string RESOURCE_DIR = "../res/";
 bool lightVoxelize = false;
-int Window::width = 1920;
-int Window::height = 1080;
+bool showLightView = false;
+int Window::width = 1280;
+int Window::height = 720;
 
 Spatial Light::spatial = Spatial(glm::vec3(10.f, 10.f, -10.f), glm::vec3(10.f), glm::vec3(0.f));
 glm::mat4 Light::P(1.f);
@@ -133,13 +134,17 @@ int main() {
             volumeShader->voxelize(Light::P, Light::V, Light::spatial.position, lightWriteShader->lightMap->textureId);
         }
 
+        glm::mat4 P = showLightView ? Light::P : Camera::getP();
+        glm::mat4 V = showLightView ? Light::V : Camera::getV();
+        glm::vec3 camPos = showLightView ? Light::spatial.position : Camera::getPosition();
+
         /* Draw voxels to the screen -- optional */
-        voxelShader->render(volumeShader->getVoxelData());
+        voxelShader->render(volumeShader->getVoxelData(), P, V);
 
         /* Render underlying quad -- optional*/
         if (volumeShader->isEnabled()) {
             volumeShader->bind();
-            volumeShader->renderMesh(Camera::getP(), Camera::getV(), Camera::getPosition(), false, 0);
+            volumeShader->renderMesh(P, V, camPos, false, 0);
             volumeShader->unbind();
         }
 
@@ -170,6 +175,7 @@ void createImGuiPanes() {
     imGuiFuncs.push_back(
         [&]() {
             ImGui::Begin("Light");
+            ImGui::Checkbox("Light view", &showLightView);
             ImGui::SliderFloat3("Position", glm::value_ptr(Light::spatial.position), -100.f, 100.f);
             ImGui::SliderFloat("Bounds", &Light::boxBounds, 1.f, 100.f);
             ImGui::SliderFloat2("Near/Far", glm::value_ptr(Light::zBounds), 0.1f, 1000.f);
