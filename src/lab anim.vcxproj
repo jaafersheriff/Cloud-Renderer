@@ -32,7 +32,7 @@
     <ClCompile Include="Shaders\VoxelShader.cpp" />
     <ClCompile Include="Shaders\LightMapWriteShader.cpp" />
     <ClCompile Include="Shaders\Shader.cpp" />
-    <ClCompile Include="Shaders\VolumeShader.cpp" />
+    <ClCompile Include="Shaders\VoxelizeShader.cpp" />
     <ClCompile Include="ThirdParty\imgui\imgui.cpp" />
     <ClCompile Include="ThirdParty\imgui\imgui_demo.cpp" />
     <ClCompile Include="ThirdParty\imgui\imgui_draw.cpp" />
@@ -54,7 +54,7 @@
     <ClInclude Include="Shaders\GLSL.hpp" />
     <ClInclude Include="Shaders\VoxelShader.hpp" />
     <ClInclude Include="Shaders\Shader.hpp" />
-    <ClInclude Include="Shaders\VolumeShader.hpp" />
+    <ClInclude Include="Shaders\VoxelizeShader.hpp" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="ThirdParty\imgui\imconfig.h" />
     <ClInclude Include="ThirdParty\imgui\imgui.h" />

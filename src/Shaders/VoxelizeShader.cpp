@@ -1,17 +1,15 @@
-#include "VolumeShader.hpp"
+#include "VoxelizeShader.hpp"
 
 #include "IO/Window.hpp"
 #include "Library.hpp"
 
 #include "glm/gtc/matrix_transform.hpp"
 
-bool VolumeShader::init(Volume *vol) {
+bool VoxelizeShader::init(Volume *vol) {
     if (!Shader::init()) {
         std::cerr << "Error initializing volume shader" << std::endl;
         return false;
     }
-
-    this->volume = vol;
 
     addAttribute("vertPos");
     
@@ -39,10 +37,12 @@ bool VolumeShader::init(Volume *vol) {
 
     addUniform("volume");
 
+    this->volume = vol;
+
     return true;
 }
 
-void VolumeShader::voxelize(glm::mat4 P, glm::mat4 V, glm::vec3 camPos, GLuint lightMap) {
+void VoxelizeShader::voxelize(glm::mat4 P, glm::mat4 V, glm::vec3 camPos, GLuint lightMap) {
     /* Disable quad visualization */
     CHECK_GL_CALL(glDisable(GL_DEPTH_TEST));
     CHECK_GL_CALL(glDisable(GL_CULL_FACE));
@@ -68,7 +68,7 @@ void VolumeShader::voxelize(glm::mat4 P, glm::mat4 V, glm::vec3 camPos, GLuint l
     volume->updateVoxelData();
 }
 
-void VolumeShader::renderMesh(glm::mat4 P, glm::mat4 V, glm::vec3 camPos, bool vox, GLuint lightMap) {
+void VoxelizeShader::renderMesh(glm::mat4 P, glm::mat4 V, glm::vec3 camPos, bool vox, GLuint lightMap) {
     loadVec3(getUniform("normal"), glm::normalize(camPos - volume->quadPosition));
     loadInt(getUniform("dimension"), volume->dimension);
     loadVec2(getUniform("xBounds"), volume->xBounds);

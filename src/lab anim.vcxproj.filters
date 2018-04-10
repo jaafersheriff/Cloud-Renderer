@@ -34,9 +34,6 @@
     <ClCompile Include="Shaders\BillboardShader.cpp">
       <Filter>src\Shaders</Filter>
     </ClCompile>
-    <ClCompile Include="Shaders\VolumeShader.cpp">
-      <Filter>src\Shaders</Filter>
-    </ClCompile>
     <ClCompile Include="ThirdParty\imgui\imgui_demo.cpp">
       <Filter>src\ThirdParty\imgui</Filter>
     </ClCompile>
@@ -57,6 +54,9 @@
     </ClCompile>
     <ClCompile Include="Volume.cpp">
       <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="Shaders\VoxelizeShader.cpp">
+      <Filter>src\Shaders</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -116,9 +116,6 @@
     <ClInclude Include="Shaders\BillboardShader.hpp">
       <Filter>src\Shaders</Filter>
     </ClInclude>
-    <ClInclude Include="Shaders\VolumeShader.hpp">
-      <Filter>src\Shaders</Filter>
-    </ClInclude>
     <ClInclude Include="stb_image.h">
       <Filter>src\ThirdParty</Filter>
     </ClInclude>
@@ -160,6 +157,9 @@
     </ClInclude>
     <ClInclude Include="Volume.hpp">
       <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="Shaders\VoxelizeShader.hpp">
+      <Filter>src\Shaders</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

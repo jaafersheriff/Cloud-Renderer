@@ -7,7 +7,7 @@
 
 #include "Shaders/GLSL.hpp"
 #include "Shaders/BillboardShader.hpp"
-#include "Shaders/VolumeShader.hpp"
+#include "Shaders/VoxelizeShader.hpp"
 #include "Shaders/VoxelShader.hpp"
 #include "Shaders/LightMapWriteShader.hpp"
 
@@ -37,7 +37,7 @@ Texture * Library::cloudNormalTexture;
 
 /* Shaders */
 BillboardShader * billboardShader;
-VolumeShader * volumeShader;
+VoxelizeShader * voxelizeShader;
 VoxelShader * voxelShader;
 LightMapWriteShader * lightWriteShader;
 
@@ -79,8 +79,8 @@ int main() {
     if (!billboardShader->init()) {
         exitError("Error initializing billboard shader");
     }
-    volumeShader = new VolumeShader(RESOURCE_DIR + "voxelize_vert.glsl", RESOURCE_DIR + "voxelize_frag.glsl");
-    if (!volumeShader->init(volume)) {
+    voxelizeShader = new VoxelizeShader(RESOURCE_DIR + "voxelize_vert.glsl", RESOURCE_DIR + "voxelize_frag.glsl");
+    if (!voxelizeShader->init(volume)) {
         exitError("Error initializing volume shader");
     }
     voxelShader = new VoxelShader(RESOURCE_DIR + "voxel_vert.glsl", RESOURCE_DIR + "voxel_frag.glsl");
@@ -132,11 +132,11 @@ int main() {
             /* Reset volume */
             volume->clear();
             /* Voxelize from light source with initial black voxels */
-            volumeShader->voxelize(Light::P, Light::V, Light::spatial.position, 0);
-            /* Create position FBO */
+            voxelizeShader->voxelize(Light::P, Light::V, Light::spatial.position, 0);
+             /* Create position FBO */
             lightWriteShader->render(volume->getVoxelData());
             /* Revoxelize from light source using light map to update white/red voxels */
-            volumeShader->voxelize(Light::P, Light::V, Light::spatial.position, lightWriteShader->lightMap->textureId);
+            voxelizeShader->voxelize(Light::P, Light::V, Light::spatial.position, lightWriteShader->lightMap->textureId);
         }
 
         glm::mat4 P = showLightView ? Light::P : Camera::getP();
@@ -147,10 +147,10 @@ int main() {
         voxelShader->render(volume->getVoxelData(), P, V);
 
         /* Render underlying quad -- optional*/
-        if (volumeShader->isEnabled()) {
-            volumeShader->bind();
-            volumeShader->renderMesh(P, V, camPos, false, 0);
-            volumeShader->unbind();
+        if (voxelizeShader->isEnabled()) {
+            voxelizeShader->bind();
+            voxelizeShader->renderMesh(P, V, camPos, false, 0);
+            voxelizeShader->unbind();
         }
 
         /* Render cloud billboards */
@@ -242,12 +242,12 @@ void createImGuiPanes() {
             ImGui::SliderFloat2("XBounds", glm::value_ptr(volume->xBounds), -20.f, 20.f);
             ImGui::SliderFloat2("YBounds", glm::value_ptr(volume->yBounds), -20.f, 20.f);
             ImGui::SliderFloat2("ZBounds", glm::value_ptr(volume->zBounds), -20.f, 20.f);
-            ImGui::SliderFloat("Step", &volumeShader->normalStep, 0.05f, 0.5f);
-            ImGui::SliderFloat("Contrib", &volumeShader->visibilityContrib, 0.f, 0.2f);
+            ImGui::SliderFloat("Step", &voxelizeShader->normalStep, 0.05f, 0.5f);
+            ImGui::SliderFloat("Contrib", &voxelizeShader->visibilityContrib, 0.f, 0.2f);
 
-            bool b = volumeShader->isEnabled();
+            bool b = voxelizeShader->isEnabled();
             ImGui::Checkbox("Render underlying quad", &b);
-            volumeShader->setEnabled(b);
+            voxelizeShader->setEnabled(b);
             b = voxelShader->isEnabled();
             ImGui::Checkbox("Render voxels", &b);
             voxelShader->setEnabled(b);
@@ -257,9 +257,9 @@ void createImGuiPanes() {
 
             if (ImGui::Button("Single voxelize")) {
                 volume->clear();
-                volumeShader->voxelize(Light::P, Light::V, Light::spatial.position, 0);
+                voxelizeShader->voxelize(Light::P, Light::V, Light::spatial.position, 0);
                 lightWriteShader->render(volume->getVoxelData());
-                volumeShader->voxelize(Light::P, Light::V, Light::spatial.position, lightWriteShader->lightMap->textureId);
+                voxelizeShader->voxelize(Light::P, Light::V, Light::spatial.position, lightWriteShader->lightMap->textureId);
             }
             if (ImGui::Button("Clear")) {
                 volume->clear();

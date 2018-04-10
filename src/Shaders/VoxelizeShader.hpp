@@ -1,15 +1,15 @@
 #pragma once
-#ifndef _VOLUME_SHADER_HPP_
-#define _VOLUME_SHADER_HPP_
+#ifndef _VOXELIZE_SHADER_HPP_
+#define _VOXELIZE_SHADER_HPP_
 
 #include "Shader.hpp"
 
 #include "Model/Mesh.hpp"
 #include "Volume.hpp"
 
-class VolumeShader : public Shader {
+class VoxelizeShader : public Shader {
     public:
-        VolumeShader(std::string vertex, std::string fragment) :
+        VoxelizeShader(std::string vertex, std::string fragment) :
             Shader(vertex, fragment)
         {}
 
