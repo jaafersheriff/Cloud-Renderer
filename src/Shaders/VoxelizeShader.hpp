@@ -23,8 +23,6 @@ class VoxelizeShader : public Shader {
         Texture * positionMap;
         void clearPositionMap();
 
-        float steps = 0.2f;
-
         Volume * volume;
     private:
         void initPositionMap(int, int);

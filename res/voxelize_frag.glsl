@@ -19,7 +19,8 @@ uniform vec2 xBounds;
 uniform vec2 yBounds;
 uniform vec2 zBounds;
 uniform int dimension;
-uniform bool voxelize;
+uniform vec3 voxelSize;
+uniform bool useVoxelize;
 
 uniform float steps;
 
@@ -66,11 +67,12 @@ void main() {
         }
     }
     /* First voxelize - set blacks voxels in a sphere, write to position map */
-    else if (voxelize) {
+    else if (useVoxelize) {
         vec3 normal = normalize(lightPos - center);
         float normalScale = radius * distR;
         vec3 nearestPos = vec3(FLT_MAX, FLT_MAX, FLT_MAX);
-        for(float j = -normalScale; j <= normalScale; j += steps) {
+        float minDist = max(0.3, min(min(voxelSize.x, voxelSize.y), voxelSize.z) - 0.3);
+        for(float j = -normalScale; j <= normalScale; j += minDist) {
             vec3 worldPos = fragPos + (normal * j);
             ivec3 voxelIndex = calculateVoxelIndex(worldPos);
             imageAtomicAdd(volume, voxelIndex, f16vec4(0, 0, 0, 1));

@@ -29,9 +29,8 @@ bool VoxelizeShader::init(Volume *vol, int width, int height) {
     addUniform("yBounds");
     addUniform("zBounds");
     addUniform("dimension");
-    addUniform("voxelize");
-
-    addUniform("steps");
+    addUniform("voxelSize");
+    addUniform("useVoxelize");
 
     addUniform("positionMap");
     addUniform("mapWidth");
@@ -71,7 +70,6 @@ void VoxelizeShader::voxelize() {
     loadInt(getUniform("mapWidth"), positionMap->width);
     loadInt(getUniform("mapHeight"), positionMap->height);
 
-    loadFloat(getUniform("steps"), steps);
     renderMesh(Light::P, Light::V, Light::spatial.position, true, false);
     renderMesh(Light::P, Light::V, Light::spatial.position, false, true);
     CHECK_GL_CALL(glBindImageTexture(0, 0, 0, GL_TRUE, 0, GL_READ_WRITE, GL_RGBA16F));
@@ -96,6 +94,7 @@ void VoxelizeShader::renderMesh(glm::mat4 P, glm::mat4 V, glm::vec3 lightPos, bo
     loadVec2(getUniform("zBounds"), volume->zBounds);
     loadVec3(getUniform("center"), volume->quadPosition);
     loadFloat(getUniform("scale"), volume->quadScale.x);
+    loadVec3(getUniform("voxelSize"), volume->voxelSize);
 
     /* Bind quad */
     /* VAO */
@@ -109,7 +108,7 @@ void VoxelizeShader::renderMesh(glm::mat4 P, glm::mat4 V, glm::vec3 lightPos, bo
     CHECK_GL_CALL(glVertexAttribPointer(pos, 3, GL_FLOAT, GL_FALSE, 0, nullptr));
 
     /* Boolean denotes first voxelize - set spherical voxels to black */
-    loadBool(getUniform("voxelize"), toVoxelize);
+    loadBool(getUniform("useVoxelize"), toVoxelize);
     /* Boolean denotes second voxelize - set nearest voxels to white */
     loadBool(getUniform("usePositions"), usePositions);
 

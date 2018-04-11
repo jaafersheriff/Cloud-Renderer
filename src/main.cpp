@@ -24,8 +24,7 @@ int Window::width = 1280;
 int Window::height = 720;
 
 Spatial Light::spatial = Spatial(glm::vec3(10.f, 10.f, -10.f), glm::vec3(3.f), glm::vec3(0.f));
-glm::mat4 Light::P(1.f);
-glm::mat4 Light::V(1.f);
+glm::mat4 Light::P, Light::V;
 float Light::boxBounds = 10.f;
 glm::vec2 Light::zBounds(0.01f, 1000.f);
 
@@ -236,7 +235,6 @@ void createImGuiPanes() {
             ImGui::SliderFloat2("XBounds", glm::value_ptr(volume->xBounds), -20.f, 20.f);
             ImGui::SliderFloat2("YBounds", glm::value_ptr(volume->yBounds), -20.f, 20.f);
             ImGui::SliderFloat2("ZBounds", glm::value_ptr(volume->zBounds), -20.f, 20.f);
-            ImGui::SliderFloat("Steps", &voxelizeShader->steps, 0.1f, 1.f);
 
             bool b = voxelizeShader->isEnabled();
             ImGui::Checkbox("Render underlying quad", &b);
