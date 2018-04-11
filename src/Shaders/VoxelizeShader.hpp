@@ -17,12 +17,17 @@ class VoxelizeShader : public Shader {
 
         /* Generate 3D volume */
         void voxelize();
-        void renderMesh(glm::mat4, glm::mat4, glm::vec3);
+        void renderMesh(glm::mat4, glm::mat4, glm::vec3, bool, bool);
 
-        float steps = 1.f;
+        /* 2D position texture */
+        Texture * positionMap;
+        void clearPositionMap();
+
+        float steps = 0.2f;
 
         Volume * volume;
     private:
+        void initPositionMap(int, int);
 };
 
 #endif

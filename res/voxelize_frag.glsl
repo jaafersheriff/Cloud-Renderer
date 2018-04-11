@@ -23,6 +23,11 @@ uniform bool voxelize;
 
 uniform float steps;
 
+layout(binding=1, rgba32f) uniform image2D positionMap;
+uniform int mapWidth;
+uniform int mapHeight;
+uniform bool usePositions;
+
 out vec4 color;
 
 /* Linear map from aribtray box(?) in world space to 3D volume 
@@ -41,7 +46,6 @@ ivec3 calculateVoxelIndex(vec3 pos) {
 
 void main() {
     float radius = scale/2;
-    vec3 normal = normalize(lightPos - center);
 
     /* Spherical distance - 1 at center of billboard, 0 at edges */
     float distR = (distance(center, fragPos)/radius);
@@ -52,13 +56,31 @@ void main() {
         return;
     }
 
-    float normalScale = radius * distR;
-    for(float j = -normalScale; j < normalScale; j += normalScale/steps) {
-        vec3 worldPos = fragPos + (normal * j);
-        ivec3 voxelIndex = calculateVoxelIndex(worldPos);
-        imageAtomicAdd(volume, voxelIndex, f16vec4(0, 0, 0, 1));
+    ivec2 texCoords = ivec2(fragTex.x * mapWidth, fragTex.y * mapHeight);
+    /* Second voxelize - set white voxels using position map */
+    if (usePositions) {
+        vec4 worldPos = imageLoad(positionMap, texCoords);
+        if (worldPos.a > 0) {
+            ivec3 voxelIndex = calculateVoxelIndex(worldPos.xyz);
+            imageStore(volume, voxelIndex, vec4(1, 1, 1, 1));
+        }
     }
-    vec3 nPos = fragPos + normal * normalScale;
-    ivec3 nvoxel = calculateVoxelIndex(nPos);
-    imageStore(volume, nvoxel, vec4(1, 1, 1, 1));
+    /* First voxelize - set blacks voxels in a sphere, write to position map */
+    else if (voxelize) {
+        vec3 normal = normalize(lightPos - center);
+        float normalScale = radius * distR;
+        vec3 nearestPos = vec3(FLT_MAX, FLT_MAX, FLT_MAX);
+        for(float j = -normalScale; j <= normalScale; j += steps) {
+            vec3 worldPos = fragPos + (normal * j);
+            ivec3 voxelIndex = calculateVoxelIndex(worldPos);
+            imageAtomicAdd(volume, voxelIndex, f16vec4(0, 0, 0, 1));
+
+            if (distance(worldPos, lightPos) < distance(nearestPos, lightPos)) {
+                nearestPos = worldPos;
+            }
+        }
+        if (nearestPos.x != FLT_MAX) {
+            imageStore(positionMap, texCoords, vec4(nearestPos, 1.0));
+        }
+    }
 }
