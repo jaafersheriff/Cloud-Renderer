@@ -51,6 +51,19 @@ ivec3 calculateVoxelIndex(vec3 pos) {
 	return ivec3(x, y, z);
 }
 
+mat4 rotationMatrix(vec3 axis, float angle)
+{
+    axis = normalize(axis);
+    float s = sin(angle);
+    float c = cos(angle);
+    float oc = 1.0 - c;
+    
+    return mat4(oc * axis.x * axis.x + c,           oc * axis.x * axis.y - axis.z * s,  oc * axis.z * axis.x + axis.y * s,  0.0,
+                oc * axis.x * axis.y + axis.z * s,  oc * axis.y * axis.y + c,           oc * axis.y * axis.z - axis.x * s,  0.0,
+                oc * axis.z * axis.x - axis.y * s,  oc * axis.y * axis.z + axis.x * s,  oc * axis.z * axis.z + c,           0.0,
+                0.0,                                0.0,                                0.0,                                1.0);
+}
+
 vec4 traceCone(sampler3D voxelTexture, vec3 position, vec3 direction, int steps, float bias, float coneAngle, float coneHeight) {
     direction = normalize(direction);
     direction.z = -direction.z;
@@ -124,11 +137,16 @@ void main() {
         /* Start at sphere surface */
         vec3 normal = normalize(camPos - center);
         vec3 worldPos = fragPos + (normal * radius * distR);
+        vec3 direction = normalize(lightPos - worldPos);
+
+        vec3 axis = cross(vec3(0,1,0), direction);
+        mat4 rotation = rotationMatrix(axis, acos(dot(vec3(0,1,0), direction)));
+
         vec3 voxelPosition = vec3(calculateVoxelIndex(worldPos));
         vec4 indirect = vec4(0);
         for (int i = 0; i < 4; i++) {
-            // TODO : rotate cones 
-            vec3 dir = normalize(coneDirs[i]);
+            // TODO : if toggle
+            vec3 dir = normalize(vec3(rotation*vec4(coneDirs[i],1)));
             indirect += coneWeights[i] * traceCone(volumeTexture, voxelPosition, dir, vctSteps, vctBias, vctConeAngle, vctConeInitialHeight);
         }
         color = indirect;
