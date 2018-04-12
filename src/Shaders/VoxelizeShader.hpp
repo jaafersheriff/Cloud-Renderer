@@ -37,7 +37,7 @@ class VoxelizeShader : public Shader {
         Volume * volume;
 
         // TODO : calculate this to maximize performance
-        float steps = 0.2f;
+        float steps = 0.5f;
 
         /* Cone trace parameters */
         int vctSteps = 16;

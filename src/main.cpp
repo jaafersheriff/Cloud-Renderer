@@ -43,7 +43,7 @@ VoxelShader * voxelShader;
 #define I_VOLUME_DIMENSION 32
 #define I_VOLUME_BOUNDS glm::vec2(-10.f, 15.f)
 #define I_VOLUME_POSITION glm::vec3(5.f, 0.f, 0.f)
-#define I_VOLUME_SCALE glm::vec2(4.f)
+#define I_VOLUME_SCALE glm::vec2(8.f)
 Volume * volume;
 
 /* Render targets */
@@ -182,7 +182,11 @@ void createImGuiPanes() {
             ImGui::SliderFloat3("Position", glm::value_ptr(Light::spatial.position), -100.f, 100.f);
             ImGui::SliderFloat("Bounds", &Light::boxBounds, 1.f, 100.f);
             ImGui::SliderFloat2("Near/Far", glm::value_ptr(Light::zBounds), 0.1f, 1000.f);
-            ImGui::Image((ImTextureID) voxelizeShader->positionMap->textureId, ImVec2(256, 256));
+            static bool showLightMap = false;
+            ImGui::Checkbox("Show map", &showLightMap);
+            if (showLightMap) {
+                ImGui::Image((ImTextureID)voxelizeShader->positionMap->textureId, ImVec2(128, 128));
+            }
             ImGui::End();
         } 
     );
@@ -233,7 +237,7 @@ void createImGuiPanes() {
     );
     imGuiFuncs.push_back(
         [&]() {
-            ImGui::Begin("Volume");
+            ImGui::Begin("VXGI");
             ImGui::Text("Voxels in scene : %d", volume->voxelCount);
             ImGui::SliderFloat3("Position", glm::value_ptr(volume->quadPosition), -20.f, 20.f);
             ImGui::SliderFloat("Scale", &volume->quadScale.x, 0.f, 20.f);
@@ -260,12 +264,6 @@ void createImGuiPanes() {
                 volume->clear();
                 voxelizeShader->clearPositionMap();
             }
-            ImGui::End();
-        }
-    );
-    imGuiFuncs.push_back(
-        [&]() {
-            ImGui::Begin("VXGI");
             ImGui::SliderInt("Steps", &voxelizeShader->vctSteps, 5, 25);
             ImGui::SliderFloat("Bias", &voxelizeShader->vctBias, 0.1f, 5.f);
             ImGui::SliderFloat("Angle", &voxelizeShader->vctConeAngle, 0.f, 3.f);
