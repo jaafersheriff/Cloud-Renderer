@@ -33,6 +33,7 @@ uniform float vctBias;
 uniform float vctConeAngle;
 uniform float vctConeInitialHeight;
 uniform float vctLodOffset;
+uniform vec3 camPos;
 
 out vec4 color;
 
@@ -79,12 +80,11 @@ void main() {
     distR = sqrt(max(0, 1 - distR * distR));
     color = vec4(distR);
 
+    ivec2 texCoords = ivec2(fragTex.x * mapWidth, fragTex.y * mapHeight);
     if (length(fragTex*2-1) > 1) {
         return;
     }
-
-    ivec2 texCoords = ivec2(fragTex.x * mapWidth, fragTex.y * mapHeight);
-
+ 
     /* First voxelize - set blacks voxels in a sphere, write to position map */
     if (voxelizeStage == 1) {
         vec3 normal = normalize(lightPos - center);
@@ -120,13 +120,14 @@ void main() {
             vec3( 0, 0.707, -0.707)
         );
         float coneWeights[4] = float[](0.25, 0.25, 0.25, 0.25);
-
-        // TODO : start at voxel nearest to camera?
-        vec3 worldPos = fragPos;
-        vec3 voxelPosition = vec3(calculateVoxelIndex(fragPos)) / dimension;
+        
+        /* Start at sphere surface */
+        vec3 normal = normalize(camPos - center);
+        vec3 worldPos = fragPos + (normal * radius * distR);
+        vec3 voxelPosition = vec3(calculateVoxelIndex(worldPos));
         vec4 indirect = vec4(0);
         for (int i = 0; i < 4; i++) {
-            // TODO : rotate cones to face light source
+            // TODO : rotate cones 
             vec3 dir = normalize(coneDirs[i]);
             indirect += coneWeights[i] * traceCone(volumeTexture, voxelPosition, dir, vctSteps, vctBias, vctConeAngle, vctConeInitialHeight);
         }

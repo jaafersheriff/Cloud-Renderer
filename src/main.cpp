@@ -16,13 +16,13 @@
 #include <time.h>
 
 /* Initial values */
-#define IMGUI_FONT_SIZE 13.f
+#define IMGUI_FONT_SIZE 20.f
 const std::string RESOURCE_DIR = "../res/";
 bool lightVoxelize = true;
 bool coneTrace = true;
 bool showLightView = false;
-int Window::width = 1280;
-int Window::height = 720;
+int Window::width = 1920;
+int Window::height = 1080;
 
 Spatial Light::spatial = Spatial(glm::vec3(10.f, 10.f, -10.f), glm::vec3(3.f), glm::vec3(0.f));
 glm::mat4 Light::P, Light::V;
