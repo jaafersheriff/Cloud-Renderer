@@ -17,7 +17,7 @@ class VoxelizeShader : public Shader {
 
         /* Generate 3D volume */
         void voxelize();
-        void renderMesh(glm::mat4, glm::mat4, glm::vec3, bool, bool);
+        void renderQuad(glm::mat4, glm::mat4, glm::vec3, bool, bool);
 
         /* 2D position texture */
         Texture * positionMap;

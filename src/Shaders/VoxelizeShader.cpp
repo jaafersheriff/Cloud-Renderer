@@ -64,8 +64,8 @@ void VoxelizeShader::voxelize() {
     bindVolume();
     loadVec3(getUniform("lightPos"), Light::spatial.position);
 
-    renderMesh(Light::P, Light::V, Light::spatial.position, true, false);
-    renderMesh(Light::P, Light::V, Light::spatial.position, false, true);
+    renderQuad(Light::P, Light::V, Light::spatial.position, true, false);
+    renderQuad(Light::P, Light::V, Light::spatial.position, false, true);
     
     unbindVolume();
     unbind();
@@ -78,7 +78,7 @@ void VoxelizeShader::voxelize() {
 
 }
 
-void VoxelizeShader::renderMesh(glm::mat4 P, glm::mat4 V, glm::vec3 lightPos, bool toVoxelize, bool usePositions) {
+void VoxelizeShader::renderQuad(glm::mat4 P, glm::mat4 V, glm::vec3 lightPos, bool toVoxelize, bool usePositions) {
     loadVec3(getUniform("center"), volume->quadPosition);
     loadFloat(getUniform("scale"), volume->quadScale.x);
 
