@@ -18,8 +18,8 @@
 /* Initial values */
 #define IMGUI_FONT_SIZE 13.f
 const std::string RESOURCE_DIR = "../res/";
-bool lightVoxelize = false;
-bool coneTrace = false;
+bool lightVoxelize = true;
+bool coneTrace = true;
 bool showLightView = false;
 int Window::width = 1280;
 int Window::height = 720;
@@ -86,6 +86,7 @@ int main() {
     if (!voxelShader->init()) {
         exitError("Error initializing voxel shader");
     }
+    voxelShader->setEnabled(false);
 
     /* Init ImGui Panes */
     createImGuiPanes();
@@ -250,7 +251,6 @@ void createImGuiPanes() {
             ImGui::Checkbox("Outlines", &voxelShader->drawOutline);
 
             ImGui::Checkbox("Light Voxelize!", &lightVoxelize);
-            ImGui::Checkbox("Cone Trace!", &coneTrace);
 
             if (ImGui::Button("Single voxelize")) {
                 volume->clear();
@@ -260,6 +260,18 @@ void createImGuiPanes() {
                 volume->clear();
                 voxelizeShader->clearPositionMap();
             }
+            ImGui::End();
+        }
+    );
+    imGuiFuncs.push_back(
+        [&]() {
+            ImGui::Begin("VXGI");
+            ImGui::SliderInt("Steps", &voxelizeShader->vctSteps, 5, 25);
+            ImGui::SliderFloat("Bias", &voxelizeShader->vctBias, 0.1f, 5.f);
+            ImGui::SliderFloat("Angle", &voxelizeShader->vctConeAngle, 0.f, 3.f);
+            ImGui::SliderFloat("Height", &voxelizeShader->vctConeInitialHeight, 0.f, 3.f);
+            ImGui::SliderFloat("LOD Offset", &voxelizeShader->vctLodOffset, 0.1f, 5.f);
+            ImGui::Checkbox("Cone trace!", &coneTrace);
             ImGui::End();
         }
     );
