@@ -21,9 +21,14 @@ class VoxelizeShader : public Shader {
 
         bool init(Volume *, int, int);
 
+        /* Generic function to render quad -- takes Stage as a parameter to orchestrate GL binds */
+        void renderQuad(glm::mat4, glm::mat4, glm::vec3, VoxelizeShader::Stage);
+
         /* Generate 3D volume */
         void voxelize();
-        void renderQuad(glm::mat4, glm::mat4, glm::vec3, VoxelizeShader::Stage);
+
+        /* Cone trace */
+        void coneTrace();
 
         /* 2D position texture */
         Texture * positionMap;

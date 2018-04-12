@@ -19,6 +19,7 @@
 #define IMGUI_FONT_SIZE 13.f
 const std::string RESOURCE_DIR = "../res/";
 bool lightVoxelize = false;
+bool coneTrace = false;
 bool showLightView = false;
 int Window::width = 1280;
 int Window::height = 720;
@@ -124,6 +125,10 @@ int main() {
         /* Voxelize from the light's perspective */
         if (lightVoxelize) {
             voxelizeShader->voxelize();
+        }
+        /* Cone trace from the camera's perspective */
+        if (coneTrace) {
+            voxelizeShader->coneTrace();
         }
         
         /* Render cloud billboards */
@@ -245,6 +250,7 @@ void createImGuiPanes() {
             ImGui::Checkbox("Outlines", &voxelShader->drawOutline);
 
             ImGui::Checkbox("Light Voxelize!", &lightVoxelize);
+            ImGui::Checkbox("Cone Trace!", &coneTrace);
 
             if (ImGui::Button("Single voxelize")) {
                 volume->clear();

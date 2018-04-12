@@ -84,5 +84,9 @@ void main() {
             imageStore(volume, voxelIndex, vec4(1, 1, 1, 1));
         }
     }
+    /* Cone trace */
+    else if (voxelizeStage == 3) {
+        color = vec4(1, 0, 0, 1);
+    }
 
 }

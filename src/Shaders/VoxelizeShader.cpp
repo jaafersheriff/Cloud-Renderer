@@ -2,6 +2,7 @@
 
 #include "Library.hpp"
 
+#include "Camera.hpp"
 #include "Light.hpp"
 
 #include "glm/gtc/matrix_transform.hpp"
@@ -75,7 +76,14 @@ void VoxelizeShader::voxelize() {
     CHECK_GL_CALL(glEnable(GL_CULL_FACE));
     CHECK_GL_CALL(glDepthMask(GL_TRUE));
     CHECK_GL_CALL(glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE));
+}
 
+void VoxelizeShader::coneTrace() {
+    bind();
+
+    renderQuad(Camera::getP(), Camera::getV(), Camera::getPosition(), ConeTrace);
+
+    unbind();
 }
 
 void VoxelizeShader::renderQuad(glm::mat4 P, glm::mat4 V, glm::vec3 lightPos, Stage stage) {
