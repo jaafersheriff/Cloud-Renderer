@@ -21,12 +21,12 @@ uniform vec2 zBounds;
 uniform int dimension;
 uniform vec3 voxelSize;
 uniform float steps;
-uniform bool useVoxelize;
 
 layout(binding=1, rgba32f) uniform image2D positionMap;
 uniform int mapWidth;
 uniform int mapHeight;
-uniform bool usePositions;
+
+uniform int voxelizeStage;
 
 out vec4 color;
 
@@ -57,8 +57,9 @@ void main() {
     }
 
     ivec2 texCoords = ivec2(fragTex.x * mapWidth, fragTex.y * mapHeight);
+
     /* First voxelize - set blacks voxels in a sphere, write to position map */
-    if (useVoxelize) {
+    if (voxelizeStage == 1) {
         vec3 normal = normalize(lightPos - center);
         float normalScale = radius * distR;
         vec3 nearestPos = vec3(FLT_MAX, FLT_MAX, FLT_MAX);
@@ -76,7 +77,7 @@ void main() {
         }
     }
     /* Second voxelize - set white voxels using position map */
-    else if (usePositions) {
+    else if (voxelizeStage == 2) {
         vec4 worldPos = imageLoad(positionMap, texCoords);
         if (worldPos.a > 0) {
             ivec3 voxelIndex = calculateVoxelIndex(worldPos.xyz);

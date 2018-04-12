@@ -30,12 +30,12 @@ bool VoxelizeShader::init(Volume *vol, int width, int height) {
     addUniform("zBounds");
     addUniform("dimension");
     addUniform("steps");
-    addUniform("useVoxelize");
 
     addUniform("positionMap");
     addUniform("mapWidth");
     addUniform("mapHeight");
-    addUniform("usePositions");
+
+    addUniform("voxelizeStage");
 
     /* Set volume reference */
     this->volume = vol;
@@ -64,8 +64,8 @@ void VoxelizeShader::voxelize() {
     bindVolume();
     loadVec3(getUniform("lightPos"), Light::spatial.position);
 
-    renderQuad(Light::P, Light::V, Light::spatial.position, true, false);
-    renderQuad(Light::P, Light::V, Light::spatial.position, false, true);
+    renderQuad(Light::P, Light::V, Light::spatial.position, Voxelize);
+    renderQuad(Light::P, Light::V, Light::spatial.position, Positions);
     
     unbindVolume();
     unbind();
@@ -78,7 +78,7 @@ void VoxelizeShader::voxelize() {
 
 }
 
-void VoxelizeShader::renderQuad(glm::mat4 P, glm::mat4 V, glm::vec3 lightPos, bool toVoxelize, bool usePositions) {
+void VoxelizeShader::renderQuad(glm::mat4 P, glm::mat4 V, glm::vec3 lightPos, Stage stage) {
     loadVec3(getUniform("center"), volume->quadPosition);
     loadFloat(getUniform("scale"), volume->quadScale.x);
 
@@ -93,15 +93,13 @@ void VoxelizeShader::renderQuad(glm::mat4 P, glm::mat4 V, glm::vec3 lightPos, bo
     CHECK_GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, Library::quad->vertBufId));
     CHECK_GL_CALL(glVertexAttribPointer(pos, 3, GL_FLOAT, GL_FALSE, 0, nullptr));
 
-    /* Boolean denotes first voxelize - set spherical voxels to black */
-    loadBool(getUniform("useVoxelize"), toVoxelize);
-    /* Boolean denotes second voxelize - set nearest voxels to white */
-    loadBool(getUniform("usePositions"), usePositions);
+    /* Denotes voxelization stage */
+    loadInt(getUniform("voxelizeStage"), stage);
 
     glm::mat4 M(1.f);
     /* Render a full-screen position map quad for sampling 
      * Implemented in same shader to reuse volume functions */
-    if (usePositions) {
+    if (stage == Positions) {
         loadMat4(getUniform("P"), &M);
         loadMat4(getUniform("V"), &M);
         loadMat4(getUniform("Vi"), &M);
@@ -122,7 +120,7 @@ void VoxelizeShader::renderQuad(glm::mat4 P, glm::mat4 V, glm::vec3 lightPos, bo
         M *= glm::scale(glm::mat4(1.f), glm::vec3(volume->quadScale.x));
         loadMat4(getUniform("M"), &M);
         CHECK_GL_CALL(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
-    }
+    };
 
     /* Wrap up shader */
     CHECK_GL_CALL(glBindVertexArray(0));

@@ -12,12 +12,18 @@ class VoxelizeShader : public Shader {
         VoxelizeShader(std::string vertex, std::string fragment) :
             Shader(vertex, fragment)
         {}
+        enum Stage {
+            None,       // 0
+            Voxelize,   // 1
+            Positions,  // 2 
+            ConeTrace   // 3
+        };
 
         bool init(Volume *, int, int);
 
         /* Generate 3D volume */
         void voxelize();
-        void renderQuad(glm::mat4, glm::mat4, glm::vec3, bool, bool);
+        void renderQuad(glm::mat4, glm::mat4, glm::vec3, VoxelizeShader::Stage);
 
         /* 2D position texture */
         Texture * positionMap;
