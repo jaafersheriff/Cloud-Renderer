@@ -24,6 +24,8 @@ class VoxelizeShader : public Shader {
         void clearPositionMap();
 
         Volume * volume;
+
+        // TODO : calculate this to maximize performance
         float steps = 0.2f;
     private:
 
