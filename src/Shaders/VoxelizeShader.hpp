@@ -38,6 +38,14 @@ class VoxelizeShader : public Shader {
 
         // TODO : calculate this to maximize performance
         float steps = 0.2f;
+
+        /* Cone trace parameters */
+        int vctSteps = 16;
+        float vctBias = 1.f;
+        float vctConeAngle = 0.784398163f;
+        float vctConeInitialHeight = 1.0f;
+        float vctLodOffset = 1.0f;
+
     private:
 
         void bindVolume();

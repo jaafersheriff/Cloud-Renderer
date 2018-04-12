@@ -9,10 +9,10 @@
 in vec3 fragPos;
 in vec2 fragTex;
 
-uniform vec3 lightPos;
-
 uniform vec3 center;
 uniform float scale;
+
+uniform int voxelizeStage;
 
 layout(binding=0, rgba16f) uniform image3D volume;
 uniform vec2 xBounds;
@@ -21,12 +21,18 @@ uniform vec2 zBounds;
 uniform int dimension;
 uniform vec3 voxelSize;
 uniform float steps;
+uniform vec3 lightPos;
 
 layout(binding=1, rgba32f) uniform image2D positionMap;
 uniform int mapWidth;
 uniform int mapHeight;
 
-uniform int voxelizeStage;
+layout (binding=2) uniform sampler3D volumeTexture;
+uniform int vctSteps;
+uniform float vctBias;
+uniform float vctConeAngle;
+uniform float vctConeInitialHeight;
+uniform float vctLodOffset;
 
 out vec4 color;
 
@@ -42,6 +48,28 @@ ivec3 calculateVoxelIndex(vec3 pos) {
 	float z = dimension * ((pos.z - zBounds.x) / rangeZ);
 
 	return ivec3(x, y, z);
+}
+
+vec4 traceCone(sampler3D voxelTexture, vec3 position, vec3 direction, int steps, float bias, float coneAngle, float coneHeight) {
+    direction = normalize(direction);
+    direction.z = -direction.z;
+    direction /= dimension;
+    vec3 start = position + bias * direction;
+
+    vec4 color = vec4(0);
+
+    for (int i = 0; i < steps && color.a < 0.95; i++) {
+        float coneRadius = coneHeight * tan(coneAngle / 2.0);
+        float lod = log2(max(1.0, 2 * coneRadius));
+        // TODO : volume mipmap/lod 
+        vec4 sampleColor = textureLod(voxelTexture, start + coneHeight * direction, lod + vctLodOffset);
+        float a = 1 - color.a;
+        color.xyz += sampleColor.rgb * a;
+        color.a += a * sampleColor.a;
+        coneHeight += coneRadius;
+    }
+
+    return color;
 }
 
 void main() {
@@ -86,7 +114,22 @@ void main() {
     }
     /* Cone trace */
     else if (voxelizeStage == 3) {
-        color = vec4(1, 0, 0, 1);
+        vec3 voxelPosition = vec3(calculateVoxelIndex(fragPos)) / dimension;
+        vec4 indirect = vec4(0);
+        vec3 coneDirs[4] = vec3[] (
+            vec3( 0.707, 0.707, 0),
+            vec3( 0, 0.707, 0.707),
+            vec3(-0.707, 0.707, 0),
+            vec3( 0, 0.707, -0.707)
+        );
+        float coneWeights[4] = float[](0.25, 0.25, 0.25, 0.25);
+        for (int i = 0; i < 4; i++) {
+            // TODO : rotate cones to be in direction of the light source
+            vec3 dir = normalize(coneDirs[i]);
+            indirect += coneWeights[i] * traceCone(volumeTexture, voxelPosition, dir, vctSteps, vctBias, vctConeAngle, vctConeInitialHeight);
+        }
+
+        color = indirect;
     }
 
 }

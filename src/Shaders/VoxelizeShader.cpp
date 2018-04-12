@@ -20,7 +20,7 @@ bool VoxelizeShader::init(Volume *vol, int width, int height) {
     addUniform("M");
     addUniform("Vi");
 
-    addUniform("lightPos");
+    addUniform("voxelizeStage");
 
     addUniform("center");
     addUniform("scale");
@@ -31,12 +31,18 @@ bool VoxelizeShader::init(Volume *vol, int width, int height) {
     addUniform("zBounds");
     addUniform("dimension");
     addUniform("steps");
+    addUniform("lightPos");
 
     addUniform("positionMap");
     addUniform("mapWidth");
     addUniform("mapHeight");
 
-    addUniform("voxelizeStage");
+    addUniform("volumeTexture");
+    addUniform("vctSteps");
+    addUniform("vctBias");
+    addUniform("vctConeAngle");
+    addUniform("vctConeInitialHeight");
+    addUniform("vctLodOffset");
 
     /* Set volume reference */
     this->volume = vol;
@@ -63,8 +69,6 @@ void VoxelizeShader::voxelize() {
     bind();
 
     bindVolume();
-    loadVec3(getUniform("lightPos"), Light::spatial.position);
-
     renderQuad(Light::P, Light::V, Light::spatial.position, Voxelize);
     renderQuad(Light::P, Light::V, Light::spatial.position, Positions);
     
@@ -80,9 +84,15 @@ void VoxelizeShader::voxelize() {
 
 void VoxelizeShader::coneTrace() {
     bind();
-
+    bindVolume();
+    loadInt(getUniform("volumeTexture"), volume->volId);
+    loadInt(getUniform("vctSteps"), vctSteps);
+    loadFloat(getUniform("vctBias"), vctBias);
+    loadFloat(getUniform("vctConeAngle"), vctConeAngle);
+    loadFloat(getUniform("vctConeInitialHeight"), vctConeInitialHeight);
+    loadFloat(getUniform("vctLodOffset"), vctLodOffset);
     renderQuad(Camera::getP(), Camera::getV(), Camera::getPosition(), ConeTrace);
-
+    unbindVolume();
     unbind();
 }
 
@@ -150,6 +160,8 @@ void VoxelizeShader::bindVolume() {
     loadVec2(getUniform("yBounds"), volume->yBounds);
     loadVec2(getUniform("zBounds"), volume->zBounds);
     loadFloat(getUniform("steps"), steps);
+
+    loadVec3(getUniform("lightPos"), Light::spatial.position);
 }
 
 void VoxelizeShader::unbindVolume() {
