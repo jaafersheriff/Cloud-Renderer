@@ -29,7 +29,7 @@ bool VoxelizeShader::init(Volume *vol, int width, int height) {
     addUniform("yBounds");
     addUniform("zBounds");
     addUniform("dimension");
-    addUniform("voxelSize");
+    addUniform("steps");
     addUniform("useVoxelize");
 
     addUniform("positionMap");
@@ -58,7 +58,7 @@ void VoxelizeShader::voxelize() {
     CHECK_GL_CALL(glDepthMask(GL_FALSE));
     CHECK_GL_CALL(glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE));
     
-    /* Populate/update volume */
+    /* Populate volume */
     bind();
     CHECK_GL_CALL(glActiveTexture(GL_TEXTURE0 + volume->volId));
     CHECK_GL_CALL(glBindTexture(GL_TEXTURE_3D, volume->volId));
@@ -69,6 +69,13 @@ void VoxelizeShader::voxelize() {
     CHECK_GL_CALL(glBindImageTexture(1, positionMap->textureId, 0, GL_TRUE, 0, GL_READ_WRITE, GL_RGBA32F));
     loadInt(getUniform("mapWidth"), positionMap->width);
     loadInt(getUniform("mapHeight"), positionMap->height);
+
+    loadVec3(getUniform("lightPos"), Light::spatial.position);
+    loadInt(getUniform("dimension"), volume->dimension);
+    loadVec2(getUniform("xBounds"), volume->xBounds);
+    loadVec2(getUniform("yBounds"), volume->yBounds);
+    loadVec2(getUniform("zBounds"), volume->zBounds);
+    loadFloat(getUniform("steps"), steps);
 
     renderMesh(Light::P, Light::V, Light::spatial.position, true, false);
     renderMesh(Light::P, Light::V, Light::spatial.position, false, true);
@@ -87,14 +94,8 @@ void VoxelizeShader::voxelize() {
 }
 
 void VoxelizeShader::renderMesh(glm::mat4 P, glm::mat4 V, glm::vec3 lightPos, bool toVoxelize, bool usePositions) {
-    loadVec3(getUniform("lightPos"), Light::spatial.position);
-    loadInt(getUniform("dimension"), volume->dimension);
-    loadVec2(getUniform("xBounds"), volume->xBounds);
-    loadVec2(getUniform("yBounds"), volume->yBounds);
-    loadVec2(getUniform("zBounds"), volume->zBounds);
     loadVec3(getUniform("center"), volume->quadPosition);
     loadFloat(getUniform("scale"), volume->quadScale.x);
-    loadVec3(getUniform("voxelSize"), volume->voxelSize);
 
     /* Bind quad */
     /* VAO */
@@ -137,6 +138,7 @@ void VoxelizeShader::renderMesh(glm::mat4 P, glm::mat4 V, glm::vec3 lightPos, bo
         loadMat4(getUniform("M"), &M);
         CHECK_GL_CALL(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
     }
+
     /* Wrap up shader */
     CHECK_GL_CALL(glBindVertexArray(0));
 }

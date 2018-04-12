@@ -123,14 +123,16 @@ int main() {
 
         /* Voxelize from the light's perspective */
         if (lightVoxelize) {
-            /* Voxelize from light source with initial black voxels */
             voxelizeShader->voxelize();
         }
+        
+        /* Render cloud billboards */
+        billboardShader->render(cloudsBillboards);
 
+        /* Render Optional */
         glm::mat4 P = showLightView ? Light::P : Camera::getP();
         glm::mat4 V = showLightView ? Light::V : Camera::getV();
         glm::vec3 camPos = showLightView ? Light::spatial.position : Camera::getPosition();
-
         /* Draw voxels to the screen -- optional */
         if (voxelShader->isEnabled()) {
             volume->updateVoxelData();
@@ -138,7 +140,6 @@ int main() {
             voxelShader->render(volume->getVoxelData(), P, V);
             voxelShader->unbind();
         }
-
         /* Render underlying quad -- optional*/
         if (voxelizeShader->isEnabled()) {
             voxelizeShader->bind();
@@ -146,9 +147,7 @@ int main() {
             voxelizeShader->unbind();
         }
 
-        /* Render cloud billboards */
-        billboardShader->render(cloudsBillboards);
-
+        /* Render ImGui */
         if (Window::isImGuiEnabled()) {
             ImGui::Render();
         }
@@ -235,6 +234,7 @@ void createImGuiPanes() {
             ImGui::SliderFloat2("XBounds", glm::value_ptr(volume->xBounds), -20.f, 20.f);
             ImGui::SliderFloat2("YBounds", glm::value_ptr(volume->yBounds), -20.f, 20.f);
             ImGui::SliderFloat2("ZBounds", glm::value_ptr(volume->zBounds), -20.f, 20.f);
+            ImGui::SliderFloat("Step", &voxelizeShader->steps, 0.1f, 1.f);
 
             bool b = voxelizeShader->isEnabled();
             ImGui::Checkbox("Render underlying quad", &b);

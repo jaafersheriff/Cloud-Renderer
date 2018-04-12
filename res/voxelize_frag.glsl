@@ -20,9 +20,8 @@ uniform vec2 yBounds;
 uniform vec2 zBounds;
 uniform int dimension;
 uniform vec3 voxelSize;
-uniform bool useVoxelize;
-
 uniform float steps;
+uniform bool useVoxelize;
 
 layout(binding=1, rgba32f) uniform image2D positionMap;
 uniform int mapWidth;
@@ -58,21 +57,12 @@ void main() {
     }
 
     ivec2 texCoords = ivec2(fragTex.x * mapWidth, fragTex.y * mapHeight);
-    /* Second voxelize - set white voxels using position map */
-    if (usePositions) {
-        vec4 worldPos = imageLoad(positionMap, texCoords);
-        if (worldPos.a > 0) {
-            ivec3 voxelIndex = calculateVoxelIndex(worldPos.xyz);
-            imageStore(volume, voxelIndex, vec4(1, 1, 1, 1));
-        }
-    }
     /* First voxelize - set blacks voxels in a sphere, write to position map */
-    else if (useVoxelize) {
+    if (useVoxelize) {
         vec3 normal = normalize(lightPos - center);
         float normalScale = radius * distR;
         vec3 nearestPos = vec3(FLT_MAX, FLT_MAX, FLT_MAX);
-        float minDist = max(0.3, min(min(voxelSize.x, voxelSize.y), voxelSize.z) - 0.3);
-        for(float j = -normalScale; j <= normalScale; j += minDist) {
+        for(float j = -normalScale; j <= normalScale; j += steps) {
             vec3 worldPos = fragPos + (normal * j);
             ivec3 voxelIndex = calculateVoxelIndex(worldPos);
             imageAtomicAdd(volume, voxelIndex, f16vec4(0, 0, 0, 1));
@@ -85,4 +75,13 @@ void main() {
             imageStore(positionMap, texCoords, vec4(nearestPos, 1.0));
         }
     }
+    /* Second voxelize - set white voxels using position map */
+    else if (usePositions) {
+        vec4 worldPos = imageLoad(positionMap, texCoords);
+        if (worldPos.a > 0) {
+            ivec3 voxelIndex = calculateVoxelIndex(worldPos.xyz);
+            imageStore(volume, voxelIndex, vec4(1, 1, 1, 1));
+        }
+    }
+
 }

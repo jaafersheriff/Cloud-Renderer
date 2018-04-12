@@ -24,6 +24,7 @@ class VoxelizeShader : public Shader {
         void clearPositionMap();
 
         Volume * volume;
+        float steps = 0.2f;
     private:
         void initPositionMap(int, int);
 };
