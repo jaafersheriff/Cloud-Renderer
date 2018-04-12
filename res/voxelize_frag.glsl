@@ -27,7 +27,7 @@ layout(binding=1, rgba32f) uniform image2D positionMap;
 uniform int mapWidth;
 uniform int mapHeight;
 
-layout (binding=2) uniform sampler3D volumeTexture;
+uniform sampler3D volumeTexture;
 uniform int vctSteps;
 uniform float vctBias;
 uniform float vctConeAngle;
@@ -61,8 +61,7 @@ vec4 traceCone(sampler3D voxelTexture, vec3 position, vec3 direction, int steps,
     for (int i = 0; i < steps && color.a < 0.95; i++) {
         float coneRadius = coneHeight * tan(coneAngle / 2.0);
         float lod = log2(max(1.0, 2 * coneRadius));
-        // TODO : volume mipmap/lod 
-        vec4 sampleColor = textureLod(voxelTexture, start + coneHeight * direction, lod + vctLodOffset);
+        vec4 sampleColor = textureLod(voxelTexture, normalize(start + coneHeight * direction), lod + vctLodOffset);
         float a = 1 - color.a;
         color.xyz += sampleColor.rgb * a;
         color.a += a * sampleColor.a;
@@ -114,8 +113,6 @@ void main() {
     }
     /* Cone trace */
     else if (voxelizeStage == 3) {
-        vec3 voxelPosition = vec3(calculateVoxelIndex(fragPos)) / dimension;
-        vec4 indirect = vec4(0);
         vec3 coneDirs[4] = vec3[] (
             vec3( 0.707, 0.707, 0),
             vec3( 0, 0.707, 0.707),
@@ -123,12 +120,16 @@ void main() {
             vec3( 0, 0.707, -0.707)
         );
         float coneWeights[4] = float[](0.25, 0.25, 0.25, 0.25);
+
+        // TODO : start at voxel nearest to camera?
+        vec3 worldPos = fragPos;
+        vec3 voxelPosition = vec3(calculateVoxelIndex(fragPos)) / dimension;
+        vec4 indirect = vec4(0);
         for (int i = 0; i < 4; i++) {
-            // TODO : rotate cones to be in direction of the light source
+            // TODO : rotate cones to face light source
             vec3 dir = normalize(coneDirs[i]);
             indirect += coneWeights[i] * traceCone(volumeTexture, voxelPosition, dir, vctSteps, vctBias, vctConeAngle, vctConeInitialHeight);
         }
-
         color = indirect;
     }
 
