@@ -26,6 +26,10 @@ class VoxelizeShader : public Shader {
         Volume * volume;
         float steps = 0.2f;
     private:
+
+        void bindVolume();
+        void unbindVolume();
+
         void initPositionMap(int, int);
 };
 
