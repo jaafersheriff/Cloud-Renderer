@@ -106,11 +106,11 @@ void main() {
     distR = sqrt(max(0, 1 - distR * distR));
     color = vec4(distR);
 
-    ivec2 texCoords = ivec2(fragTex.x * mapWidth, fragTex.y * mapHeight);
     if (length(fragTex*2-1) > 1) {
         return;
     }
  
+    ivec2 texCoords = ivec2(fragTex.x * mapWidth, fragTex.y * mapHeight);
     /* First voxelize - set blacks voxels in a sphere, write to position map */
     if (voxelizeStage == 1) {
         vec3 normal = normalize(lightPos - center);
