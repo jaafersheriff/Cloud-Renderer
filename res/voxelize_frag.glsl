@@ -51,6 +51,19 @@ ivec3 calculateVoxelIndex(vec3 pos) {
 	return ivec3(x, y, z);
 }
 
+vec3 calculateVoxelLerp(vec3 pos) {
+    float rangeX = xBounds.y - xBounds.x;
+    float rangeY = yBounds.y - yBounds.x;
+    float rangeZ = zBounds.y - zBounds.x;
+
+	float x = dimension * ((pos.x - xBounds.x) / rangeX);
+	float y = dimension * ((pos.y - yBounds.x) / rangeY);
+	float z = dimension * ((pos.z - zBounds.x) / rangeZ);
+
+	return vec3(x, y, z);
+}
+
+
 mat4 rotationMatrix(vec3 axis, float angle)
 {
     axis = normalize(axis);
@@ -138,15 +151,14 @@ void main() {
         vec3 normal = normalize(camPos - center);
         vec3 worldPos = fragPos + (normal * radius * distR);
         vec3 direction = normalize(lightPos - worldPos);
-
         vec3 axis = cross(vec3(0,1,0), direction);
         mat4 rotation = rotationMatrix(axis, acos(dot(vec3(0,1,0), direction)));
 
-        vec3 voxelPosition = vec3(calculateVoxelIndex(worldPos));
+        vec3 voxelPosition = calculateVoxelLerp(worldPos);
         vec4 indirect = vec4(0);
         for (int i = 0; i < 4; i++) {
-            // TODO : if toggle
-            vec3 dir = normalize(vec3(rotation*vec4(coneDirs[i],1)));
+            /* Rotate cones to face light source */
+            vec3 dir = normalize(vec3(vec4(coneDirs[i],1)*rotation));
             indirect += coneWeights[i] * traceCone(volumeTexture, voxelPosition, dir, vctSteps, vctBias, vctConeAngle, vctConeInitialHeight);
         }
         color = indirect;
