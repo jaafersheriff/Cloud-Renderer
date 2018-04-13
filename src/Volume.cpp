@@ -2,7 +2,7 @@
 
 #include "Shaders/GLSL.hpp"
 
-Volume::Volume(int dim, glm::vec2 bounds, glm::vec3 position, glm::vec2 size) {
+Volume::Volume(int dim, glm::vec2 bounds, glm::vec3 position, glm::vec2 size, int mips) {
     for (int i = 0; i < dim*dim*dim; i++) {
         this->voxelData.push_back({
             Spatial(),
@@ -16,11 +16,12 @@ Volume::Volume(int dim, glm::vec2 bounds, glm::vec3 position, glm::vec2 size) {
     this->yBounds = bounds;
     this->zBounds = bounds;
     this->voxelSize = glm::vec3(0.f);
+    this->levels = mips;
 
     /* Init volume */
     CHECK_GL_CALL(glGenTextures(1, &volId));
     CHECK_GL_CALL(glBindTexture(GL_TEXTURE_3D, volId));
-    CHECK_GL_CALL(glTexStorage3D(GL_TEXTURE_3D, 1, GL_RGBA16F, dimension, dimension, dimension));
+    CHECK_GL_CALL(glTexStorage3D(GL_TEXTURE_3D, mips, GL_RGBA16F, dimension, dimension, dimension));
 
     CHECK_GL_CALL(glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR));
     CHECK_GL_CALL(glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
@@ -37,7 +38,9 @@ Volume::Volume(int dim, glm::vec2 bounds, glm::vec3 position, glm::vec2 size) {
 
 void Volume::clear() {
     /* Reset GPU volume */
-    CHECK_GL_CALL(glClearTexImage(volId, 0, GL_RGBA, GL_FLOAT, nullptr));
+    for (int i = 0; i < levels; i++) {
+        CHECK_GL_CALL(glClearTexImage(volId, i, GL_RGBA, GL_FLOAT, nullptr));
+    }
 
     /* Reset CPU representation of volume */
     for (unsigned int i = 0; i < voxelData.size(); i++) {

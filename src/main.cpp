@@ -16,7 +16,7 @@
 #include <time.h>
 
 /* Initial values */
-#define IMGUI_FONT_SIZE 20.f
+#define IMGUI_FONT_SIZE 13.f
 const std::string RESOURCE_DIR = "../res/";
 bool lightVoxelize = true;
 bool coneTrace = true;
@@ -40,10 +40,11 @@ VoxelizeShader * voxelizeShader;
 VoxelShader * voxelShader;
 
 /* Volume */
-#define I_VOLUME_DIMENSION 32
+#define I_VOLUME_DIMENSION 64
 #define I_VOLUME_BOUNDS glm::vec2(-10.f, 15.f)
 #define I_VOLUME_POSITION glm::vec3(5.f, 0.f, 0.f)
-#define I_VOLUME_SCALE glm::vec2(8.f)
+#define I_VOLUME_SCALE glm::vec2(10.f)
+#define I_VOLUME_MIPS 1
 Volume * volume;
 
 /* Render targets */
@@ -68,7 +69,7 @@ int main() {
     }
 
     /* Create volume */
-    volume = new Volume(I_VOLUME_DIMENSION, I_VOLUME_BOUNDS, I_VOLUME_POSITION, I_VOLUME_SCALE);
+    volume = new Volume(I_VOLUME_DIMENSION, I_VOLUME_BOUNDS, I_VOLUME_POSITION, I_VOLUME_SCALE, I_VOLUME_MIPS);
 
     /* Create meshes and textures */
     Library::init(RESOURCE_DIR + "cloud.png", RESOURCE_DIR + "cloudMap.png");
@@ -82,6 +83,7 @@ int main() {
     if (!voxelizeShader->init(volume, Window::width, Window::height)) {
         exitError("Error initializing volume shader");
     }
+    voxelizeShader->setEnabled(false);
     voxelShader = new VoxelShader(RESOURCE_DIR + "voxel_vert.glsl", RESOURCE_DIR + "voxel_frag.glsl");
     if (!voxelShader->init()) {
         exitError("Error initializing voxel shader");
@@ -268,7 +270,7 @@ void createImGuiPanes() {
             ImGui::SliderFloat("Bias", &voxelizeShader->vctBias, 0.1f, 5.f);
             ImGui::SliderFloat("Angle", &voxelizeShader->vctConeAngle, 0.f, 3.f);
             ImGui::SliderFloat("Height", &voxelizeShader->vctConeInitialHeight, 0.f, 3.f);
-            ImGui::SliderFloat("LOD Offset", &voxelizeShader->vctLodOffset, 0.1f, 5.f);
+            ImGui::SliderFloat("LOD Offset", &voxelizeShader->vctLodOffset, -5.f, 5.f);
             ImGui::Checkbox("Cone trace!", &coneTrace);
             ImGui::End();
         }

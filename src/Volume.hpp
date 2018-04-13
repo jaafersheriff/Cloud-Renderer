@@ -15,7 +15,7 @@ class Volume {
             glm::vec4 data;     // Data stored in voxel
         };
 
-        Volume(int, glm::vec2, glm::vec3, glm::vec2);
+        Volume(int, glm::vec2, glm::vec3, glm::vec2, int);
 
         std::vector<Voxel> & getVoxelData() { return voxelData; }
         void updateVoxelData();
@@ -30,6 +30,7 @@ class Volume {
 
         int voxelCount = 0; // Count of voxels containing any data
         glm::vec3 voxelSize;    // World-size of individual voxels
+        int levels;         // Mipmap levels
 
         GLuint volId;
 
