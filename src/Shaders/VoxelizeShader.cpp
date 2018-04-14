@@ -29,7 +29,6 @@ bool VoxelizeShader::init(Volume *vol, int width, int height) {
     addUniform("xBounds");
     addUniform("yBounds");
     addUniform("zBounds");
-    addUniform("dimension");
     addUniform("steps");
     addUniform("lightPos");
 
@@ -68,11 +67,10 @@ void VoxelizeShader::voxelize() {
     
     /* Populate volume */
     bind();
-
     bindVolume();
     renderQuad(Light::P, Light::V, Light::spatial.position, Voxelize);
     renderQuad(Light::P, Light::V, Light::spatial.position, Positions);
-    
+
     unbindVolume();
     unbind();
 
@@ -86,6 +84,7 @@ void VoxelizeShader::voxelize() {
 void VoxelizeShader::coneTrace() {
     bind();
     bindVolume();
+
     loadInt(getUniform("volumeTexture"), volume->volId);
     loadInt(getUniform("vctSteps"), vctSteps);
     loadFloat(getUniform("vctBias"), vctBias);
@@ -93,7 +92,10 @@ void VoxelizeShader::coneTrace() {
     loadFloat(getUniform("vctConeInitialHeight"), vctConeInitialHeight);
     loadFloat(getUniform("vctLodOffset"), vctLodOffset);
     loadVec3(getUniform("camPos"), Camera::getPosition());
+
+    /* Cone trace from the camera's perspective */
     renderQuad(Camera::getP(), Camera::getV(), Camera::getPosition(), ConeTrace);
+
     unbindVolume();
     unbind();
 }
@@ -149,15 +151,14 @@ void VoxelizeShader::renderQuad(glm::mat4 P, glm::mat4 V, glm::vec3 lightPos, St
 void VoxelizeShader::bindVolume() {
     CHECK_GL_CALL(glActiveTexture(GL_TEXTURE0 + volume->volId));
     CHECK_GL_CALL(glBindTexture(GL_TEXTURE_3D, volume->volId));
-    CHECK_GL_CALL(glBindImageTexture(0, volume->volId, 0, GL_TRUE, 0, GL_READ_WRITE, GL_RGBA16F));
+    CHECK_GL_CALL(glBindImageTexture(0, volume->volId, volume->activeLevel, GL_TRUE, 0, GL_READ_WRITE, GL_RGBA16F));
 
     CHECK_GL_CALL(glActiveTexture(GL_TEXTURE0 + positionMap->textureId));
     CHECK_GL_CALL(glBindTexture(GL_TEXTURE_2D, positionMap->textureId));
     CHECK_GL_CALL(glBindImageTexture(1, positionMap->textureId, 0, GL_TRUE, 0, GL_READ_WRITE, GL_RGBA32F));
     loadInt(getUniform("mapWidth"), positionMap->width);
     loadInt(getUniform("mapHeight"), positionMap->height);
-
-    loadInt(getUniform("dimension"), volume->dimension);
+    
     loadVec2(getUniform("xBounds"), volume->xBounds);
     loadVec2(getUniform("yBounds"), volume->yBounds);
     loadVec2(getUniform("zBounds"), volume->zBounds);

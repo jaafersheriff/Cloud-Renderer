@@ -18,7 +18,6 @@ layout(binding=0, rgba16f) uniform image3D volume;
 uniform vec2 xBounds;
 uniform vec2 yBounds;
 uniform vec2 zBounds;
-uniform int dimension;
 uniform vec3 voxelSize;
 uniform float steps;
 uniform vec3 lightPos;
@@ -40,6 +39,7 @@ out vec4 color;
 /* Linear map from aribtray box(?) in world space to 3D volume 
  * Voxel indices: [0, dimension - 1] */
 ivec3 calculateVoxelIndex(vec3 pos) {
+    int dimension = imageSize(volume).x;
     float rangeX = xBounds.y - xBounds.x;
     float rangeY = yBounds.y - yBounds.x;
     float rangeZ = zBounds.y - zBounds.x;
@@ -52,6 +52,7 @@ ivec3 calculateVoxelIndex(vec3 pos) {
 }
 
 vec3 calculateVoxelLerp(vec3 pos) {
+    int dimension = imageSize(volume).x;
     float rangeX = xBounds.y - xBounds.x;
     float rangeY = yBounds.y - yBounds.x;
     float rangeZ = zBounds.y - zBounds.x;
@@ -78,6 +79,7 @@ mat4 rotationMatrix(vec3 axis, float angle)
 }
 
 vec4 traceCone(sampler3D voxelTexture, vec3 position, vec3 direction, int steps, float bias, float coneAngle, float coneHeight) {
+    int dimension = imageSize(volume).x;    // TODO : ehh
     direction = normalize(direction);
     direction.z = -direction.z;
     direction /= dimension;
@@ -149,7 +151,8 @@ void main() {
         
         /* Start at sphere surface */
         vec3 normal = normalize(camPos - center);
-        vec3 worldPos = fragPos + (normal * radius * distR);
+        // vec3 worldPos = fragPos + (normal * radius * distR);
+        vec3 worldPos = fragPos;
         vec3 direction = normalize(lightPos - worldPos);
         vec3 axis = cross(vec3(0,1,0), direction);
         mat4 rotation = rotationMatrix(axis, acos(dot(vec3(0,1,0), direction)));

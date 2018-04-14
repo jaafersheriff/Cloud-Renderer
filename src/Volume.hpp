@@ -30,7 +30,9 @@ class Volume {
 
         int voxelCount = 0; // Count of voxels containing any data
         glm::vec3 voxelSize;    // World-size of individual voxels
+
         int levels;         // Mipmap levels
+        int activeLevel;    // Current level
 
         GLuint volId;
 
