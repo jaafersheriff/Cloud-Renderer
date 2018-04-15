@@ -40,7 +40,7 @@ VoxelizeShader * voxelizeShader;
 VoxelShader * voxelShader;
 
 /* Volume */
-#define I_VOLUME_DIMENSION 64
+#define I_VOLUME_DIMENSION 32
 #define I_VOLUME_BOUNDS glm::vec2(-10.f, 15.f)
 #define I_VOLUME_POSITION glm::vec3(5.f, 0.f, 0.f)
 #define I_VOLUME_SCALE glm::vec2(10.f)
@@ -127,6 +127,9 @@ int main() {
 
         /* Voxelize from the light's perspective */
         if (lightVoxelize) {
+            if (voxelShader->isEnabled()) {
+                volume->clearCPU();
+            }
             voxelizeShader->voxelize();
         }
         /* Cone trace from the camera's perspective */
@@ -260,11 +263,12 @@ void createImGuiPanes() {
             ImGui::Checkbox("Light Voxelize!", &lightVoxelize);
 
             if (ImGui::Button("Single voxelize")) {
-                volume->clear();
+                volume->clearCPU();
                 voxelizeShader->voxelize();
             }
             if (ImGui::Button("Clear")) {
-                volume->clear();
+                volume->clearGPU();
+                volume->clearCPU();
                 voxelizeShader->clearPositionMap();
             }
             ImGui::SliderInt("Steps", &voxelizeShader->vctSteps, 5, 25);

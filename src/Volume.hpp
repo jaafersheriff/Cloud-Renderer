@@ -19,7 +19,8 @@ class Volume {
 
         std::vector<Voxel> & getVoxelData() { return voxelData; }
         void updateVoxelData();
-        void clear();
+        void clearGPU();
+        void clearCPU();
 
         glm::vec3 quadPosition; // world-position of representing billboard
         glm::vec2 quadScale;    // size of representing billboard

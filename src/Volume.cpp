@@ -34,17 +34,19 @@ Volume::Volume(int dim, glm::vec2 bounds, glm::vec3 position, glm::vec2 size, in
     /* Generate volume mips */
     CHECK_GL_CALL(glGenerateMipmap(GL_TEXTURE_3D));
 
-    clear();
+    clearGPU();
     CHECK_GL_CALL(glBindTexture(GL_TEXTURE_3D, 0));
 }
 
-void Volume::clear() {
-    /* Reset GPU volume */
+/* Reset GPU volume */
+void Volume::clearGPU() {
     for (int i = 0; i < levels; i++) {
         CHECK_GL_CALL(glClearTexImage(volId, i, GL_RGBA, GL_FLOAT, nullptr));
     }
+}
 
-    /* Reset CPU representation of volume */
+/* Reset CPU representation of volume */
+void Volume::clearCPU() {
     for (unsigned int i = 0; i < voxelData.size(); i++) {
         voxelData[i].spatial.position = glm::vec3(0.f);
         voxelData[i].spatial.scale = glm::vec3(0.f);

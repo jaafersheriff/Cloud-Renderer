@@ -55,7 +55,7 @@ bool VoxelizeShader::init(Volume *vol, int width, int height) {
 
 void VoxelizeShader::voxelize() {
     /* Reset volume and position map */
-    volume->clear();
+    volume->clearGPU();
     clearPositionMap();
     Light::boxBounds = volume->quadScale.x / 2; // TODO : weird
 
