@@ -139,11 +139,11 @@ int main() {
 
         static float timer = 0.f;
         timer += Window::timeStep;
-            if (timer > 0.2f && Keyboard::isKeyPressed(GLFW_KEY_Z)) {
+            if (timer > 0.1f && Keyboard::isKeyPressed(GLFW_KEY_Z)) {
                 voxelizeShader->inZ = glm::max(0, voxelizeShader->inZ - 1);
                 timer = 0.0f;
             }
-            if (timer > 0.2f && Keyboard::isKeyPressed(GLFW_KEY_X)) {
+            if (timer > 0.1f && Keyboard::isKeyPressed(GLFW_KEY_X)) {
                 timer = 0.f;
                 voxelizeShader->inZ = glm::min(volume->dimension-1, voxelizeShader->inZ + 1);
             }
@@ -190,7 +190,9 @@ void createImGuiPanes() {
             if (ImGui::Button("Vsync")) {
                 Window::toggleVsync();
             }
-            ImGui::SliderInt("Slice", &voxelizeShader->inZ, 0, volume->dimension - 1);
+
+            int dim = volume->activeLevel ? volume->dimension / (2 * volume->activeLevel) : volume->dimension;
+            ImGui::SliderInt("Slice", &voxelizeShader->inZ, 0, dim - 1);
             ImGui::End();
         } 
     );

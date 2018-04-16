@@ -156,10 +156,9 @@ void main() {
         // }
         // color = indirect;
 
-        vec3 tSize = textureSize(volumeTexture, 0);
         int dimension = imageSize(volume).x;    // TODO : ehh
-        vec3 tC = vec3(fragTex * tSize.xy, inZ);
-        vec4 sColor = texture(volumeTexture, tC/dimension);
+        vec3 tC = vec3(fragTex * dimension, inZ);
+        vec4 sColor = textureLod(volumeTexture, tC/dimension, 1);
         color = vec4(sColor.xyz, 1);
     }
 
