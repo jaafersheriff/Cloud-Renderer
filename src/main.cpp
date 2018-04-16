@@ -136,6 +136,19 @@ int main() {
         if (coneTrace) {
             voxelizeShader->coneTrace();
         }
+
+        static float timer = 0.f;
+        timer += Window::timeStep;
+            if (timer > 0.2f && Keyboard::isKeyPressed(GLFW_KEY_Z)) {
+                voxelizeShader->inZ = glm::max(0, voxelizeShader->inZ - 1);
+                timer = 0.0f;
+            }
+            if (timer > 0.2f && Keyboard::isKeyPressed(GLFW_KEY_X)) {
+                timer = 0.f;
+                voxelizeShader->inZ = glm::min(volume->dimension-1, voxelizeShader->inZ + 1);
+            }
+
+
         
         /* Render cloud billboards */
         billboardShader->render(cloudsBillboards);
@@ -177,6 +190,7 @@ void createImGuiPanes() {
             if (ImGui::Button("Vsync")) {
                 Window::toggleVsync();
             }
+            ImGui::SliderInt("Slice", &voxelizeShader->inZ, 0, volume->dimension - 1);
             ImGui::End();
         } 
     );
@@ -251,6 +265,7 @@ void createImGuiPanes() {
             ImGui::SliderFloat2("ZBounds", glm::value_ptr(volume->zBounds), -20.f, 20.f);
             ImGui::SliderInt("LOD", &volume->activeLevel, 0, volume->levels - 1);
             ImGui::SliderFloat("Step", &voxelizeShader->steps, 0.1f, 1.f);
+
 
             bool b = voxelizeShader->isEnabled();
             ImGui::Checkbox("Render underlying quad", &b);

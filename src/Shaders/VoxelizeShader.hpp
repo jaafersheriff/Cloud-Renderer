@@ -46,6 +46,8 @@ class VoxelizeShader : public Shader {
         float vctConeInitialHeight = 1.0f;
         float vctLodOffset = 1.0f;
 
+        int inZ = 0;
+
     private:
 
         void bindVolume();
