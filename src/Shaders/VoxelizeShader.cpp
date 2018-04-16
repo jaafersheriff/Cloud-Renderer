@@ -68,9 +68,11 @@ void VoxelizeShader::voxelize() {
     
     /* Populate volume */
     bind();
-
     bindVolume();
+
+    /* Initial back voxelization - also write nearest voxel positions to texture */
     renderQuad(Light::P, Light::V, Light::spatial.position, Voxelize);
+    /* Secondary voxelization - use position texture to highlight voxels nearest to light */
     renderQuad(Light::P, Light::V, Light::spatial.position, Positions);
     
     unbindVolume();
@@ -86,6 +88,7 @@ void VoxelizeShader::voxelize() {
 void VoxelizeShader::coneTrace() {
     bind();
     bindVolume();
+
     loadInt(getUniform("volumeTexture"), volume->volId);
     loadInt(getUniform("vctSteps"), vctSteps);
     loadFloat(getUniform("vctBias"), vctBias);
@@ -93,7 +96,9 @@ void VoxelizeShader::coneTrace() {
     loadFloat(getUniform("vctConeInitialHeight"), vctConeInitialHeight);
     loadFloat(getUniform("vctLodOffset"), vctLodOffset);
     loadVec3(getUniform("camPos"), Camera::getPosition());
+
     renderQuad(Camera::getP(), Camera::getV(), Camera::getPosition(), ConeTrace);
+
     unbindVolume();
     unbind();
 }

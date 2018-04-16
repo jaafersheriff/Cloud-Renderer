@@ -39,18 +39,6 @@ out vec4 color;
 
 /* Linear map from aribtray box(?) in world space to 3D volume 
  * Voxel indices: [0, dimension - 1] */
-ivec3 calculateVoxelIndex(vec3 pos) {
-    float rangeX = xBounds.y - xBounds.x;
-    float rangeY = yBounds.y - yBounds.x;
-    float rangeZ = zBounds.y - zBounds.x;
-
-	float x = dimension * ((pos.x - xBounds.x) / rangeX);
-	float y = dimension * ((pos.y - yBounds.x) / rangeY);
-	float z = dimension * ((pos.z - zBounds.x) / rangeZ);
-
-	return ivec3(x, y, z);
-}
-
 vec3 calculateVoxelLerp(vec3 pos) {
     float rangeX = xBounds.y - xBounds.x;
     float rangeY = yBounds.y - yBounds.x;
@@ -63,6 +51,9 @@ vec3 calculateVoxelLerp(vec3 pos) {
 	return vec3(x, y, z);
 }
 
+ivec3 calculateVoxelIndex(vec3 pos) {
+	return ivec3(calculateVoxelLerp(pos));
+}
 
 mat4 rotationMatrix(vec3 axis, float angle)
 {
@@ -111,33 +102,39 @@ void main() {
     }
  
     ivec2 texCoords = ivec2(fragTex.x * mapWidth, fragTex.y * mapHeight);
-    /* First voxelize - set blacks voxels in a sphere, write to position map */
+    /* First Voxelize */
     if (voxelizeStage == 1) {
         vec3 normal = normalize(lightPos - center);
         float normalScale = radius * distR;
         vec3 nearestPos = vec3(FLT_MAX, FLT_MAX, FLT_MAX);
+        /* Write to volume in spherical shape from billboard to light source */
         for(float j = -normalScale; j <= normalScale; j += steps) {
             vec3 worldPos = fragPos + (normal * j);
             ivec3 voxelIndex = calculateVoxelIndex(worldPos);
             imageAtomicAdd(volume, voxelIndex, f16vec4(0, 0, 0, 1));
 
+            /* Keep track of nearest voxel position */
             if (distance(worldPos, lightPos) < distance(nearestPos, lightPos)) {
                 nearestPos = worldPos;
             }
         }
+        /* Write nearest voxel position to position map */
         if (nearestPos.x != FLT_MAX) {
             imageStore(positionMap, texCoords, vec4(nearestPos, 1.0));
         }
     }
-    /* Second voxelize - set white voxels using position map */
+    /* Second Voxelize */
     else if (voxelizeStage == 2) {
+        /* Read from position map */
         vec4 worldPos = imageLoad(positionMap, texCoords);
+        /* If this voxel is active (is already either black or white)
+         * Set it to white */
         if (worldPos.a > 0) {
             ivec3 voxelIndex = calculateVoxelIndex(worldPos.xyz);
             imageStore(volume, voxelIndex, vec4(1, 1, 1, 1));
         }
     }
-    /* Cone trace */
+    /* Cone Trace */
     else if (voxelizeStage == 3) {
         vec3 coneDirs[4] = vec3[] (
             vec3( 0.707, 0.707, 0),
@@ -147,13 +144,16 @@ void main() {
         );
         float coneWeights[4] = float[](0.25, 0.25, 0.25, 0.25);
         
-        /* Start at sphere surface */
         vec3 normal = normalize(camPos - center);
-        vec3 worldPos = fragPos + (normal * radius * distR);
+        vec3 worldPos = fragPos; // + (normal * radius * distR);
+
+        /* Used to rotate cones to face light source */
         vec3 direction = normalize(lightPos - worldPos);
         vec3 axis = cross(vec3(0,1,0), direction);
-        mat4 rotation = rotationMatrix(axis, acos(dot(vec3(0,1,0), direction)));
+        float angle = acos(dot(vec3(0,1,0), direction));
+        mat4 rotation = rotationMatrix(axis, angle);
 
+        /* Interpolated position */
         vec3 voxelPosition = calculateVoxelLerp(worldPos);
         vec4 indirect = vec4(0);
         for (int i = 0; i < 4; i++) {
