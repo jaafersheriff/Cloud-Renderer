@@ -127,7 +127,7 @@ void Window::update() {
 
     /* Update timing */
     runTime = (float)glfwGetTime();
-    timeStep = (float)runTime - lastFrameTime;
+    timeStep = (float) (runTime - lastFrameTime);
     lastFrameTime = runTime;
     nFrames++;
     if (runTime - lastFpsTime >= 1.0) {
