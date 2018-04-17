@@ -22,6 +22,8 @@ bool VoxelShader::init() {
     addUniform("isOutline");
 
     addUniform("voxelData");
+
+    return true;
 }
 
 /* Visualize voxels */

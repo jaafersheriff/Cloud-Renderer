@@ -19,7 +19,8 @@ class Volume {
 
         std::vector<Voxel> & getVoxelData() { return voxelData; }
         void updateVoxelData();
-        void clear();
+        void clearGPU();
+        void clearCPU();
 
         glm::vec3 quadPosition; // world-position of representing billboard
         glm::vec2 quadScale;    // size of representing billboard
@@ -30,7 +31,9 @@ class Volume {
 
         int voxelCount = 0; // Count of voxels containing any data
         glm::vec3 voxelSize;    // World-size of individual voxels
+
         int levels;         // Mipmap levels
+        int activeLevel;    // Current level
 
         GLuint volId;
 

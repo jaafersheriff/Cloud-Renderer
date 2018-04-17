@@ -17,6 +17,7 @@ Volume::Volume(int dim, glm::vec2 bounds, glm::vec3 position, glm::vec2 size, in
     this->zBounds = bounds;
     this->voxelSize = glm::vec3(0.f);
     this->levels = mips;
+    this->activeLevel = 0;
 
     /* Init volume */
     CHECK_GL_CALL(glGenTextures(1, &volId));
@@ -26,23 +27,26 @@ Volume::Volume(int dim, glm::vec2 bounds, glm::vec3 position, glm::vec2 size, in
     CHECK_GL_CALL(glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR));
     CHECK_GL_CALL(glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
 
-    CHECK_GL_CALL(glGenerateMipmap(GL_TEXTURE_3D));
-
     CHECK_GL_CALL(glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
     CHECK_GL_CALL(glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
     CHECK_GL_CALL(glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE));
 
-    clear();
+    /* Generate volume mips */
+    CHECK_GL_CALL(glGenerateMipmap(GL_TEXTURE_3D));
+
+    clearGPU();
     CHECK_GL_CALL(glBindTexture(GL_TEXTURE_3D, 0));
 }
 
-void Volume::clear() {
-    /* Reset GPU volume */
+/* Reset GPU volume */
+void Volume::clearGPU() {
     for (int i = 0; i < levels; i++) {
         CHECK_GL_CALL(glClearTexImage(volId, i, GL_RGBA, GL_FLOAT, nullptr));
     }
+}
 
-    /* Reset CPU representation of volume */
+/* Reset CPU representation of volume */
+void Volume::clearCPU() {
     for (unsigned int i = 0; i < voxelData.size(); i++) {
         voxelData[i].spatial.position = glm::vec3(0.f);
         voxelData[i].spatial.scale = glm::vec3(0.f);
@@ -54,14 +58,15 @@ void Volume::updateVoxelData() {
     /* Pull volume data out of GPU */
     std::vector<float> buffer(voxelData.size() * 4);
     CHECK_GL_CALL(glBindTexture(GL_TEXTURE_3D, volId));
-    CHECK_GL_CALL(glGetTexImage(GL_TEXTURE_3D, 0, GL_RGBA, GL_FLOAT, buffer.data()));
+    CHECK_GL_CALL(glGetTexImage(GL_TEXTURE_3D, activeLevel, GL_RGBA, GL_FLOAT, buffer.data()));
     CHECK_GL_CALL(glBindTexture(GL_TEXTURE_3D, 0));
 
     /* Size of voxels in world-space */
+    int dim = activeLevel ? dimension / (2 * activeLevel) : dimension;
     voxelSize = glm::vec3(
-        (xBounds.y - xBounds.x) / dimension,
-        (yBounds.y - yBounds.x) / dimension,
-        (zBounds.y - zBounds.x) / dimension);
+        (xBounds.y - xBounds.x) / dim,
+        (yBounds.y - yBounds.x) / dim,
+        (zBounds.y - zBounds.x) / dim);
     voxelCount = 0;
     for (unsigned int i = 0; i < voxelData.size(); i++) {
         float r = buffer[4*i + 0];
@@ -82,8 +87,9 @@ void Volume::updateVoxelData() {
 
 // Assume 4 bytes per voxel
 glm::ivec3 Volume::get3DIndices(int index) {
-	int line = dimension * 4;
-	int slice = dimension  * line;
+    int dim = activeLevel ? dimension / (2 * activeLevel) : dimension;
+	int line = dim * 4;
+	int slice = dim  * line;
 	int z = index / slice;
 	int y = (index - z * slice) / line;
 	int x = (index - z * slice - y * line) / 4;
@@ -91,13 +97,14 @@ glm::ivec3 Volume::get3DIndices(int index) {
 }
 
 glm::vec3 Volume::reverseVoxelIndex(glm::ivec3 voxelIndex) {
+    int dim = activeLevel ? dimension / (2 * activeLevel) : dimension;
     float xRange = xBounds.y - xBounds.x;
     float yRange = yBounds.y - yBounds.x;
     float zRange = zBounds.y - zBounds.x;
 
-    float x = float(voxelIndex.x) * xRange / dimension + xBounds.x;
-    float y = float(voxelIndex.y) * yRange / dimension + yBounds.x;
-    float z = float(voxelIndex.z) * zRange / dimension + zBounds.x;
+    float x = float(voxelIndex.x) * xRange / dim + xBounds.x;
+    float y = float(voxelIndex.y) * yRange / dim + yBounds.x;
+    float z = float(voxelIndex.z) * zRange / dim + zBounds.x;
 
     return glm::vec3(x, y, z);
 }
