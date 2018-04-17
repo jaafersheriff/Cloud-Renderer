@@ -34,8 +34,6 @@ uniform float vctConeInitialHeight;
 uniform float vctLodOffset;
 uniform vec3 camPos;
 
-uniform int inZ;
-
 out vec4 color;
 
 /* Linear map from aribtray box in world space to 3D volume 
@@ -141,25 +139,20 @@ void main() {
         );
         float coneWeights[4] = float[](0.25, 0.25, 0.25, 0.25);
         
-        // vec3 normal = normalize(camPos - center);
-        // vec3 worldPos = fragPos; //fragPos + (normal * radius * distR);
-        // vec3 direction = normalize(lightPos - worldPos);
-        // /* Rotation matrix for cones */
-        // mat4 rotation = rotationMatrix(cross(vec3(0,1,0),direction), acos(dot(vec3(0,1,0), direction)));
-        // vec3 voxelPosition = calculateVoxelLerp(worldPos);
+        vec3 normal = normalize(camPos - center);
+        vec3 worldPos = fragPos; //fragPos + (normal * radius * distR);
+        vec3 direction = normalize(lightPos - worldPos);
+        /* Rotation matrix for cones */
+        mat4 rotation = rotationMatrix(cross(vec3(0,1,0),direction), acos(dot(vec3(0,1,0), direction)));
+        vec3 voxelPosition = calculateVoxelLerp(worldPos);
         
-        // vec4 indirect = vec4(0);
-        // for (int i = 0; i < 4; i++) {
-        //     /* Rotate cones to face light source */
-        //     vec3 dir = normalize(vec3(vec4(coneDirs[i],1)*rotation));
-        //     indirect += coneWeights[i] * traceCone(volumeTexture, voxelPosition, dir, vctSteps, vctBias, vctConeAngle, vctConeInitialHeight);
-        // }
-        // color = indirect;
-
-        int dimension = imageSize(volume).x;    // TODO : ehh
-        vec3 tC = vec3(fragTex * dimension, inZ);
-        vec4 sColor = textureLod(volumeTexture, tC/dimension, 1);
-        color = vec4(sColor.xyz, 1);
+        vec4 indirect = vec4(0);
+        for (int i = 0; i < 4; i++) {
+            /* Rotate cones to face light source */
+            vec3 dir = normalize(vec3(vec4(coneDirs[i],1)*rotation));
+            indirect += coneWeights[i] * traceCone(volumeTexture, voxelPosition, dir, vctSteps, vctBias, vctConeAngle, vctConeInitialHeight);
+        }
+        color = indirect;
     }
 
 }

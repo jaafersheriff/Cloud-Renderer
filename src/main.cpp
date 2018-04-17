@@ -137,19 +137,6 @@ int main() {
             voxelizeShader->coneTrace();
         }
 
-        static float timer = 0.f;
-        timer += Window::timeStep;
-            if (timer > 0.1f && Keyboard::isKeyPressed(GLFW_KEY_Z)) {
-                voxelizeShader->inZ = glm::max(0, voxelizeShader->inZ - 1);
-                timer = 0.0f;
-            }
-            if (timer > 0.1f && Keyboard::isKeyPressed(GLFW_KEY_X)) {
-                timer = 0.f;
-                voxelizeShader->inZ = glm::min(volume->dimension-1, voxelizeShader->inZ + 1);
-            }
-
-
-        
         /* Render cloud billboards */
         billboardShader->render(cloudsBillboards);
 
@@ -190,9 +177,6 @@ void createImGuiPanes() {
             if (ImGui::Button("Vsync")) {
                 Window::toggleVsync();
             }
-
-            int dim = volume->activeLevel ? volume->dimension / (2 * volume->activeLevel) : volume->dimension;
-            ImGui::SliderInt("Slice", &voxelizeShader->inZ, 0, dim - 1);
             ImGui::End();
         } 
     );
