@@ -31,9 +31,6 @@ Volume::Volume(int dim, glm::vec2 bounds, glm::vec3 position, glm::vec2 size, in
     CHECK_GL_CALL(glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
     CHECK_GL_CALL(glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE));
 
-    /* Generate volume mips */
-    CHECK_GL_CALL(glGenerateMipmap(GL_TEXTURE_3D));
-
     clearGPU();
     CHECK_GL_CALL(glBindTexture(GL_TEXTURE_3D, 0));
 }

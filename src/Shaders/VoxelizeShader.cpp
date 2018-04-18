@@ -74,6 +74,9 @@ void VoxelizeShader::voxelize() {
     /* Secondary voxelization - use position texture to highlight voxels nearest to light */
     renderQuad(Light::P, Light::V, Light::spatial.position, Positions);
 
+    /* Generate mips */
+    CHECK_GL_CALL(glGenerateMipmap(GL_TEXTURE_3D));
+
     unbindVolume();
     unbind();
 

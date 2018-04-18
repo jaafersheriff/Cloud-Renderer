@@ -252,7 +252,6 @@ void createImGuiPanes() {
             ImGui::SliderInt("LOD", &volume->activeLevel, 0, volume->levels - 1);
             ImGui::SliderFloat("Step", &voxelizeShader->steps, 0.1f, 1.f);
 
-
             bool b = voxelizeShader->isEnabled();
             ImGui::Checkbox("Render underlying quad", &b);
             voxelizeShader->setEnabled(b);
@@ -260,9 +259,7 @@ void createImGuiPanes() {
             ImGui::Checkbox("Render voxels", &b);
             voxelShader->setEnabled(b);
             ImGui::Checkbox("Outlines", &voxelShader->drawOutline);
-
             ImGui::Checkbox("Light Voxelize!", &lightVoxelize);
-
             if (ImGui::Button("Single voxelize")) {
                 volume->clearCPU();
                 voxelizeShader->voxelize();
@@ -271,6 +268,11 @@ void createImGuiPanes() {
                 volume->clearGPU();
                 volume->clearCPU();
                 voxelizeShader->clearPositionMap();
+            }
+            if (ImGui::Button("Generate Mips")) {
+                CHECK_GL_CALL(glBindTexture(GL_TEXTURE_3D, volume->volId));
+                CHECK_GL_CALL(glGenerateMipmap(GL_TEXTURE_3D));
+                CHECK_GL_CALL(glBindTexture(GL_TEXTURE_3D, 0));
             }
             ImGui::SliderInt("Steps", &voxelizeShader->vctSteps, 5, 25);
             ImGui::SliderFloat("Bias", &voxelizeShader->vctBias, 0.1f, 5.f);
