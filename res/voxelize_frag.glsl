@@ -62,10 +62,11 @@ mat4 rotationMatrix(vec3 axis, float angle)
     float c = cos(angle);
     float oc = 1.0 - c;
     
-    return mat4(oc * axis.x * axis.x + c,           oc * axis.x * axis.y - axis.z * s,  oc * axis.z * axis.x + axis.y * s,  0.0,
-                oc * axis.x * axis.y + axis.z * s,  oc * axis.y * axis.y + c,           oc * axis.y * axis.z - axis.x * s,  0.0,
-                oc * axis.z * axis.x - axis.y * s,  oc * axis.y * axis.z + axis.x * s,  oc * axis.z * axis.z + c,           0.0,
-                0.0,                                0.0,                                0.0,                                1.0);
+    return mat4(
+        oc*axis.x*axis.x+c,        oc*axis.x*axis.y-axis.z*s, oc*axis.z*axis.x+axis.y*s, 0.0,
+        oc*axis.x*axis.y+axis.z*s, oc*axis.y*axis.y+c,        oc*axis.y*axis.z-axis.x*s, 0.0,
+        oc*axis.z*axis.x-axis.y*s, oc*axis.y*axis.z+axis.x*s, oc*axis.z*axis.z+c,        0.0,
+        0.0,                       0.0,                       0.0,                       1.0);
 }
 
 vec4 traceCone(sampler3D voxelTexture, vec3 position, vec3 direction, int steps, float bias, float coneAngle, float coneHeight) {
@@ -150,8 +151,8 @@ void main() {
 
         /* Used to rotate cones to face light source */
         vec3 direction = normalize(lightPos - worldPos);
-        vec3 axis = cross(vec3(0,1,0), direction);
-        float angle = acos(dot(vec3(0,1,0), direction));
+        vec3 axis = cross(vec3(0, 1, 0), direction);
+        float angle = acos(dot(vec3(0, 1, 0), direction));
         mat4 rotation = rotationMatrix(axis, angle);
 
         /* Interpolated position */

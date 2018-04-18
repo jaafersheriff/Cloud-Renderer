@@ -44,7 +44,7 @@ class VoxelizeShader : public Shader {
         float vctBias = 1.f;
         float vctConeAngle = 0.784398163f;
         float vctConeInitialHeight = 1.0f;
-        float vctLodOffset = 1.0f;
+        float vctLodOffset = 0.1f;
 
     private:
 
