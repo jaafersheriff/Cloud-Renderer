@@ -269,11 +269,6 @@ void createImGuiPanes() {
                 volume->clearCPU();
                 voxelizeShader->clearPositionMap();
             }
-            if (ImGui::Button("Generate Mips")) {
-                CHECK_GL_CALL(glBindTexture(GL_TEXTURE_3D, volume->volId));
-                CHECK_GL_CALL(glGenerateMipmap(GL_TEXTURE_3D));
-                CHECK_GL_CALL(glBindTexture(GL_TEXTURE_3D, 0));
-            }
             ImGui::SliderInt("Steps", &voxelizeShader->vctSteps, 5, 25);
             ImGui::SliderFloat("Bias", &voxelizeShader->vctBias, 0.1f, 5.f);
             ImGui::SliderFloat("Angle", &voxelizeShader->vctConeAngle, 0.f, 3.f);
