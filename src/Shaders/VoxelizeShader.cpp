@@ -77,6 +77,9 @@ void VoxelizeShader::voxelize() {
     /* Generate mips */
     CHECK_GL_CALL(glGenerateMipmap(GL_TEXTURE_3D));
 
+    /* Necessary for concurrency */
+    CHECK_GL_CALL(glFlush());
+
     unbindVolume();
     unbind();
 
