@@ -249,7 +249,6 @@ void createImGuiPanes() {
             ImGui::SliderFloat2("XBounds", glm::value_ptr(volume->xBounds), -20.f, 20.f);
             ImGui::SliderFloat2("YBounds", glm::value_ptr(volume->yBounds), -20.f, 20.f);
             ImGui::SliderFloat2("ZBounds", glm::value_ptr(volume->zBounds), -20.f, 20.f);
-            ImGui::SliderInt("LOD", &volume->activeLevel, 0, volume->levels - 1);
             ImGui::SliderFloat("Step", &voxelizeShader->steps, 0.1f, 1.f);
 
             bool b = voxelizeShader->isEnabled();
