@@ -26,6 +26,7 @@ bool VoxelizeShader::init(Volume *vol, int width, int height) {
     addUniform("scale");
 
     addUniform("volume");
+    addUniform("voxelDim");
     addUniform("xBounds");
     addUniform("yBounds");
     addUniform("zBounds");
@@ -42,7 +43,6 @@ bool VoxelizeShader::init(Volume *vol, int width, int height) {
     addUniform("vctConeAngle");
     addUniform("vctConeInitialHeight");
     addUniform("vctLodOffset");
-    addUniform("camPos");
 
     /* Set volume reference */
     this->volume = vol;
@@ -97,7 +97,6 @@ void VoxelizeShader::coneTrace() {
     loadFloat(getUniform("vctConeAngle"), vctConeAngle);
     loadFloat(getUniform("vctConeInitialHeight"), vctConeInitialHeight);
     loadFloat(getUniform("vctLodOffset"), vctLodOffset);
-    loadVec3(getUniform("camPos"), Camera::getPosition());
 
     /* Cone trace from the camera's perspective */
     renderQuad(Camera::getP(), Camera::getV(), Camera::getPosition(), ConeTrace);
@@ -109,6 +108,7 @@ void VoxelizeShader::coneTrace() {
 void VoxelizeShader::renderQuad(glm::mat4 P, glm::mat4 V, glm::vec3 lightPos, Stage stage) {
     loadVec3(getUniform("center"), volume->quadPosition);
     loadFloat(getUniform("scale"), volume->quadScale.x);
+    loadInt(getUniform("voxelDim"), volume->dimension);
 
     /* Bind quad */
     /* VAO */
