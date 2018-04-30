@@ -99,13 +99,9 @@ void main() {
     distR = sqrt(max(0, 1 - distR * distR));
     color = vec4(distR);
 
-    if (length(fragTex*2-1) > 1) {
-        return;
-    }
- 
     ivec2 texCoords = ivec2(fragTex.x * mapWidth, fragTex.y * mapHeight);
     /* First Voxelize */
-    if (voxelizeStage == 1) {
+    if (voxelizeStage == 1 && distR > 0.f) {
         vec3 normal = normalize(lightPos - center);
         float normalScale = radius * distR;
         vec3 nearestPos = vec3(FLT_MAX, FLT_MAX, FLT_MAX);
@@ -137,7 +133,8 @@ void main() {
         }
     }
     /* Cone Trace */
-    else if (voxelizeStage == 3) {
+    else if (voxelizeStage == 3 && distR > 0.f) {
+        /* Cone params */
         vec3 coneDirs[4] = vec3[] (
             vec3( 0.707, 0.707, 0),
             vec3( 0, 0.707, 0.707),
@@ -145,25 +142,22 @@ void main() {
             vec3( 0, 0.707, -0.707)
         );
         float coneWeights[4] = float[](0.25, 0.25, 0.25, 0.25);
-        
-        vec3 normal = normalize(camPos - center);
-        vec3 worldPos = fragPos; // + (normal * radius * distR);
-
         /* Used to rotate cones to face light source */
-        vec3 direction = normalize(lightPos - worldPos);
+        vec3 direction = normalize(lightPos - center); // TODO : fragpos? 
         vec3 axis = cross(vec3(0, 1, 0), direction);
         float angle = acos(dot(vec3(0, 1, 0), direction));
         mat4 rotation = rotationMatrix(axis, angle);
 
         /* Interpolated position */
-        vec3 voxelPosition = calculateVoxelLerp(worldPos);
+        vec3 voxelPosition = calculateVoxelLerp(fragPos);
+
         vec4 indirect = vec4(0);
         for (int i = 0; i < 4; i++) {
             /* Rotate cones to face light source */
             vec3 dir = normalize(vec3(vec4(coneDirs[i],1)*rotation));
             indirect += coneWeights[i] * traceCone(volumeTexture, voxelPosition, dir, vctSteps, vctBias, vctConeAngle, vctConeInitialHeight);
         }
-        color = indirect;
+        color = indirect * distR;
     }
 
 }
