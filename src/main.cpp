@@ -267,10 +267,10 @@ void createImGuiPanes() {
                 volume->clearCPU();
                 voxelizeShader->clearPositionMap();
             }
-            ImGui::SliderInt("Steps", &voxelizeShader->vctSteps, 5, 25);
-            ImGui::SliderFloat("Bias", &voxelizeShader->vctBias, 0.1f, 5.f);
-            ImGui::SliderFloat("Angle", &voxelizeShader->vctConeAngle, 0.f, 3.f);
-            ImGui::SliderFloat("Height", &voxelizeShader->vctConeInitialHeight, 0.f, 3.f);
+            ImGui::SliderInt("Steps", &voxelizeShader->vctSteps, 1, 30);
+            ImGui::SliderFloat("Bias", &voxelizeShader->vctBias, 0.01f, 5.f);
+            ImGui::SliderFloat("Angle", &voxelizeShader->vctConeAngle, -3.f, 3.f);
+            ImGui::SliderFloat("Height", &voxelizeShader->vctConeInitialHeight, -3.f, 3.f);
             ImGui::SliderFloat("LOD Offset", &voxelizeShader->vctLodOffset, -5.f, 5.f);
             ImGui::Checkbox("Cone trace!", &coneTrace);
             ImGui::End();
