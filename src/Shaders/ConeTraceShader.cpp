@@ -85,6 +85,7 @@ void ConeTraceShader::bindVolume(Volume *volume) {
     CHECK_GL_CALL(glBindTexture(GL_TEXTURE_3D, volume->volId));
     CHECK_GL_CALL(glBindImageTexture(0, volume->volId, 0, GL_TRUE, 0, GL_READ_WRITE, GL_RGBA16F));
     
+    loadInt(getUniform("voxelDim"), volume->dimension);
     loadVec2(getUniform("xBounds"), volume->xBounds);
     loadVec2(getUniform("yBounds"), volume->yBounds);
     loadVec2(getUniform("zBounds"), volume->zBounds);
