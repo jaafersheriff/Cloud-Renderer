@@ -83,7 +83,6 @@ void ConeTraceShader::coneTrace(Volume *volume) {
 void ConeTraceShader::bindVolume(Volume *volume) {
     CHECK_GL_CALL(glActiveTexture(GL_TEXTURE0 + volume->volId));
     CHECK_GL_CALL(glBindTexture(GL_TEXTURE_3D, volume->volId));
-    CHECK_GL_CALL(glBindImageTexture(0, volume->volId, 0, GL_TRUE, 0, GL_READ_WRITE, GL_RGBA16F));
     
     loadInt(getUniform("voxelDim"), volume->dimension);
     loadVec2(getUniform("xBounds"), volume->xBounds);
@@ -92,7 +91,6 @@ void ConeTraceShader::bindVolume(Volume *volume) {
 }
 
 void ConeTraceShader::unbindVolume() {
-    CHECK_GL_CALL(glBindImageTexture(1, 0, 0, GL_TRUE, 0, GL_READ_WRITE, GL_RGBA32F));
     CHECK_GL_CALL(glActiveTexture(GL_TEXTURE0));
     CHECK_GL_CALL(glBindTexture(GL_TEXTURE_3D, 0));
 }
