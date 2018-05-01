@@ -28,6 +28,7 @@
     <ClCompile Include="Model\Mesh.cpp" />
     <ClCompile Include="Model\Texture.cpp" />
     <ClCompile Include="Shaders\BillboardShader.cpp" />
+    <ClCompile Include="Shaders\ConeTraceShader.cpp" />
     <ClCompile Include="Shaders\GLSL.cpp" />
     <ClCompile Include="Shaders\VoxelShader.cpp" />
     <ClCompile Include="Shaders\Shader.cpp" />
@@ -42,6 +43,7 @@
     <ClInclude Include="Camera.hpp" />
     <ClInclude Include="Library.hpp" />
     <ClInclude Include="Light.hpp" />
+    <ClInclude Include="Shaders\ConeTraceShader.hpp" />
     <ClInclude Include="Spatial.hpp" />
     <ClInclude Include="IO\Keyboard.hpp" />
     <ClInclude Include="IO\Mouse.hpp" />
@@ -70,6 +72,7 @@
   <ItemGroup>
     <None Include="..\res\cloud_frag.glsl" />
     <None Include="..\res\cloud_vert.glsl" />
+    <None Include="..\res\conetrace_frag.glsl" />
     <None Include="..\res\voxel_frag.glsl" />
     <None Include="..\res\voxel_vert.glsl" />
     <None Include="..\res\voxelize_frag.glsl" />

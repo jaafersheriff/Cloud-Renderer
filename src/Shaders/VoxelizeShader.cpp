@@ -4,10 +4,10 @@
 
 #include "Camera.hpp"
 #include "Light.hpp"
+#include "IO/Window.hpp"
 
-#include "glm/gtc/matrix_transform.hpp"
 
-bool VoxelizeShader::init(Volume *vol, int width, int height) {
+bool VoxelizeShader::init() {
     if (!Shader::init()) {
         std::cerr << "Error initializing volume shader" << std::endl;
         return false;
@@ -37,23 +37,13 @@ bool VoxelizeShader::init(Volume *vol, int width, int height) {
     addUniform("mapWidth");
     addUniform("mapHeight");
 
-    addUniform("volumeTexture");
-    addUniform("vctSteps");
-    addUniform("vctBias");
-    addUniform("vctConeAngle");
-    addUniform("vctConeInitialHeight");
-    addUniform("vctLodOffset");
-
-    /* Set volume reference */
-    this->volume = vol;
-
     /* Create position map */
-    initPositionMap(width, height);
+    initPositionMap(Window::width, Window::height);
 
     return true;
 }
 
-void VoxelizeShader::voxelize() {
+void VoxelizeShader::voxelize(Volume *volume) {
     /* Reset volume and position map */
     volume->clearGPU();
     clearPositionMap();
@@ -67,12 +57,12 @@ void VoxelizeShader::voxelize() {
     
     /* Populate volume */
     bind();
-    bindVolume();
+    bindVolume(volume);
 
     /* Initial back voxelization - also write nearest voxel positions to texture */
-    renderQuad(Light::P, Light::V, Light::spatial.position, Voxelize);
+    renderQuad(volume, Light::P, Light::V, Light::spatial.position, Voxelize);
     /* Secondary voxelization - use position texture to highlight voxels nearest to light */
-    renderQuad(Light::P, Light::V, Light::spatial.position, Positions);
+    renderQuad(volume, Light::P, Light::V, Light::spatial.position, Positions);
 
     /* Generate mips */
     CHECK_GL_CALL(glGenerateMipmap(GL_TEXTURE_3D));
@@ -87,28 +77,10 @@ void VoxelizeShader::voxelize() {
     CHECK_GL_CALL(glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE));
 }
 
-void VoxelizeShader::coneTrace() {
-    bind();
-    bindVolume();
-
-    loadInt(getUniform("volumeTexture"), volume->volId);
-    loadInt(getUniform("vctSteps"), vctSteps);
-    loadFloat(getUniform("vctBias"), vctBias);
-    loadFloat(getUniform("vctConeAngle"), vctConeAngle);
-    loadFloat(getUniform("vctConeInitialHeight"), vctConeInitialHeight);
-    loadFloat(getUniform("vctLodOffset"), vctLodOffset);
-
-    /* Cone trace from the camera's perspective */
-    renderQuad(Camera::getP(), Camera::getV(), Camera::getPosition(), ConeTrace);
-
-    unbindVolume();
-    unbind();
-}
-
-void VoxelizeShader::renderQuad(glm::mat4 P, glm::mat4 V, glm::vec3 lightPos, Stage stage) {
+void VoxelizeShader::renderQuad(Volume *volume, glm::mat4 P, glm::mat4 V, glm::vec3 lightPos, Stage stage) {
     loadVec3(getUniform("center"), volume->quadPosition);
     loadFloat(getUniform("scale"), volume->quadScale.x);
-    loadInt(getUniform("voxelDim"), volume->dimension);
+    loadVec3(getUniform("lightPos"), Light::spatial.position);
 
     /* Bind quad */
     /* VAO */
@@ -154,7 +126,7 @@ void VoxelizeShader::renderQuad(glm::mat4 P, glm::mat4 V, glm::vec3 lightPos, St
     CHECK_GL_CALL(glBindVertexArray(0));
 }
 
-void VoxelizeShader::bindVolume() {
+void VoxelizeShader::bindVolume(Volume *volume) {
     CHECK_GL_CALL(glActiveTexture(GL_TEXTURE0 + volume->volId));
     CHECK_GL_CALL(glBindTexture(GL_TEXTURE_3D, volume->volId));
     CHECK_GL_CALL(glBindImageTexture(0, volume->volId, 0, GL_TRUE, 0, GL_READ_WRITE, GL_RGBA16F));
@@ -166,9 +138,8 @@ void VoxelizeShader::bindVolume() {
     loadVec2(getUniform("xBounds"), volume->xBounds);
     loadVec2(getUniform("yBounds"), volume->yBounds);
     loadVec2(getUniform("zBounds"), volume->zBounds);
+    loadInt(getUniform("voxelDim"), volume->dimension);
     loadFloat(getUniform("steps"), steps);
-
-    loadVec3(getUniform("lightPos"), Light::spatial.position);
 }
 
 void VoxelizeShader::unbindVolume() {

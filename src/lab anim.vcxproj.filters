@@ -55,6 +55,9 @@
     <ClCompile Include="Shaders\VoxelizeShader.cpp">
       <Filter>src\Shaders</Filter>
     </ClCompile>
+    <ClCompile Include="Shaders\ConeTraceShader.cpp">
+      <Filter>src\Shaders</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="ext">
@@ -155,6 +158,9 @@
     <ClInclude Include="Shaders\VoxelizeShader.hpp">
       <Filter>src\Shaders</Filter>
     </ClInclude>
+    <ClInclude Include="Shaders\ConeTraceShader.hpp">
+      <Filter>src\Shaders</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\CMakeLists.txt" />
@@ -179,6 +185,9 @@
       <Filter>glsl</Filter>
     </None>
     <None Include="..\res\voxel_frag.glsl">
+      <Filter>glsl</Filter>
+    </None>
+    <None Include="..\res\conetrace_frag.glsl">
       <Filter>glsl</Filter>
     </None>
   </ItemGroup>

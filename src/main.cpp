@@ -9,6 +9,7 @@
 #include "Shaders/BillboardShader.hpp"
 #include "Shaders/VoxelizeShader.hpp"
 #include "Shaders/VoxelShader.hpp"
+#include "Shaders/ConeTraceShader.hpp"
 
 #include "ThirdParty/imgui/imgui.h"
 
@@ -38,6 +39,7 @@ Texture * Library::cloudNormalTexture;
 BillboardShader * billboardShader;
 VoxelizeShader * voxelizeShader;
 VoxelShader * voxelShader;
+ConeTraceShader * coneShader;
 
 /* Volume */
 #define I_VOLUME_DIMENSION 32
@@ -56,7 +58,6 @@ void createImGuiPanes();
 
 void exitError(std::string st) {
     std::cerr << st << std::endl;
-    std::cerr << "Enter to exit: " << std::endl;
     std::cin.get();
     exit(EXIT_FAILURE);
 }
@@ -76,18 +77,16 @@ int main() {
 
     /* Create shaders */
     billboardShader = new BillboardShader(RESOURCE_DIR + "cloud_vert.glsl", RESOURCE_DIR + "cloud_frag.glsl");
-    if (!billboardShader->init()) {
-        exitError("Error initializing billboard shader");
-    }
+    voxelShader = new VoxelShader(RESOURCE_DIR + "voxel_vert.glsl", RESOURCE_DIR + "voxel_frag.glsl");
     voxelizeShader = new VoxelizeShader(RESOURCE_DIR + "voxelize_vert.glsl", RESOURCE_DIR + "voxelize_frag.glsl");
-    if (!voxelizeShader->init(volume, Window::width, Window::height)) {
-        exitError("Error initializing volume shader");
+    coneShader = new ConeTraceShader(RESOURCE_DIR + "voxelize_vert.glsl", RESOURCE_DIR + "conetrace_frag.glsl");
+    if (!billboardShader->init() || 
+        !voxelShader->init() || 
+        !voxelizeShader->init() ||
+        !coneShader->init()) {
+        exitError("Error initializing shaders");
     }
     voxelizeShader->setEnabled(false);
-    voxelShader = new VoxelShader(RESOURCE_DIR + "voxel_vert.glsl", RESOURCE_DIR + "voxel_frag.glsl");
-    if (!voxelShader->init()) {
-        exitError("Error initializing voxel shader");
-    }
     voxelShader->setEnabled(false);
 
     /* Init ImGui Panes */
@@ -130,11 +129,11 @@ int main() {
             if (voxelShader->isEnabled()) {
                 volume->clearCPU();
             }
-            voxelizeShader->voxelize();
+            voxelizeShader->voxelize(volume);
         }
         /* Cone trace from the camera's perspective */
         if (coneTrace) {
-            voxelizeShader->coneTrace();
+            coneShader->coneTrace(volume);
         }
 
         /* Render cloud billboards */
@@ -154,7 +153,7 @@ int main() {
         /* Render underlying quad -- optional*/
         if (voxelizeShader->isEnabled()) {
             voxelizeShader->bind();
-            voxelizeShader->renderQuad(P, V, camPos, VoxelizeShader::None);
+            voxelizeShader->renderQuad(volume, P, V, camPos, VoxelizeShader::None);
             voxelizeShader->unbind();
         }
 
@@ -260,18 +259,18 @@ void createImGuiPanes() {
             ImGui::Checkbox("Light Voxelize!", &lightVoxelize);
             if (ImGui::Button("Single voxelize")) {
                 volume->clearCPU();
-                voxelizeShader->voxelize();
+                voxelizeShader->voxelize(volume);
             }
             if (ImGui::Button("Clear")) {
                 volume->clearGPU();
                 volume->clearCPU();
                 voxelizeShader->clearPositionMap();
             }
-            ImGui::SliderInt("Steps", &voxelizeShader->vctSteps, 1, 30);
-            ImGui::SliderFloat("Bias", &voxelizeShader->vctBias, 0.01f, 5.f);
-            ImGui::SliderFloat("Angle", &voxelizeShader->vctConeAngle, -3.f, 3.f);
-            ImGui::SliderFloat("Height", &voxelizeShader->vctConeInitialHeight, -3.f, 3.f);
-            ImGui::SliderFloat("LOD Offset", &voxelizeShader->vctLodOffset, -5.f, 5.f);
+            ImGui::SliderInt("Steps", &coneShader->vctSteps, 1, 30);
+            ImGui::SliderFloat("Bias", &coneShader->vctBias, 0.01f, 5.f);
+            ImGui::SliderFloat("Angle", &coneShader->vctConeAngle, -3.f, 3.f);
+            ImGui::SliderFloat("Height", &coneShader->vctConeInitialHeight, -3.f, 3.f);
+            ImGui::SliderFloat("LOD Offset", &coneShader->vctLodOffset, -5.f, 5.f);
             ImGui::Checkbox("Cone trace!", &coneTrace);
             ImGui::End();
         }
