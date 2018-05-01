@@ -141,8 +141,8 @@ void main() {
         );
         float coneWeights[4] = float[](0.25, 0.25, 0.25, 0.25);
 
-        /* Used to rotate cones to face light source */
-        vec3 direction = normalize(lightPos - center); // TODO : fragpos? 
+        /* Rotation matrix so cones face the light source */
+        vec3 direction = normalize(lightPos - center); // TODO : upload R? fragpos? 
         vec3 axis = cross(vec3(0, 1, 0), direction);
         float angle = acos(dot(vec3(0, 1, 0), direction));
         mat4 rotation = rotationMatrix(axis, angle);
@@ -153,7 +153,7 @@ void main() {
         vec3 indirect = vec3(0);
         for (int i = 0; i < 4; i++) {
             /* Rotate cones to face light source */
-            vec3 dir = normalize(vec3(vec4(coneDirs[i],1)*rotation));
+            vec3 dir = (vec4(coneDirs[i],1.f) * rotation).xyz;
             indirect += coneWeights[i] * traceCone(volumeTexture, voxelPosition, dir, vctSteps, vctBias, vctConeAngle, vctConeInitialHeight);
         }
         color = vec4(indirect, sphereContrib);
