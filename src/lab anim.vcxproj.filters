@@ -55,6 +55,9 @@
     <ClCompile Include="Shaders\VoxelizeShader.cpp">
       <Filter>src\Shaders</Filter>
     </ClCompile>
+    <ClCompile Include="Shaders\ConeTraceShader.cpp">
+      <Filter>src\Shaders</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="ext">
@@ -153,6 +156,9 @@
       <Filter>src</Filter>
     </ClInclude>
     <ClInclude Include="Shaders\VoxelizeShader.hpp">
+      <Filter>src\Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="Shaders\ConeTraceShader.hpp">
       <Filter>src\Shaders</Filter>
     </ClInclude>
   </ItemGroup>
