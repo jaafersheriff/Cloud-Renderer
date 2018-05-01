@@ -9,6 +9,7 @@
 #include "Shaders/BillboardShader.hpp"
 #include "Shaders/VoxelizeShader.hpp"
 #include "Shaders/VoxelShader.hpp"
+#include "Shaders/ConeTraceShader.hpp"
 
 #include "ThirdParty/imgui/imgui.h"
 
@@ -38,6 +39,7 @@ Texture * Library::cloudNormalTexture;
 BillboardShader * billboardShader;
 VoxelizeShader * voxelizeShader;
 VoxelShader * voxelShader;
+ConeTraceShader * coneShader;
 
 /* Volume */
 #define I_VOLUME_DIMENSION 32
@@ -262,12 +264,12 @@ void createImGuiPanes() {
                 volume->clearCPU();
                 voxelizeShader->clearPositionMap();
             }
-            // ImGui::SliderInt("Steps", &voxelizeShader->vctSteps, 1, 30);
-            // ImGui::SliderFloat("Bias", &voxelizeShader->vctBias, 0.01f, 5.f);
-            // ImGui::SliderFloat("Angle", &voxelizeShader->vctConeAngle, -3.f, 3.f);
-            // ImGui::SliderFloat("Height", &voxelizeShader->vctConeInitialHeight, -3.f, 3.f);
-            // ImGui::SliderFloat("LOD Offset", &voxelizeShader->vctLodOffset, -5.f, 5.f);
-            // ImGui::Checkbox("Cone trace!", &coneTrace);
+            ImGui::SliderInt("Steps", &coneShader->vctSteps, 1, 30);
+            ImGui::SliderFloat("Bias", &coneShader->vctBias, 0.01f, 5.f);
+            ImGui::SliderFloat("Angle", &coneShader->vctConeAngle, -3.f, 3.f);
+            ImGui::SliderFloat("Height", &coneShader->vctConeInitialHeight, -3.f, 3.f);
+            ImGui::SliderFloat("LOD Offset", &coneShader->vctLodOffset, -5.f, 5.f);
+            ImGui::Checkbox("Cone trace!", &coneTrace);
             ImGui::End();
         }
     );

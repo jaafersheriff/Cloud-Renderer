@@ -1,0 +1,30 @@
+#pragma once
+#ifndef _CONE_TRACE_SHADER_HPP_
+#define _CONE_TRACE_SHADER_HPP_
+
+#include "Shader.hpp"
+#include "Volume.hpp"
+
+class ConeTraceShader : public Shader {
+    public:
+        ConeTraceShader(std::string vertex, std::string fragment) :
+            Shader(vertex, fragment)
+        {}
+
+        bool init();
+
+        void coneTrace(Volume *);
+
+        /* Cone trace parameters */
+        int vctSteps = 16;
+        float vctBias = 1.f;
+        float vctConeAngle = 0.784398163f;
+        float vctConeInitialHeight = 1.0f;
+        float vctLodOffset = 0.1f;
+
+    private:
+        void bindVolume(Volume *);
+        void unbindVolume();
+};
+
+#endif

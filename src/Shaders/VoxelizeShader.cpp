@@ -5,7 +5,6 @@
 #include "Camera.hpp"
 #include "Light.hpp"
 
-#include "glm/gtc/matrix_transform.hpp"
 
 bool VoxelizeShader::init(int width, int height) {
     if (!Shader::init()) {
@@ -80,7 +79,7 @@ void VoxelizeShader::voxelize(Volume *volume) {
 void VoxelizeShader::renderQuad(Volume *volume, glm::mat4 P, glm::mat4 V, glm::vec3 lightPos, Stage stage) {
     loadVec3(getUniform("center"), volume->quadPosition);
     loadFloat(getUniform("scale"), volume->quadScale.x);
-    loadInt(getUniform("voxelDim"), volume->dimension);
+    loadVec3(getUniform("lightPos"), Light::spatial.position);
 
     /* Bind quad */
     /* VAO */
@@ -138,9 +137,8 @@ void VoxelizeShader::bindVolume(Volume *volume) {
     loadVec2(getUniform("xBounds"), volume->xBounds);
     loadVec2(getUniform("yBounds"), volume->yBounds);
     loadVec2(getUniform("zBounds"), volume->zBounds);
+    loadInt(getUniform("voxelDim"), volume->dimension);
     loadFloat(getUniform("steps"), steps);
-
-    loadVec3(getUniform("lightPos"), Light::spatial.position);
 }
 
 void VoxelizeShader::unbindVolume() {
