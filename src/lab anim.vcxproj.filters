@@ -187,5 +187,8 @@
     <None Include="..\res\voxel_frag.glsl">
       <Filter>glsl</Filter>
     </None>
+    <None Include="..\res\conetrace_frag.glsl">
+      <Filter>glsl</Filter>
+    </None>
   </ItemGroup>
 </Project>

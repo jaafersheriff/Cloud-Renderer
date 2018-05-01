@@ -77,11 +77,13 @@ int main() {
 
     /* Create shaders */
     billboardShader = new BillboardShader(RESOURCE_DIR + "cloud_vert.glsl", RESOURCE_DIR + "cloud_frag.glsl");
-    voxelizeShader = new VoxelizeShader(RESOURCE_DIR + "voxelize_vert.glsl", RESOURCE_DIR + "voxelize_frag.glsl");
     voxelShader = new VoxelShader(RESOURCE_DIR + "voxel_vert.glsl", RESOURCE_DIR + "voxel_frag.glsl");
+    voxelizeShader = new VoxelizeShader(RESOURCE_DIR + "voxelize_vert.glsl", RESOURCE_DIR + "voxelize_frag.glsl");
+    coneShader = new ConeTraceShader(RESOURCE_DIR + "voxelize_vert.glsl", RESOURCE_DIR + "conetrace_frag.glsl");
     if (!billboardShader->init() || 
-        !voxelizeShader->init(Window::width, Window::height) ||
-        !voxelShader->init()) {
+        !voxelShader->init() || 
+        !voxelizeShader->init() ||
+        !coneShader->init()) {
         exitError("Error initializing shaders");
     }
     voxelizeShader->setEnabled(false);
@@ -131,7 +133,7 @@ int main() {
         }
         /* Cone trace from the camera's perspective */
         if (coneTrace) {
-            // voxelizeShader->coneTrace();
+            coneShader->coneTrace(volume);
         }
 
         /* Render cloud billboards */

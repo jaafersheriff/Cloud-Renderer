@@ -20,17 +20,11 @@ bool ConeTraceShader::init() {
     addUniform("center");
     addUniform("scale");
 
-    addUniform("volume");
     addUniform("voxelDim");
     addUniform("xBounds");
     addUniform("yBounds");
     addUniform("zBounds");
-    addUniform("steps");
     addUniform("lightPos");
-
-    addUniform("positionMap");
-    addUniform("mapWidth");
-    addUniform("mapHeight");
 
     addUniform("volumeTexture");
     addUniform("vctSteps");
