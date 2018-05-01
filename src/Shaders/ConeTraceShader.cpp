@@ -38,7 +38,7 @@ void ConeTraceShader::coneTrace(Volume *volume) {
     bind();
     bindVolume(volume);
 
-    loadInt(getUniform("volumeTexture"), volume->volId);
+    /* Bind cone tracing params */
     loadInt(getUniform("vctSteps"), vctSteps);
     loadFloat(getUniform("vctBias"), vctBias);
     loadFloat(getUniform("vctConeAngle"), vctConeAngle);
@@ -83,6 +83,7 @@ void ConeTraceShader::coneTrace(Volume *volume) {
 void ConeTraceShader::bindVolume(Volume *volume) {
     CHECK_GL_CALL(glActiveTexture(GL_TEXTURE0 + volume->volId));
     CHECK_GL_CALL(glBindTexture(GL_TEXTURE_3D, volume->volId));
+    loadInt(getUniform("volumeTexture"), volume->volId);
     
     loadInt(getUniform("voxelDim"), volume->dimension);
     loadVec2(getUniform("xBounds"), volume->xBounds);
