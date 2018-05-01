@@ -18,7 +18,7 @@ class VoxelizeShader : public Shader {
             Positions,  // 2 
         };
 
-        bool init(int, int);
+        bool init();
 
         /* Generic function to render quad -- takes Stage as a parameter to orchestrate GL binds */
         void renderQuad(Volume *, glm::mat4, glm::mat4, glm::vec3, VoxelizeShader::Stage);

@@ -4,9 +4,10 @@
 
 #include "Camera.hpp"
 #include "Light.hpp"
+#include "IO/Window.hpp"
 
 
-bool VoxelizeShader::init(int width, int height) {
+bool VoxelizeShader::init() {
     if (!Shader::init()) {
         std::cerr << "Error initializing volume shader" << std::endl;
         return false;
@@ -37,7 +38,7 @@ bool VoxelizeShader::init(int width, int height) {
     addUniform("mapHeight");
 
     /* Create position map */
-    initPositionMap(width, height);
+    initPositionMap(Window::width, Window::height);
 
     return true;
 }
