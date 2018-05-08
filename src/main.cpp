@@ -21,7 +21,6 @@
 const std::string RESOURCE_DIR = "../res/";
 bool lightVoxelize = true;
 bool coneTrace = true;
-bool showLightView = false;
 int Window::width = 1280;
 int Window::height = 720;
 
@@ -140,20 +139,17 @@ int main() {
         billboardShader->render(cloudsBillboards);
 
         /* Render Optional */
-        glm::mat4 P = showLightView ? Light::P : Camera::getP();
-        glm::mat4 V = showLightView ? Light::V : Camera::getV();
-        glm::vec3 camPos = showLightView ? Light::spatial.position : Camera::getPosition();
         /* Draw voxels to the screen -- optional */
         if (voxelShader->isEnabled()) {
             volume->updateVoxelData();
             voxelShader->bind();
-            voxelShader->render(volume->getVoxelData(), P, V);
+            voxelShader->render(volume->getVoxelData(), Camera::getP(), Camera::getV());
             voxelShader->unbind();
         }
         /* Render underlying quad -- optional*/
         if (voxelizeShader->isEnabled()) {
             voxelizeShader->bind();
-            voxelizeShader->renderQuad(volume, P, V, camPos, VoxelizeShader::None);
+            voxelizeShader->renderQuad(volume, Camera::getP(), Camera::getV(), Camera::getPosition(), VoxelizeShader::None);
             voxelizeShader->unbind();
         }
 
@@ -182,7 +178,6 @@ void createImGuiPanes() {
     imGuiFuncs.push_back(
         [&]() {
             ImGui::Begin("Light");
-            ImGui::Checkbox("Light view", &showLightView);
             ImGui::SliderFloat3("Position", glm::value_ptr(Light::spatial.position), -100.f, 100.f);
             ImGui::SliderFloat("Bounds", &Light::boxBounds, 1.f, 100.f);
             ImGui::SliderFloat2("Near/Far", glm::value_ptr(Light::zBounds), 0.1f, 1000.f);
