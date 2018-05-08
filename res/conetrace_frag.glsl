@@ -46,13 +46,12 @@ vec3 traceCone(sampler3D voxelTexture, vec3 position, vec3 direction, int steps,
     vec3 start = position / voxelDim + bias * direction;
 
     vec3 color = vec3(0);
-    float contrib = 1.f/steps;
 
     for (int i = 1; i <= steps; i++) {
         float coneRadius = coneHeight * tan(coneAngle / 2.f);
         float lod = log2(max(1.f, 2.f * coneRadius));
         vec4 sampleColor = textureLod(voxelTexture, start + coneHeight * direction, lod + vctLodOffset);
-        color += sampleColor.rgb * i/steps; // * (i * contrib);
+        color += sampleColor.rgb * i/steps;
         coneHeight += coneRadius;
     }
     return color;
