@@ -25,10 +25,10 @@ bool ConeTraceShader::init() {
     addUniform("yBounds");
     addUniform("zBounds");
     addUniform("lightPos");
+    addUniform("camPos");
 
     addUniform("volumeTexture");
     addUniform("vctSteps");
-    addUniform("vctBias");
     addUniform("vctConeAngle");
     addUniform("vctConeInitialHeight");
     addUniform("vctLodOffset");
@@ -40,7 +40,6 @@ void ConeTraceShader::coneTrace(Volume *volume) {
 
     /* Bind cone tracing params */
     loadInt(getUniform("vctSteps"), vctSteps);
-    loadFloat(getUniform("vctBias"), vctBias);
     loadFloat(getUniform("vctConeAngle"), vctConeAngle);
     loadFloat(getUniform("vctConeInitialHeight"), vctConeInitialHeight);
     loadFloat(getUniform("vctLodOffset"), vctLodOffset);
@@ -49,6 +48,7 @@ void ConeTraceShader::coneTrace(Volume *volume) {
     loadVec3(getUniform("center"), volume->quadPosition);
     loadFloat(getUniform("scale"), volume->quadScale.x);
     loadVec3(getUniform("lightPos"), Light::spatial.position);
+    loadVec3(getUniform("camPos"), Camera::getPosition());
 
     /* Bind quad */
     /* VAO */

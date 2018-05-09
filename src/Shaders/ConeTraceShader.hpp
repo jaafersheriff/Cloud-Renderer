@@ -17,9 +17,8 @@ class ConeTraceShader : public Shader {
 
         /* Cone trace parameters */
         int vctSteps = 16;
-        float vctBias = 1.f;
         float vctConeAngle = 0.784398163f;
-        float vctConeInitialHeight = 1.0f;
+        float vctConeInitialHeight = 0.1f;
         float vctLodOffset = 0.1f;
 
     private:
