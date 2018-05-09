@@ -251,6 +251,8 @@ void createImGuiPanes() {
             b = voxelShader->isEnabled();
             ImGui::Checkbox("Render voxels", &b);
             voxelShader->setEnabled(b);
+            ImGui::Checkbox("Voxel outlines", &voxelShader->useOutline);
+            ImGui::SliderFloat("Voxel alpha", &voxelShader->alpha, 0.f, 1.f);
             ImGui::Checkbox("Light Voxelize!", &lightVoxelize);
             if (ImGui::Button("Single voxelize")) {
                 volume->clearCPU();

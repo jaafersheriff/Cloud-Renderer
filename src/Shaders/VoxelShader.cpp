@@ -20,6 +20,7 @@ bool VoxelShader::init() {
     addUniform("M");
 
     addUniform("isOutline");
+    addUniform("alpha");
 
     addUniform("voxelData");
 
@@ -31,6 +32,7 @@ void VoxelShader::render(std::vector<Volume::Voxel> & voxels, glm::mat4 P, glm::
     /* Bind projeciton, view, inverise view matrices */
     loadMat4(getUniform("P"), &P);
     loadMat4(getUniform("V"), &V);
+    loadFloat(getUniform("alpha"), alpha);
 
     /* Bind mesh */
     /* VAO */
@@ -63,10 +65,12 @@ void VoxelShader::render(std::vector<Volume::Voxel> & voxels, glm::mat4 P, glm::
             CHECK_GL_CALL(glDrawElements(GL_TRIANGLES, (int)Library::cube->eleBuf.size(), GL_UNSIGNED_INT, nullptr));
 
             /* Draw outline */
-            loadBool(getUniform("isOutline"), true);
-            CHECK_GL_CALL(glPolygonMode(GL_FRONT_AND_BACK, GL_LINE));
-            CHECK_GL_CALL(glDrawElements(GL_TRIANGLES, (int)Library::cube->eleBuf.size(), GL_UNSIGNED_INT, nullptr));
-            CHECK_GL_CALL(glPolygonMode(GL_FRONT_AND_BACK, GL_FILL));
+            if (useOutline) {
+                loadBool(getUniform("isOutline"), true);
+                CHECK_GL_CALL(glPolygonMode(GL_FRONT_AND_BACK, GL_LINE));
+                CHECK_GL_CALL(glDrawElements(GL_TRIANGLES, (int)Library::cube->eleBuf.size(), GL_UNSIGNED_INT, nullptr));
+                CHECK_GL_CALL(glPolygonMode(GL_FRONT_AND_BACK, GL_FILL));
+            }
         }
    }
 

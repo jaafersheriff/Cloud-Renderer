@@ -17,6 +17,9 @@ class VoxelShader : public Shader {
         bool init();
 
         void render(std::vector<Volume::Voxel> &, glm::mat4, glm::mat4);
+
+        bool useOutline = false;
+        float alpha = 0.25f;
 };
 
 #endif

@@ -3,6 +3,7 @@
 in vec4 worldPos;
 
 uniform bool isOutline;
+uniform float alpha;
 
 /* Voxel data */
 uniform vec4 voxelData;
@@ -16,4 +17,5 @@ void main() {
     }
 
     color = voxelData;
+    color.a = alpha;
 }
