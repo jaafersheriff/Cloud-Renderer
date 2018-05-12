@@ -14,6 +14,7 @@ bool VoxelizeShader::init() {
     }
 
     addAttribute("vertPos");
+    addAttribute("vertNor");
     
     addUniform("P");
     addUniform("V");
@@ -86,12 +87,17 @@ void VoxelizeShader::renderQuad(Volume *volume, glm::mat4 P, glm::mat4 V, glm::v
     /* VAO */
     CHECK_GL_CALL(glBindVertexArray(Library::quad->vaoId));
 
-    /* Vertices VBO */
-    // TODO : unnecessary?
+    /* Vertices and normals VBO */
+    // TODO : unecessary - clean this up
     int pos = getAttribute("vertPos");
     CHECK_GL_CALL(glEnableVertexAttribArray(pos));
     CHECK_GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, Library::quad->vertBufId));
     CHECK_GL_CALL(glVertexAttribPointer(pos, 3, GL_FLOAT, GL_FALSE, 0, nullptr));
+    pos = getAttribute("vertNor");
+    CHECK_GL_CALL(glEnableVertexAttribArray(pos));
+    CHECK_GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, Library::quad->norBufId));
+    CHECK_GL_CALL(glVertexAttribPointer(pos, 3, GL_FLOAT, GL_FALSE, 0, nullptr));
+
 
     /* Denotes voxelization stage */
     loadInt(getUniform("voxelizeStage"), stage);

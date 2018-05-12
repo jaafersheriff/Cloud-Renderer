@@ -100,6 +100,12 @@ class Library {
                 -0.5f,  0.5f,  0.f,
                  0.5f,  0.5f,  0.f
             };
+            quad->norBuf = {
+                0.f, 0.f, 1.f,
+                0.f, 0.f, 1.f,
+                0.f, 0.f, 1.f,
+                0.f, 0.f, 1.f
+            };
             quad->init();
         }
 };

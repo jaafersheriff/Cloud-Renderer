@@ -11,6 +11,7 @@ bool ConeTraceShader::init() {
     }
 
     addAttribute("vertPos");
+    addAttribute("vertNor");
     
     addUniform("P");
     addUniform("V");
@@ -54,12 +55,17 @@ void ConeTraceShader::coneTrace(Volume *volume) {
     /* VAO */
     CHECK_GL_CALL(glBindVertexArray(Library::quad->vaoId));
 
-    /* Vertices VBO */
-    // TODO : unnecessary?
+    /* Vertices and normals VBO */
+    // TODO : unnecessary - clean up
     int pos = getAttribute("vertPos");
     CHECK_GL_CALL(glEnableVertexAttribArray(pos));
     CHECK_GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, Library::quad->vertBufId));
     CHECK_GL_CALL(glVertexAttribPointer(pos, 3, GL_FLOAT, GL_FALSE, 0, nullptr));
+    pos = getAttribute("vertNor");
+    CHECK_GL_CALL(glEnableVertexAttribArray(pos));
+    CHECK_GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, Library::quad->norBufId));
+    CHECK_GL_CALL(glVertexAttribPointer(pos, 3, GL_FLOAT, GL_FALSE, 0, nullptr));
+
 
     loadMat4(getUniform("P"), &Camera::getP());
     loadMat4(getUniform("V"), &Camera::getV());
