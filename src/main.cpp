@@ -75,7 +75,7 @@ int main() {
     Library::init(RESOURCE_DIR + "cloud.png", RESOURCE_DIR + "cloudMap.png");
 
     /* Create shaders */
-    billboardShader = new BillboardShader(RESOURCE_DIR + "cloud_vert.glsl", RESOURCE_DIR + "cloud_frag.glsl");
+    billboardShader = new BillboardShader(RESOURCE_DIR + "voxelize_vert.glsl", RESOURCE_DIR + "cloud_frag.glsl");
     voxelShader = new VoxelShader(RESOURCE_DIR + "voxel_vert.glsl", RESOURCE_DIR + "voxel_frag.glsl");
     voxelizeShader = new VoxelizeShader(RESOURCE_DIR + "voxelize_vert.glsl", RESOURCE_DIR + "voxelize_frag.glsl");
     coneShader = new ConeTraceShader(RESOURCE_DIR + "voxelize_vert.glsl", RESOURCE_DIR + "conetrace_frag.glsl");

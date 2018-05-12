@@ -169,9 +169,6 @@
     <None Include="..\res\cloud_frag.glsl">
       <Filter>glsl</Filter>
     </None>
-    <None Include="..\res\cloud_vert.glsl">
-      <Filter>glsl</Filter>
-    </None>
     <None Include="..\res\voxelize_frag.glsl">
       <Filter>glsl</Filter>
     </None>
