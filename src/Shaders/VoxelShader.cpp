@@ -30,8 +30,8 @@ bool VoxelShader::init() {
 /* Visualize voxels */
 void VoxelShader::render(std::vector<Volume::Voxel> & voxels, glm::mat4 P, glm::mat4 V) {
     /* Bind projeciton, view, inverise view matrices */
-    loadMat4(getUniform("P"), &P);
-    loadMat4(getUniform("V"), &V);
+    loadMatrix(getUniform("P"), &P);
+    loadMatrix(getUniform("V"), &V);
     loadFloat(getUniform("alpha"), alpha);
 
     /* Bind mesh */
@@ -56,9 +56,9 @@ void VoxelShader::render(std::vector<Volume::Voxel> & voxels, glm::mat4 P, glm::
             M = glm::mat4(1.f);
             M *= glm::translate(glm::mat4(1.f), v.spatial.position);
             M *= glm::scale(glm::mat4(1.f), v.spatial.scale);
-            loadMat4(getUniform("M"), &M);
+            loadMatrix(getUniform("M"), &M);
 
-            loadVec4(getUniform("voxelData"), v.data);
+            loadVector(getUniform("voxelData"), v.data);
 
             /* Draw shape */
             loadBool(getUniform("isOutline"), false);

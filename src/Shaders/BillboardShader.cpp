@@ -37,15 +37,15 @@ void BillboardShader::render(std::vector<Spatial *> &targets) {
     bind();
     
     /* Bind projeciton, view, inverse view matrices */
-    loadMat4(getUniform("P"), &Camera::getP());
-    loadMat4(getUniform("V"), &Camera::getV());
+    loadMatrix(getUniform("P"), &Camera::getP());
+    loadMatrix(getUniform("V"), &Camera::getV());
     glm::mat4 Vi = Camera::getV();
     Vi[3][0] = Vi[3][1] = Vi[3][2] = 0.f;
     Vi = glm::transpose(Vi);
-    loadMat4(getUniform("Vi"), &Vi);
+    loadMatrix(getUniform("Vi"), &Vi);
 
     /* Bind light position */
-    loadVec3(getUniform("lightPos"), Light::spatial.position);
+    loadVector(getUniform("lightPos"), Light::spatial.position);
 
     /* Bind mesh */
     /* VAO */
@@ -73,7 +73,7 @@ void BillboardShader::render(std::vector<Spatial *> &targets) {
         // M *= glm::rotate(glm::mat4(1.f), glm::radians(cloud->rotation), glm::vec3(0, 0, 1));
         glm::vec2 tScale(Library::cloudDiffuseTexture->width, Library::cloudDiffuseTexture->height);
         M *= glm::scale(glm::mat4(1.f), target->scale * glm::vec3(glm::normalize(tScale), 1.f));
-        loadMat4(getUniform("M"), &M);
+        loadMatrix(getUniform("M"), &M);
 
         CHECK_GL_CALL(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
     }

@@ -95,29 +95,33 @@ void Shader::cleanUp() {
 }
 
 void Shader::loadBool(const int location, const bool b) const {
-    glUniform1i(location, b);
+    CHECK_GL_CALL(glUniform1i(location, b));
 }
 
 void Shader::loadInt(const int location, const int i) const {
-    glUniform1i(location, i);
+    CHECK_GL_CALL(glUniform1i(location, i));
 }
 
 void Shader::loadFloat(const int location, const float f) const { 
-    glUniform1f(location, f);
+    CHECK_GL_CALL(glUniform1f(location, f));
 }
 
-void Shader::loadVec2(const int location, const glm::vec2 & v) const { 
-    glUniform2f(location, v.x, v.y);
+void Shader::loadVector(const int location, const glm::vec2 & v) const { 
+    CHECK_GL_CALL(glUniform2f(location, v.x, v.y));
 }
 
-void Shader::loadVec3(const int location, const glm::vec3 & v) const { 
-    glUniform3f(location, v.x, v.y, v.z);
+void Shader::loadVector(const int location, const glm::vec3 & v) const { 
+    CHECK_GL_CALL(glUniform3f(location, v.x, v.y, v.z));
 }
 
-void Shader::loadVec4(const int location, const glm::vec4 & v) const { 
-    glUniform4f(location, v.r, v.g, v.b, v.a);
+void Shader::loadVector(const int location, const glm::vec4 & v) const { 
+    CHECK_GL_CALL(glUniform4f(location, v.r, v.g, v.b, v.a));
 }
 
-void Shader::loadMat4(const int location, const glm::mat4 *m) const { 
-    glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(*m));
+void Shader::loadMatrix(const int location, const glm::mat4 *m) const { 
+    CHECK_GL_CALL(glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(*m)));
+}
+
+void Shader::loadMatrix(const int location, const glm::mat3 *m) const { 
+    CHECK_GL_CALL(glUniformMatrix3fv(location, 1, GL_FALSE, glm::value_ptr(*m)));
 }

@@ -46,9 +46,9 @@ void ConeTraceShader::coneTrace(Volume *volume) {
     loadFloat(getUniform("vctLodOffset"), vctLodOffset);
 
     /* Cone trace from the camera's perspective */
-    loadVec3(getUniform("center"), volume->quadPosition);
+    loadVector(getUniform("center"), volume->quadPosition);
     loadFloat(getUniform("scale"), volume->quadScale.x);
-    loadVec3(getUniform("lightPos"), Light::spatial.position);
+    loadVector(getUniform("lightPos"), Light::spatial.position);
 
     /* Bind quad */
     /* VAO */
@@ -66,19 +66,19 @@ void ConeTraceShader::coneTrace(Volume *volume) {
     CHECK_GL_CALL(glVertexAttribPointer(pos, 3, GL_FLOAT, GL_FALSE, 0, nullptr));
 
 
-    loadMat4(getUniform("P"), &Camera::getP());
-    loadMat4(getUniform("V"), &Camera::getV());
+    loadMatrix(getUniform("P"), &Camera::getP());
+    loadMatrix(getUniform("V"), &Camera::getV());
     glm::mat4 Vi = Camera::getV();
     Vi[3][0] = Vi[3][1] = Vi[3][2] = 0.f;
     Vi = glm::transpose(Vi);
-    loadMat4(getUniform("Vi"), &Vi);
+    loadMatrix(getUniform("Vi"), &Vi);
 
     glm::mat4 M = glm::translate(glm::mat4(1.f), volume->quadPosition);
     M *= glm::scale(glm::mat4(1.f), glm::vec3(volume->quadScale.x));
-    loadMat4(getUniform("M"), &M);
+    loadMatrix(getUniform("M"), &M);
 
     glm::mat3 N = glm::mat3(transpose(inverse(M * Vi)));
-    loadMat3(getUniform("N"), &N);
+    loadMatrix(getUniform("N"), &N);
     CHECK_GL_CALL(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
 
     /* Wrap up shader */
@@ -94,9 +94,9 @@ void ConeTraceShader::bindVolume(Volume *volume) {
     loadInt(getUniform("volumeTexture"), volume->volId);
     
     loadInt(getUniform("voxelDim"), volume->dimension);
-    loadVec2(getUniform("xBounds"), volume->xBounds);
-    loadVec2(getUniform("yBounds"), volume->yBounds);
-    loadVec2(getUniform("zBounds"), volume->zBounds);
+    loadVector(getUniform("xBounds"), volume->xBounds);
+    loadVector(getUniform("yBounds"), volume->yBounds);
+    loadVector(getUniform("zBounds"), volume->zBounds);
 }
 
 void ConeTraceShader::unbindVolume() {

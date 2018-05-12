@@ -80,9 +80,9 @@ void VoxelizeShader::voxelize(Volume *volume) {
 }
 
 void VoxelizeShader::renderQuad(Volume *volume, glm::mat4 P, glm::mat4 V, glm::vec3 lightPos, Stage stage) {
-    loadVec3(getUniform("center"), volume->quadPosition);
+    loadVector(getUniform("center"), volume->quadPosition);
     loadFloat(getUniform("scale"), volume->quadScale.x);
-    loadVec3(getUniform("lightPos"), Light::spatial.position);
+    loadVector(getUniform("lightPos"), Light::spatial.position);
 
     /* Bind quad */
     /* VAO */
@@ -107,29 +107,29 @@ void VoxelizeShader::renderQuad(Volume *volume, glm::mat4 P, glm::mat4 V, glm::v
     /* Render a full-screen position map quad for sampling 
      * Implemented in same shader to reuse volume functions */
     if (stage == Positions) {
-        loadMat4(getUniform("P"), &M);
-        loadMat4(getUniform("V"), &M);
-        loadMat4(getUniform("Vi"), &M);
-        loadMat4(getUniform("N"), &M);
+        loadMatrix(getUniform("P"), &M);
+        loadMatrix(getUniform("V"), &M);
+        loadMatrix(getUniform("Vi"), &M);
+        loadMatrix(getUniform("N"), &M);
         M *= glm::scale(glm::mat4(1.f), glm::vec3(2.f));
-        loadMat4(getUniform("M"), &M);
+        loadMatrix(getUniform("M"), &M);
         CHECK_GL_CALL(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
     }
     /* Render cloud billboard from the provided perspective */
     else {
-        loadMat4(getUniform("P"), &P);
-        loadMat4(getUniform("V"), &V);
+        loadMatrix(getUniform("P"), &P);
+        loadMatrix(getUniform("V"), &V);
         glm::mat4 Vi = V;
         Vi[3][0] = Vi[3][1] = Vi[3][2] = 0.f;
         Vi = glm::transpose(Vi);
-        loadMat4(getUniform("Vi"), &Vi);
+        loadMatrix(getUniform("Vi"), &Vi);
 
         M *= glm::translate(glm::mat4(1.f), volume->quadPosition);
         M *= glm::scale(glm::mat4(1.f), glm::vec3(volume->quadScale.x));
-        loadMat4(getUniform("M"), &M);
+        loadMatrix(getUniform("M"), &M);
 
         glm::mat3 N = glm::mat3(transpose(inverse(M * Vi)));
-        loadMat3(getUniform("N"), &N);
+        loadMatrix(getUniform("N"), &N);
         CHECK_GL_CALL(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
     };
 
@@ -146,9 +146,9 @@ void VoxelizeShader::bindVolume(Volume *volume) {
     loadInt(getUniform("mapWidth"), positionMap->width);
     loadInt(getUniform("mapHeight"), positionMap->height);
     
-    loadVec2(getUniform("xBounds"), volume->xBounds);
-    loadVec2(getUniform("yBounds"), volume->yBounds);
-    loadVec2(getUniform("zBounds"), volume->zBounds);
+    loadVector(getUniform("xBounds"), volume->xBounds);
+    loadVector(getUniform("yBounds"), volume->yBounds);
+    loadVector(getUniform("zBounds"), volume->zBounds);
     loadInt(getUniform("voxelDim"), volume->dimension);
     loadFloat(getUniform("steps"), steps);
 }
