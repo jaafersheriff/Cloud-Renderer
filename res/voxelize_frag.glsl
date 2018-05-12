@@ -7,6 +7,7 @@
 #define FLT_MAX 3.402823466e+38
 
 in vec3 fragPos;
+in vec3 fragNor;
 in vec2 fragTex;
 
 uniform vec3 center;
@@ -57,7 +58,7 @@ void main() {
     ivec2 texCoords = ivec2(fragTex.x * mapWidth, fragTex.y * mapHeight);
     /* First Voxelize */
     if (voxelizeStage == 1 && sphereContrib > 0.f) {
-        vec3 normal = normalize(lightPos - center);
+        vec3 normal = normalize(fragNor); 
         float normalScale = radius * sphereContrib;
         vec3 nearestPos = vec3(FLT_MAX, FLT_MAX, FLT_MAX);
         /* Write to volume in spherical shape from billboard to light source */

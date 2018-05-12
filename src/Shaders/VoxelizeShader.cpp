@@ -19,6 +19,7 @@ bool VoxelizeShader::init() {
     addUniform("P");
     addUniform("V");
     addUniform("M");
+    addUniform("N");
     addUniform("Vi");
 
     addUniform("voxelizeStage");
@@ -109,6 +110,7 @@ void VoxelizeShader::renderQuad(Volume *volume, glm::mat4 P, glm::mat4 V, glm::v
         loadMat4(getUniform("P"), &M);
         loadMat4(getUniform("V"), &M);
         loadMat4(getUniform("Vi"), &M);
+        loadMat4(getUniform("N"), &M);
         M *= glm::scale(glm::mat4(1.f), glm::vec3(2.f));
         loadMat4(getUniform("M"), &M);
         CHECK_GL_CALL(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
@@ -125,6 +127,9 @@ void VoxelizeShader::renderQuad(Volume *volume, glm::mat4 P, glm::mat4 V, glm::v
         M *= glm::translate(glm::mat4(1.f), volume->quadPosition);
         M *= glm::scale(glm::mat4(1.f), glm::vec3(volume->quadScale.x));
         loadMat4(getUniform("M"), &M);
+
+        glm::mat3 N = glm::mat3(transpose(inverse(M * Vi)));
+        loadMat3(getUniform("N"), &N);
         CHECK_GL_CALL(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
     };
 

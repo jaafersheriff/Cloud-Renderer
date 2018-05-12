@@ -16,6 +16,7 @@ bool ConeTraceShader::init() {
     addUniform("P");
     addUniform("V");
     addUniform("M");
+    addUniform("N");
     addUniform("Vi");
 
     addUniform("center");
@@ -26,7 +27,6 @@ bool ConeTraceShader::init() {
     addUniform("yBounds");
     addUniform("zBounds");
     addUniform("lightPos");
-    addUniform("camPos");
 
     addUniform("volumeTexture");
     addUniform("vctSteps");
@@ -49,7 +49,6 @@ void ConeTraceShader::coneTrace(Volume *volume) {
     loadVec3(getUniform("center"), volume->quadPosition);
     loadFloat(getUniform("scale"), volume->quadScale.x);
     loadVec3(getUniform("lightPos"), Light::spatial.position);
-    loadVec3(getUniform("camPos"), Camera::getPosition());
 
     /* Bind quad */
     /* VAO */
@@ -77,6 +76,9 @@ void ConeTraceShader::coneTrace(Volume *volume) {
     glm::mat4 M = glm::translate(glm::mat4(1.f), volume->quadPosition);
     M *= glm::scale(glm::mat4(1.f), glm::vec3(volume->quadScale.x));
     loadMat4(getUniform("M"), &M);
+
+    glm::mat3 N = glm::mat3(transpose(inverse(M * Vi)));
+    loadMat3(getUniform("N"), &N);
     CHECK_GL_CALL(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
 
     /* Wrap up shader */

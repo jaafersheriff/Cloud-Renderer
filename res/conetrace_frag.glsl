@@ -1,6 +1,7 @@
 #version 440 core
 
 in vec3 fragPos;
+in vec3 fragNor;
 in vec2 fragTex;
 
 uniform vec3 center;
@@ -11,7 +12,6 @@ uniform vec2 xBounds;
 uniform vec2 yBounds;
 uniform vec2 zBounds;
 uniform vec3 lightPos;
-uniform vec3 camPos;
 
 uniform sampler3D volumeTexture;
 uniform int vctSteps;
@@ -43,14 +43,13 @@ vec3 traceCone(sampler3D voxelTexture, vec3 position, vec3 direction, int steps,
     direction = normalize(direction);
     direction /= voxelDim;
     position /= voxelDim;
-    // position = clamp(position, 0.f, 1.f);
 
-    // vec4 c = textureLod(voxelTexture, position, 0);
+    vec4 c = textureLod(voxelTexture, position, 0);
     // if (c.a == 0.f) {
     //     return vec3(1,0,0);
     // }
     // else {
-    //    return c.xyz;
+    return c.xyz;
     // }
 
     vec3 color = vec3(0);
@@ -73,7 +72,8 @@ void main() {
     sphereContrib = sqrt(max(0, 1 - sphereContrib * sphereContrib));
 
     /* Start at voxel closest to camera */
-    vec3 pos = fragPos + normalize(camPos - center) * radius * sphereContrib;
+    vec3 normal = normalize(fragNor);
+    vec3 pos = fragPos + normal * radius * sphereContrib;
     vec3 voxelPosition = calculateVoxelLerp(pos);
     vec3 dir = lightPos - pos; 
     vec3 indirect = traceCone(volumeTexture, voxelPosition, dir, vctSteps, vctConeAngle, vctConeInitialHeight);
