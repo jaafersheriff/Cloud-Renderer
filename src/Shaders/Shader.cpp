@@ -20,6 +20,7 @@ GLuint Shader::compileShader(GLenum shaderType, const std::string &shaderSourceF
     if (!compileSuccess) {
         GLSL::printShaderInfoLog(shader);
         std::cout << "Error compiling shader: " << shaderSourceFile << std::endl;
+        std::cin.get();
         exit(EXIT_FAILURE);
     }
     
