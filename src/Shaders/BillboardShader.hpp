@@ -11,11 +11,7 @@
 
 class BillboardShader : public Shader {
     public:
-        BillboardShader(std::string vertex, std::string fragment) :
-            Shader(vertex, fragment)
-        {}
-
-        bool init();
+        BillboardShader(std::string, std::string);
 
         /* Render billboard list */
         void render(std::vector<Spatial *> &);

@@ -6,43 +6,12 @@
 #include "Light.hpp"
 #include "IO/Window.hpp"
 
-
-bool VoxelizeShader::init() {
-    if (!Shader::init()) {
-        std::cerr << "Error initializing volume shader" << std::endl;
-        return false;
-    }
-
-    addAttribute("vertPos");
-    addAttribute("vertNor");
-    
-    addUniform("P");
-    addUniform("V");
-    addUniform("M");
-    addUniform("N");
-    addUniform("Vi");
-
-    addUniform("voxelizeStage");
-
-    addUniform("center");
-    addUniform("scale");
-
-    addUniform("volume");
-    addUniform("voxelDim");
-    addUniform("xBounds");
-    addUniform("yBounds");
-    addUniform("zBounds");
-    addUniform("steps");
-    addUniform("lightPos");
-
-    addUniform("positionMap");
-    addUniform("mapWidth");
-    addUniform("mapHeight");
+VoxelizeShader::VoxelizeShader(std::string v, std::string f) :
+    Shader(v, f) {
+    init();
 
     /* Create position map */
     initPositionMap(Window::width, Window::height);
-
-    return true;
 }
 
 void VoxelizeShader::voxelize(Volume *volume) {

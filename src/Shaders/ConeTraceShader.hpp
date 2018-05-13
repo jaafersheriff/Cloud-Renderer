@@ -7,11 +7,7 @@
 
 class ConeTraceShader : public Shader {
     public:
-        ConeTraceShader(std::string vertex, std::string fragment) :
-            Shader(vertex, fragment)
-        {}
-
-        bool init();
+        ConeTraceShader(std::string, std::string);
 
         void coneTrace(Volume *);
 

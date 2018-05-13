@@ -75,7 +75,7 @@
     <None Include="..\res\voxel_frag.glsl" />
     <None Include="..\res\voxel_vert.glsl" />
     <None Include="..\res\voxelize_frag.glsl" />
-    <None Include="..\res\voxelize_vert.glsl" />
+    <None Include="..\res\billboard_vert.glsl" />
     <None Include="ThirdParty\imgui\LICENSE" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

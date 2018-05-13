@@ -7,24 +7,9 @@
 
 #include "glm/gtc/matrix_transform.hpp"
 
-bool VoxelShader::init() {
-    if (!Shader::init()) {
-        std::cerr << "Error initializing diffuse shader" << std::endl;
-        return false;
-    }
-
-    addAttribute("vertPos"); 
-
-    addUniform("P");
-    addUniform("V");
-    addUniform("M");
-
-    addUniform("isOutline");
-    addUniform("alpha");
-
-    addUniform("voxelData");
-
-    return true;
+VoxelShader::VoxelShader(std::string v, std::string f) :
+    Shader(v, f) {
+    init();
 }
 
 /* Visualize voxels */

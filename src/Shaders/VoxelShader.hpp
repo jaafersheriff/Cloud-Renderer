@@ -10,11 +10,7 @@
 class Mesh;
 class VoxelShader : public Shader {
     public:
-        VoxelShader(std::string vertex, std::string fragment) :
-            Shader(vertex, fragment)
-        {}
-
-        bool init();
+        VoxelShader(std::string, std::string);
 
         void render(std::vector<Volume::Voxel> &, glm::mat4, glm::mat4);
 

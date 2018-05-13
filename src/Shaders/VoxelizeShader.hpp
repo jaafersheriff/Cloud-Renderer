@@ -9,16 +9,13 @@
 
 class VoxelizeShader : public Shader {
     public:
-        VoxelizeShader(std::string vertex, std::string fragment) :
-            Shader(vertex, fragment)
-        {}
+        VoxelizeShader(std::string, std::string);
+            
         enum Stage {
             None,       // 0
             Voxelize,   // 1
             Positions,  // 2 
         };
-
-        bool init();
 
         /* Generic function to render quad -- takes Stage as a parameter to orchestrate GL binds */
         void renderQuad(Volume *, glm::mat4, glm::mat4, glm::vec3, VoxelizeShader::Stage);

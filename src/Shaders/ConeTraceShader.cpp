@@ -4,35 +4,9 @@
 #include "Light.hpp"
 #include "Library.hpp"
 
-bool ConeTraceShader::init() {
-    if (!Shader::init()) {
-        std::cerr << "Error initalizing cone trace shader" << std::endl;
-        return false;
-    }
-
-    addAttribute("vertPos");
-    addAttribute("vertNor");
-    
-    addUniform("P");
-    addUniform("V");
-    addUniform("M");
-    addUniform("N");
-    addUniform("Vi");
-
-    addUniform("center");
-    addUniform("scale");
-
-    addUniform("voxelDim");
-    addUniform("xBounds");
-    addUniform("yBounds");
-    addUniform("zBounds");
-    addUniform("lightPos");
-
-    addUniform("volumeTexture");
-    addUniform("vctSteps");
-    addUniform("vctConeAngle");
-    addUniform("vctConeInitialHeight");
-    addUniform("vctLodOffset");
+ConeTraceShader::ConeTraceShader(std::string v, std::string f) :
+    Shader(v, f) {
+    init();
 }
 
 void ConeTraceShader::coneTrace(Volume *volume) {

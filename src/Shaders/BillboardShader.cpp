@@ -4,25 +4,9 @@
 #include "Camera.hpp"
 #include "Util.hpp"
 
-bool BillboardShader::init() {
-    if (!Shader::init()) {
-        std::cerr << "Error initializing billboard shader" << std::endl;
-        return false;
-    }
-
-    addAttribute("vertPos");
-
-    addUniform("P");
-    addUniform("M");
-    addUniform("V");
-    addUniform("Vi");
-
-    addUniform("diffuseTex");
-    addUniform("normalTex");
-
-    addUniform("lightPos");
-
-    return true;
+BillboardShader::BillboardShader(std::string v, std::string f) :
+    Shader(v, f) {
+    init();
 }
 
 void BillboardShader::render(std::vector<Spatial *> &targets) {

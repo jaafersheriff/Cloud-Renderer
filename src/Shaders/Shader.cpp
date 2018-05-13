@@ -1,46 +1,126 @@
 #include "Shader.hpp"
 
 #include <fstream>
+#include <vector>
 
-bool Shader::init() {
-    GLint rc;
-
-    std::ifstream v(vShaderName.c_str());
-    std::ifstream f(fShaderName.c_str());
-    if (!v.good() || !f.good()) {
-        std::cerr << "Shader(s) don't exist" << std::endl;
-        std::cerr << "\t" << vShaderName << std::endl;
-        std::cerr << "\t" << fShaderName << std::endl;
-        enabled = false;
-        return false;
+GLuint Shader::compileShader(GLenum shaderType, const std::string &shaderSourceFile) {
+    GLint compileSuccess;
+    
+    // Read the shader source file into a string
+    char *shaderString = GLSL::textFileRead(shaderSourceFile.c_str());
+    // Stop if there was an error reading the shader source file
+    if (shaderString == NULL) return 0;
+    
+    // Create the shader, assign source code, and compile it
+    GLuint shader = glCreateShader(shaderType);
+    CHECK_GL_CALL(glShaderSource(shader, 1, &shaderString, NULL));
+    CHECK_GL_CALL(glCompileShader(shader));
+    // See whether compile was successful
+    CHECK_GL_CALL(glGetShaderiv(shader, GL_COMPILE_STATUS, &compileSuccess));
+    if (!compileSuccess) {
+        GLSL::printShaderInfoLog(shader);
+        std::cout << "Error compiling shader: " << shaderSourceFile << std::endl;
+        exit(EXIT_FAILURE);
     }
+    
+    // Free the memory
+    free(shaderString);
+    
+    return shader;
+}
 
-
-    vShaderId = GLSL::createShader(vShaderName, GL_VERTEX_SHADER);
-    if (vShaderId < 0) {
-        enabled = false;
-        return false;
+void Shader::init() {
+	pid = glCreateProgram();
+    if (vShaderName.size() && (vShaderId = compileShader(GL_VERTEX_SHADER, vShaderName))) {
+	    CHECK_GL_CALL(glAttachShader(pid, vShaderId));
     }
-
-    fShaderId = GLSL::createShader(fShaderName, GL_FRAGMENT_SHADER);
-    if (fShaderId < 0) {
-        enabled = false;
-        return false;
+    if (fShaderName.size() && (fShaderId = compileShader(GL_FRAGMENT_SHADER, fShaderName))) {
+        CHECK_GL_CALL(glAttachShader(pid, fShaderId));
     }
+    if (gShaderName.size() && (gShaderId = compileShader(GL_GEOMETRY_SHADER, gShaderName))) {
+	    CHECK_GL_CALL(glAttachShader(pid, gShaderId));
+    }
+	CHECK_GL_CALL(glLinkProgram(pid));
 
-    pid = glCreateProgram();
-    CHECK_GL_CALL(glAttachShader(pid, vShaderId));
-    CHECK_GL_CALL(glAttachShader(pid, fShaderId));
-    CHECK_GL_CALL(glLinkProgram(pid));
-    CHECK_GL_CALL(glGetProgramiv(pid, GL_LINK_STATUS, &rc));
-    if (!rc) {
+    // See whether link was successful
+    GLint linkSuccess;
+	CHECK_GL_CALL(glGetProgramiv(pid, GL_LINK_STATUS, &linkSuccess));
+	if (!linkSuccess) {
         GLSL::printProgramInfoLog(pid);
-        std::cerr << "Error linking shaders" << std::endl;
-        enabled = false;
-        return false;
-    }
+        std::cout << "Error linking shaders " << vShaderName << " and " << fShaderName;
+        if (gShaderId) {
+            std::cout << " and " << gShaderName << std::endl;
+        }
+        else {
+            std::cout << std::endl;
+        }
+        std::cin.get();
+        exit(EXIT_FAILURE);
+	}
 
-    return true;
+    if (vShaderId) {
+        findAttributesAndUniforms(vShaderName);
+    }
+    if (fShaderId) {
+        findAttributesAndUniforms(fShaderName);
+    }
+    if (gShaderId) {
+        findAttributesAndUniforms(gShaderName);
+    }
+}
+
+void Shader::findAttributesAndUniforms(const std::string &shaderSourceFile) {
+    char *fileText = GLSL::textFileRead(shaderSourceFile.c_str());
+    char *token;
+    char *lastToken = nullptr;
+    
+    std::vector<char *> lines;
+    
+    // Read the first line
+    token = strtok(fileText, ";\n");
+    lines.push_back(token);
+    // Read all subsequent lines
+    while((token = strtok(NULL, ";\n")) != NULL) {
+        lines.push_back(token);
+    }
+    
+    // Look for keywords per line
+    for (char *line : lines) {
+        token = strtok(line, " (\n");
+        if (token == NULL) {
+            continue;
+        }
+        if (!strcmp(token, "uniform")) {
+            // Handle lines with multiple variables separated by commas
+            char *lineEnding = line + strlen(line) + 1;
+            int lastDelimiter = -1;
+            int lineEndingLength = strlen(lineEnding);
+            for (int i = 0; i < lineEndingLength; i++) {
+                if (lineEnding[i] == ',') {
+                    lineEnding[i] = '\0';
+                    addUniform(lineEnding + (lastDelimiter + 1));
+                    lastDelimiter = i;
+                } else if (lineEnding[i] == ' ' || lineEnding[i] == '\t') {
+                    lastDelimiter = i;
+                }
+            }
+            addUniform(lineEnding + (lastDelimiter + 1));
+        } 
+        else if (!strcmp(token, "layout")) {
+            while((token = strtok(NULL, " ")) != NULL) {
+                lastToken = token;
+            }
+            if (lastToken) {
+                addAttribute(lastToken);
+            }
+        } 
+        else {
+            continue;
+        }
+    }
+    
+    // Free the memory
+    free(fileText);
 }
 
 void Shader::bind() {
@@ -89,8 +169,10 @@ void Shader::cleanUp() {
     unbind();
     CHECK_GL_CALL(glDetachShader(pid, vShaderId));
     CHECK_GL_CALL(glDetachShader(pid, fShaderId));
+    CHECK_GL_CALL(glDetachShader(pid, gShaderId));
     CHECK_GL_CALL(glDeleteShader(vShaderId));
     CHECK_GL_CALL(glDeleteShader(fShaderId));
+    CHECK_GL_CALL(glDeleteShader(gShaderId));
     CHECK_GL_CALL(glDeleteProgram(pid));
 }
 

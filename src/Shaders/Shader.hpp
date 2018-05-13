@@ -18,15 +18,23 @@ class Shader {
     public:
         /* Empty constructor
          * Only used to set GLSL shader names */
-        Shader(std::string v = "", std::string f = "") : 
+        Shader(std::string v, std::string f) : 
             vShaderName(v), 
             fShaderName(f),
+            gShaderName(""),
+            enabled(true)
+        { }
+
+        Shader(std::string v, std::string f, std::string g) : 
+            vShaderName(v), 
+            fShaderName(f),
+            gShaderName(g),
             enabled(true)
         { }
 
         /* Call parent Shader::init()
          * Add uniforms and attributes to GLSL shaders */
-        bool init();
+        void init();
 
         /* Utility functions */
         void bind();
@@ -56,6 +64,7 @@ class Shader {
         /* GLSL shader names */
         const std::string vShaderName;
         const std::string fShaderName;
+        const std::string gShaderName;
 
         bool enabled;
     private:    
@@ -63,8 +72,12 @@ class Shader {
         GLuint pid = 0;
         GLint vShaderId;
         GLint fShaderId;
+        GLint gShaderId;
         std::map<std::string, GLint> attributes;
         std::map<std::string, GLint> uniforms;
+
+        GLuint compileShader(GLenum, const std::string &);
+        void findAttributesAndUniforms(const std::string &);
 };
 
 #endif
