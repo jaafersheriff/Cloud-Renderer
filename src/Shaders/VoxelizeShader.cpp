@@ -119,7 +119,7 @@ void VoxelizeShader::bindVolume(Volume *volume) {
     loadVector(getUniform("yBounds"), volume->yBounds);
     loadVector(getUniform("zBounds"), volume->zBounds);
     loadInt(getUniform("voxelDim"), volume->dimension);
-    loadFloat(getUniform("steps"), steps);
+    loadFloat(getUniform("stepSize"), glm::min(volume->voxelSize.x, glm::min(volume->voxelSize.y, volume->voxelSize.z)));
 }
 
 void VoxelizeShader::unbindVolume() {

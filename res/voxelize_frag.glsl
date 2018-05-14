@@ -20,7 +20,7 @@ uniform int voxelDim;
 uniform vec2 xBounds;
 uniform vec2 yBounds;
 uniform vec2 zBounds;
-uniform float steps;
+uniform float stepSize;
 uniform vec3 lightPos;
 
 layout(binding=1, rgba32f) uniform image2D positionMap;
@@ -58,12 +58,13 @@ void main() {
     ivec2 texCoords = ivec2(fragTex.x * mapWidth, fragTex.y * mapHeight);
     /* First Voxelize */
     if (voxelizeStage == 1 && sphereContrib > 0.f) {
-        vec3 normal = normalize(fragNor); 
-        float normalScale = radius * sphereContrib;
+        vec3 dir = normalize(fragNor); 
+        float dist = radius * sphereContrib;
         vec3 nearestPos = vec3(FLT_MAX, FLT_MAX, FLT_MAX);
+        vec3 start = fragPos - dir * dist;
         /* Write to volume in spherical shape from billboard to light source */
-        for(float j = -normalScale; j <= normalScale; j += steps) {
-            vec3 worldPos = fragPos + (normal * j);
+        for(float i = 0; i < 2*dist; i += stepSize) {
+            vec3 worldPos = start + dir * i;
             ivec3 voxelIndex = calculateVoxelIndex(worldPos);
             imageAtomicAdd(volume, voxelIndex, f16vec4(0, 0, 0, 1));
 

@@ -15,7 +15,10 @@ Volume::Volume(int dim, glm::vec2 bounds, glm::vec3 position, glm::vec2 size, in
     this->xBounds = bounds;
     this->yBounds = bounds;
     this->zBounds = bounds;
-    this->voxelSize = glm::vec3(0.f);
+    this->voxelSize = glm::vec3(
+        (xBounds.y - xBounds.x) / dimension,
+        (yBounds.y - yBounds.x) / dimension,
+        (zBounds.y - zBounds.x) / dimension);
     this->levels = mips;
 
     /* Init volume */
