@@ -39,25 +39,23 @@ ivec3 calculateVoxelIndex(vec3 pos) {
 	return ivec3(calculateVoxelLerp(pos));
 }
 
-vec3 traceCone(sampler3D voxelTexture, vec3 position, vec3 direction, int steps, float coneAngle, float coneHeight) {
+vec4 traceCone(sampler3D voxelTexture, vec3 position, vec3 direction, int steps, float coneAngle, float coneHeight) {
     direction = normalize(direction);
     direction /= voxelDim;
     position /= voxelDim;
 
     vec4 c = textureLod(voxelTexture, position, 0);
-    // if (c.a == 0.f) {
-    //     return vec3(1,0,0);
-    // }
-    // else {
-    return c.xyz;
-    // }
+    if (a.a < 1) {
+        return vec4(1,0,0,1);
+    else 
+        return c;
 
-    vec3 color = vec3(0);
+    vec4 color = vec4(0);
     for (int i = 1; i <= steps; i++) {
         float coneRadius = coneHeight * tan(coneAngle / 2.f);
         float lod = log2(max(1.f, 2.f * coneRadius));
         vec4 sampleColor = textureLod(voxelTexture, position + coneHeight * direction, lod + vctLodOffset);
-        color += sampleColor.rgb * float(i)/steps; // TODO : linear scaling
+        color += sampleColor * float(i)/steps; // TODO : linear scaling
         coneHeight += coneRadius;
     }
 
@@ -76,6 +74,6 @@ void main() {
     vec3 pos = fragPos + normal * radius * sphereContrib;
     vec3 voxelPosition = calculateVoxelLerp(pos);
     vec3 dir = lightPos - pos; 
-    vec3 indirect = traceCone(volumeTexture, voxelPosition, dir, vctSteps, vctConeAngle, vctConeInitialHeight);
-    color = vec4(indirect, sphereContrib);
+    vec4 indirect = traceCone(volumeTexture, voxelPosition, dir, vctSteps, vctConeAngle, vctConeInitialHeight);
+    color = vec4(indirect.xyz, sphereContrib);
 }
