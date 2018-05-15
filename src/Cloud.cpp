@@ -8,8 +8,8 @@ Cloud::Cloud(int billboards, glm::vec3 position, glm::vec3 scale, float offset, 
         this->volumes.push_back(v);
         this->voxelData.push_back(&v->voxelData);
     }
-    this->position = position;
-    this->scale = scale;
+    this->spatial.position = position;
+    this->spatial.scale = scale;
 }
 
 void Cloud::clearCPU() {

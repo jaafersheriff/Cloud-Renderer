@@ -10,8 +10,8 @@ Volume::Volume(int dim, glm::vec2 bounds, glm::vec3 offset, glm::vec2 size, int 
             });
     }
     this->dimension = dim;
-    this->quadOffset = offset;
-    this->quadScale = size;
+    this->spatial.position = offset;
+    this->spatial.scale = glm::vec3(size.x, size.y, 0.f);
     this->xBounds = bounds;
     this->yBounds = bounds;
     this->zBounds = bounds;

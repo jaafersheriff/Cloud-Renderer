@@ -109,7 +109,7 @@ int main() {
         Camera::update(Window::timeStep);
 
         /* Update light */
-        Light::update(cloud->position);
+        Light::update(cloud->spatial.position);
 
         /* IMGUI */
         if (Window::isImGuiEnabled()) {
@@ -243,7 +243,7 @@ void createImGuiPanes() {
         [&]() {
             ImGui::Begin("VXGI");
             // ImGui::Text("Voxels in scene : %d", cloud->voxelCount);
-            ImGui::SliderFloat3("Position", glm::value_ptr(cloud->position), -20.f, 20.f);
+            ImGui::SliderFloat3("Position", glm::value_ptr(cloud->spatial.position), -20.f, 20.f);
             // ImGui::SliderFloat("Scale", &volume->quadScale.x, 0.f, 20.f);
             // ImGui::SliderFloat2("XBounds", glm::value_ptr(cloud->xBounds), -20.f, 20.f);
             // ImGui::SliderFloat2("YBounds", glm::value_ptr(cloud->yBounds), -20.f, 20.f);

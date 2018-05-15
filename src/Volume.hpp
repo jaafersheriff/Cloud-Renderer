@@ -21,8 +21,7 @@ class Volume {
         void clearGPU();
         void clearCPU();
 
-        glm::vec3 quadOffset;   // position of representing billboard in relation to overall cloud
-        glm::vec2 quadScale;    // size of representing billboard
+        Spatial spatial;
         glm::vec2 xBounds;      // Min and max x-mapping in world-space
         glm::vec2 yBounds;      // Min and max y-mapping in world-space
         glm::vec2 zBounds;      // Min and max z-mapping in world-space

@@ -18,7 +18,7 @@ void VoxelizeShader::voxelize(Cloud *cloud) {
     /* Reset volume and position map */
     cloud->clearGPU();
     clearPositionMap();
-    // Light::boxBounds = cloud->quadScale.x / 2; // TODO : weird
+    Light::boxBounds = cloud->spatial.scale.x / 2; // TODO : weird
 
     /* Disable quad visualization */
     CHECK_GL_CALL(glDisable(GL_DEPTH_TEST));
@@ -50,8 +50,8 @@ void VoxelizeShader::voxelize(Cloud *cloud) {
 }
 
 void VoxelizeShader::renderQuad(Cloud *cloud, Volume *volume, glm::mat4 P, glm::mat4 V, glm::vec3 lightPos, Stage stage) {
-    loadVector(getUniform("center"), cloud->position + volume->quadOffset);
-    loadFloat(getUniform("scale"), volume->quadScale.x);
+    loadVector(getUniform("center"), cloud->spatial.position + volume->spatial.position);
+    loadFloat(getUniform("scale"), volume->spatial.scale.x);
     loadVector(getUniform("lightPos"), Light::spatial.position);
 
     /* Bind quad */
@@ -94,8 +94,8 @@ void VoxelizeShader::renderQuad(Cloud *cloud, Volume *volume, glm::mat4 P, glm::
         Vi = glm::transpose(Vi);
         loadMatrix(getUniform("Vi"), &Vi);
 
-        M *= glm::translate(glm::mat4(1.f), cloud->position + volume->quadOffset);
-        M *= glm::scale(glm::mat4(1.f), glm::vec3(volume->quadScale.x));
+        M *= glm::translate(glm::mat4(1.f), cloud->spatial.position + volume->spatial.position);
+        M *= glm::scale(glm::mat4(1.f), glm::vec3(volume->spatial.scale.x));
         loadMatrix(getUniform("M"), &M);
 
         glm::mat3 N = glm::mat3(transpose(inverse(M * Vi)));

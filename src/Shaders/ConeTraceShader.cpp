@@ -21,8 +21,8 @@ void ConeTraceShader::coneTrace(Cloud *cloud) {
         loadFloat(getUniform("vctLodOffset"), vctLodOffset);
 
         /* Cone trace from the camera's perspective */
-        loadVector(getUniform("center"), cloud->position + volume->quadOffset);
-        loadFloat(getUniform("scale"), volume->quadScale.x);
+        loadVector(getUniform("center"), cloud->spatial.position + volume->spatial.position);
+        loadFloat(getUniform("scale"), volume->spatial.scale.x);
         loadVector(getUniform("lightPos"), Light::spatial.position);
 
         /* Bind quad */
@@ -48,8 +48,8 @@ void ConeTraceShader::coneTrace(Cloud *cloud) {
         Vi = glm::transpose(Vi);
         loadMatrix(getUniform("Vi"), &Vi);
 
-        glm::mat4 M = glm::translate(glm::mat4(1.f), cloud->position + volume->quadOffset);
-        M *= glm::scale(glm::mat4(1.f), glm::vec3(volume->quadScale.x));
+        glm::mat4 M = glm::translate(glm::mat4(1.f), cloud->spatial.position + volume->spatial.position);
+        M *= glm::scale(glm::mat4(1.f), glm::vec3(volume->spatial.scale.x));
         loadMatrix(getUniform("M"), &M);
 
         glm::mat3 N = glm::mat3(transpose(inverse(M * Vi)));
