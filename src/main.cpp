@@ -4,6 +4,7 @@
 #include "Library.hpp"
 
 #include "Light.hpp"
+#include "Cloud.hpp"
 
 #include "Shaders/GLSL.hpp"
 #include "Shaders/BillboardShader.hpp"
@@ -41,12 +42,15 @@ VoxelShader * voxelShader;
 ConeTraceShader * coneShader;
 
 /* Volume */
+#define I_CLOUD_BOARDS 5
+#define I_CLOUD_POSITION glm::vec3(5.f, 0.f, 0.f)
+#define I_CLOUD_SCALE glm::vec3(10.f)
+#define I_CLOUD_OFFSET 3.f
 #define I_VOLUME_DIMENSION 32
 #define I_VOLUME_BOUNDS glm::vec2(-10.f, 15.f)
-#define I_VOLUME_POSITION glm::vec3(5.f, 0.f, 0.f)
 #define I_VOLUME_SCALE glm::vec2(10.f)
 #define I_VOLUME_MIPS 4
-Volume * volume;
+Cloud *cloud;
 
 /* Render targets */
 std::vector<Spatial *> cloudsBillboards;
@@ -69,7 +73,7 @@ int main() {
     }
 
     /* Create volume */
-    volume = new Volume(I_VOLUME_DIMENSION, I_VOLUME_BOUNDS, I_VOLUME_POSITION, I_VOLUME_SCALE, I_VOLUME_MIPS);
+    cloud = new Cloud(I_CLOUD_BOARDS, I_CLOUD_POSITION, I_CLOUD_SCALE, I_CLOUD_OFFSET, I_VOLUME_DIMENSION, I_VOLUME_BOUNDS, I_VOLUME_SCALE, I_VOLUME_MIPS);
 
     /* Create meshes and textures */
     Library::init(RESOURCE_DIR + "cloud.png", RESOURCE_DIR + "cloudMap.png");
@@ -104,7 +108,7 @@ int main() {
         Camera::update(Window::timeStep);
 
         /* Update light */
-        Light::update(volume->quadPosition);
+        Light::update(cloud->position);
 
         /* IMGUI */
         if (Window::isImGuiEnabled()) {
@@ -120,13 +124,13 @@ int main() {
         /* Voxelize from the light's perspective */
         if (lightVoxelize) {
             if (voxelShader->isEnabled()) {
-                volume->clearCPU();
+                cloud->clearCPU();
             }
-            voxelizeShader->voxelize(volume);
+            voxelizeShader->voxelize(cloud);
         }
         /* Cone trace from the camera's perspective */
         if (coneTrace) {
-            coneShader->coneTrace(volume);
+            coneShader->coneTrace(cloud);
         }
 
         /* Render cloud billboards */
@@ -135,15 +139,17 @@ int main() {
         /* Render Optional */
         /* Draw voxels to the screen -- optional */
         if (voxelShader->isEnabled()) {
-            volume->updateVoxelData();
+            cloud->updateVoxelData();
             voxelShader->bind();
-            voxelShader->render(volume->getVoxelData(), Camera::getP(), Camera::getV());
+            voxelShader->render(cloud->voxelData, Camera::getP(), Camera::getV());
             voxelShader->unbind();
         }
         /* Render underlying quad -- optional*/
         if (voxelizeShader->isEnabled()) {
             voxelizeShader->bind();
-            voxelizeShader->renderQuad(volume, Camera::getP(), Camera::getV(), Camera::getPosition(), VoxelizeShader::None);
+            for (auto volume : cloud->volumes) {
+                voxelizeShader->renderQuad(cloud, volume, Camera::getP(), Camera::getV(), Camera::getPosition(), VoxelizeShader::None);
+            }
             voxelizeShader->unbind();
         }
 
@@ -231,12 +237,12 @@ void createImGuiPanes() {
     imGuiFuncs.push_back(
         [&]() {
             ImGui::Begin("VXGI");
-            ImGui::Text("Voxels in scene : %d", volume->voxelCount);
-            ImGui::SliderFloat3("Position", glm::value_ptr(volume->quadPosition), -20.f, 20.f);
-            ImGui::SliderFloat("Scale", &volume->quadScale.x, 0.f, 20.f);
-            ImGui::SliderFloat2("XBounds", glm::value_ptr(volume->xBounds), -20.f, 20.f);
-            ImGui::SliderFloat2("YBounds", glm::value_ptr(volume->yBounds), -20.f, 20.f);
-            ImGui::SliderFloat2("ZBounds", glm::value_ptr(volume->zBounds), -20.f, 20.f);
+            // ImGui::Text("Voxels in scene : %d", cloud->voxelCount);
+            ImGui::SliderFloat3("Position", glm::value_ptr(cloud->position), -20.f, 20.f);
+            // ImGui::SliderFloat("Scale", &volume->quadScale.x, 0.f, 20.f);
+            // ImGui::SliderFloat2("XBounds", glm::value_ptr(cloud->xBounds), -20.f, 20.f);
+            // ImGui::SliderFloat2("YBounds", glm::value_ptr(cloud->yBounds), -20.f, 20.f);
+            // ImGui::SliderFloat2("ZBounds", glm::value_ptr(cloud->zBounds), -20.f, 20.f);
 
             bool b = voxelizeShader->isEnabled();
             ImGui::Checkbox("Render underlying quad", &b);
@@ -248,12 +254,12 @@ void createImGuiPanes() {
             ImGui::SliderFloat("Voxel alpha", &voxelShader->alpha, 0.f, 1.f);
             ImGui::Checkbox("Light Voxelize!", &lightVoxelize);
             if (ImGui::Button("Single voxelize")) {
-                volume->clearCPU();
-                voxelizeShader->voxelize(volume);
+                cloud->clearCPU();
+                voxelizeShader->voxelize(cloud);
             }
             if (ImGui::Button("Clear")) {
-                volume->clearGPU();
-                volume->clearCPU();
+                cloud->clearGPU();
+                cloud->clearCPU();
                 voxelizeShader->clearPositionMap();
             }
             ImGui::SliderInt("Steps", &coneShader->vctSteps, 1, 30);

@@ -5,7 +5,7 @@
 #include "Shader.hpp"
 
 #include "Model/Texture.hpp"
-#include "Volume.hpp"
+#include "Cloud.hpp"
 
 class VoxelizeShader : public Shader {
     public:
@@ -18,10 +18,10 @@ class VoxelizeShader : public Shader {
         };
 
         /* Generic function to render quad -- takes Stage as a parameter to orchestrate GL binds */
-        void renderQuad(Volume *, glm::mat4, glm::mat4, glm::vec3, VoxelizeShader::Stage);
+        void renderQuad(Cloud *, Volume *, glm::mat4, glm::mat4, glm::vec3, VoxelizeShader::Stage);
 
         /* Generate 3D volume */
-        void voxelize(Volume *);
+        void voxelize(Cloud *);
 
         /* 2D position texture */
         Texture * positionMap;

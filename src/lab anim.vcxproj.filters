@@ -58,6 +58,9 @@
     <ClCompile Include="Shaders\ConeTraceShader.cpp">
       <Filter>src\Shaders</Filter>
     </ClCompile>
+    <ClCompile Include="Cloud.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="ext">
@@ -160,6 +163,9 @@
     </ClInclude>
     <ClInclude Include="Shaders\ConeTraceShader.hpp">
       <Filter>src\Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="Cloud.hpp">
+      <Filter>src</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

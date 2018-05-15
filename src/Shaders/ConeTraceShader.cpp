@@ -9,56 +9,58 @@ ConeTraceShader::ConeTraceShader(std::string v, std::string f) :
     init();
 }
 
-void ConeTraceShader::coneTrace(Volume *volume) {
+void ConeTraceShader::coneTrace(Cloud *cloud) {
     bind();
-    bindVolume(volume);
+    for (auto volume : cloud->volumes) {
+        bindVolume(volume);
 
-    /* Bind cone tracing params */
-    loadInt(getUniform("vctSteps"), vctSteps);
-    loadFloat(getUniform("vctConeAngle"), vctConeAngle);
-    loadFloat(getUniform("vctConeInitialHeight"), vctConeInitialHeight);
-    loadFloat(getUniform("vctLodOffset"), vctLodOffset);
+        /* Bind cone tracing params */
+        loadInt(getUniform("vctSteps"), vctSteps);
+        loadFloat(getUniform("vctConeAngle"), vctConeAngle);
+        loadFloat(getUniform("vctConeInitialHeight"), vctConeInitialHeight);
+        loadFloat(getUniform("vctLodOffset"), vctLodOffset);
 
-    /* Cone trace from the camera's perspective */
-    loadVector(getUniform("center"), volume->quadPosition);
-    loadFloat(getUniform("scale"), volume->quadScale.x);
-    loadVector(getUniform("lightPos"), Light::spatial.position);
+        /* Cone trace from the camera's perspective */
+        loadVector(getUniform("center"), cloud->position + volume->quadOffset);
+        loadFloat(getUniform("scale"), volume->quadScale.x);
+        loadVector(getUniform("lightPos"), Light::spatial.position);
 
-    /* Bind quad */
-    /* VAO */
-    CHECK_GL_CALL(glBindVertexArray(Library::quad->vaoId));
+        /* Bind quad */
+        /* VAO */
+        CHECK_GL_CALL(glBindVertexArray(Library::quad->vaoId));
 
-    /* Vertices and normals VBO */
-    // TODO : unnecessary - clean up
-    int pos = getAttribute("vertPos");
-    CHECK_GL_CALL(glEnableVertexAttribArray(pos));
-    CHECK_GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, Library::quad->vertBufId));
-    CHECK_GL_CALL(glVertexAttribPointer(pos, 3, GL_FLOAT, GL_FALSE, 0, nullptr));
-    pos = getAttribute("vertNor");
-    CHECK_GL_CALL(glEnableVertexAttribArray(pos));
-    CHECK_GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, Library::quad->norBufId));
-    CHECK_GL_CALL(glVertexAttribPointer(pos, 3, GL_FLOAT, GL_FALSE, 0, nullptr));
+        /* Vertices and normals VBO */
+        // TODO : unnecessary - clean up
+        int pos = getAttribute("vertPos");
+        CHECK_GL_CALL(glEnableVertexAttribArray(pos));
+        CHECK_GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, Library::quad->vertBufId));
+        CHECK_GL_CALL(glVertexAttribPointer(pos, 3, GL_FLOAT, GL_FALSE, 0, nullptr));
+        pos = getAttribute("vertNor");
+        CHECK_GL_CALL(glEnableVertexAttribArray(pos));
+        CHECK_GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, Library::quad->norBufId));
+        CHECK_GL_CALL(glVertexAttribPointer(pos, 3, GL_FLOAT, GL_FALSE, 0, nullptr));
 
 
-    loadMatrix(getUniform("P"), &Camera::getP());
-    loadMatrix(getUniform("V"), &Camera::getV());
-    glm::mat4 Vi = Camera::getV();
-    Vi[3][0] = Vi[3][1] = Vi[3][2] = 0.f;
-    Vi = glm::transpose(Vi);
-    loadMatrix(getUniform("Vi"), &Vi);
+        loadMatrix(getUniform("P"), &Camera::getP());
+        loadMatrix(getUniform("V"), &Camera::getV());
+        glm::mat4 Vi = Camera::getV();
+        Vi[3][0] = Vi[3][1] = Vi[3][2] = 0.f;
+        Vi = glm::transpose(Vi);
+        loadMatrix(getUniform("Vi"), &Vi);
 
-    glm::mat4 M = glm::translate(glm::mat4(1.f), volume->quadPosition);
-    M *= glm::scale(glm::mat4(1.f), glm::vec3(volume->quadScale.x));
-    loadMatrix(getUniform("M"), &M);
+        glm::mat4 M = glm::translate(glm::mat4(1.f), cloud->position + volume->quadOffset);
+        M *= glm::scale(glm::mat4(1.f), glm::vec3(volume->quadScale.x));
+        loadMatrix(getUniform("M"), &M);
 
-    glm::mat3 N = glm::mat3(transpose(inverse(M * Vi)));
-    loadMatrix(getUniform("N"), &N);
-    CHECK_GL_CALL(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
+        glm::mat3 N = glm::mat3(transpose(inverse(M * Vi)));
+        loadMatrix(getUniform("N"), &N);
+        CHECK_GL_CALL(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
 
-    /* Wrap up shader */
-    CHECK_GL_CALL(glBindVertexArray(0));
+        /* Wrap up shader */
+        CHECK_GL_CALL(glBindVertexArray(0));
 
-    unbindVolume();
+        unbindVolume();
+    }
     unbind();
 }
 

@@ -43,11 +43,11 @@ class Util {
         //////////////////////////////////////////////
         //                 PRINTING                 //
         //////////////////////////////////////////////
-        static inline void printVec3(std::string label, glm::vec3 vec) {
-            std::cout << label << ": <" <<
-                vec.x << ", " << vec.y << ", " << vec.z
-                << ">" << std::endl;
-        }
+        // static inline void printVec3(std::string label, glm::vec3 vec) {
+        //     std::cout << label << ": <" <<
+        //         vec.x << ", " << vec.y << ", " << vec.z
+        //         << ">" << std::endl;
+        // }
 };
 
 #endif

@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClCompile Include="..\ext\glad\src\glad.c" />
     <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="Cloud.cpp" />
     <ClCompile Include="IO\Keyboard.cpp" />
     <ClCompile Include="IO\Mouse.cpp" />
     <ClCompile Include="IO\Window.cpp" />
@@ -41,6 +42,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.hpp" />
+    <ClInclude Include="Cloud.hpp" />
     <ClInclude Include="Library.hpp" />
     <ClInclude Include="Light.hpp" />
     <ClInclude Include="Shaders\ConeTraceShader.hpp" />

@@ -2,7 +2,7 @@
 
 #include "Shaders/GLSL.hpp"
 
-Volume::Volume(int dim, glm::vec2 bounds, glm::vec3 position, glm::vec2 size, int mips) {
+Volume::Volume(int dim, glm::vec2 bounds, glm::vec3 offset, glm::vec2 size, int mips) {
     for (int i = 0; i < dim*dim*dim; i++) {
         this->voxelData.push_back({
             Spatial(),
@@ -10,7 +10,7 @@ Volume::Volume(int dim, glm::vec2 bounds, glm::vec3 position, glm::vec2 size, in
             });
     }
     this->dimension = dim;
-    this->quadPosition = position;
+    this->quadOffset = offset;
     this->quadScale = size;
     this->xBounds = bounds;
     this->yBounds = bounds;

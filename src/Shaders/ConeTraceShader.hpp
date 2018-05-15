@@ -3,13 +3,13 @@
 #define _CONE_TRACE_SHADER_HPP_
 
 #include "Shader.hpp"
-#include "Volume.hpp"
+#include "Cloud.hpp"
 
 class ConeTraceShader : public Shader {
     public:
         ConeTraceShader(std::string, std::string);
 
-        void coneTrace(Volume *);
+        void coneTrace(Cloud *);
 
         /* Cone trace parameters */
         int vctSteps = 16;

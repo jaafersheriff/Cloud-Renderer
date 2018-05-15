@@ -17,12 +17,11 @@ class Volume {
 
         Volume(int, glm::vec2, glm::vec3, glm::vec2, int);
 
-        std::vector<Voxel> & getVoxelData() { return voxelData; }
         void updateVoxelData();
         void clearGPU();
         void clearCPU();
 
-        glm::vec3 quadPosition; // world-position of representing billboard
+        glm::vec3 quadOffset;   // position of representing billboard in relation to overall cloud
         glm::vec2 quadScale;    // size of representing billboard
         glm::vec2 xBounds;      // Min and max x-mapping in world-space
         glm::vec2 yBounds;      // Min and max y-mapping in world-space
@@ -36,9 +35,9 @@ class Volume {
 
         GLuint volId;
 
-    private:
         std::vector<Voxel> voxelData;
 
+    private:
         glm::ivec3 get3DIndices(int);
         glm::vec3 reverseVoxelIndex(glm::ivec3);
 };

@@ -14,11 +14,11 @@ VoxelizeShader::VoxelizeShader(std::string v, std::string f) :
     initPositionMap(Window::width, Window::height);
 }
 
-void VoxelizeShader::voxelize(Volume *volume) {
+void VoxelizeShader::voxelize(Cloud *cloud) {
     /* Reset volume and position map */
-    volume->clearGPU();
+    cloud->clearGPU();
     clearPositionMap();
-    Light::boxBounds = volume->quadScale.x / 2; // TODO : weird
+    // Light::boxBounds = cloud->quadScale.x / 2; // TODO : weird
 
     /* Disable quad visualization */
     CHECK_GL_CALL(glDisable(GL_DEPTH_TEST));
@@ -26,19 +26,20 @@ void VoxelizeShader::voxelize(Volume *volume) {
     CHECK_GL_CALL(glDepthMask(GL_FALSE));
     CHECK_GL_CALL(glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE));
     
-    /* Populate volume */
     bind();
-    bindVolume(volume);
+    for (auto volume : cloud->volumes) {
+        bindVolume(volume);
 
-    /* Initial back voxelization - also write nearest voxel positions to texture */
-    renderQuad(volume, Light::P, Light::V, Light::spatial.position, Voxelize);
-    /* Secondary voxelization - use position texture to highlight voxels nearest to light */
-    renderQuad(volume, Light::P, Light::V, Light::spatial.position, Positions);
+        /* Initial back voxelization - also write nearest voxel positions to texture */
+        renderQuad(cloud, volume, Light::P, Light::V, Light::spatial.position, Voxelize);
+        /* Secondary voxelization - use position texture to highlight voxels nearest to light */
+        renderQuad(cloud, volume, Light::P, Light::V, Light::spatial.position, Positions);
 
-    /* Generate mips */
-    CHECK_GL_CALL(glGenerateMipmap(GL_TEXTURE_3D));
+        /* Generate mips */
+        CHECK_GL_CALL(glGenerateMipmap(GL_TEXTURE_3D));
 
-    unbindVolume();
+        unbindVolume();
+    }
     unbind();
 
     /* Reset state */
@@ -48,8 +49,8 @@ void VoxelizeShader::voxelize(Volume *volume) {
     CHECK_GL_CALL(glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE));
 }
 
-void VoxelizeShader::renderQuad(Volume *volume, glm::mat4 P, glm::mat4 V, glm::vec3 lightPos, Stage stage) {
-    loadVector(getUniform("center"), volume->quadPosition);
+void VoxelizeShader::renderQuad(Cloud *cloud, Volume *volume, glm::mat4 P, glm::mat4 V, glm::vec3 lightPos, Stage stage) {
+    loadVector(getUniform("center"), cloud->position + volume->quadOffset);
     loadFloat(getUniform("scale"), volume->quadScale.x);
     loadVector(getUniform("lightPos"), Light::spatial.position);
 
@@ -93,7 +94,7 @@ void VoxelizeShader::renderQuad(Volume *volume, glm::mat4 P, glm::mat4 V, glm::v
         Vi = glm::transpose(Vi);
         loadMatrix(getUniform("Vi"), &Vi);
 
-        M *= glm::translate(glm::mat4(1.f), volume->quadPosition);
+        M *= glm::translate(glm::mat4(1.f), cloud->position + volume->quadOffset);
         M *= glm::scale(glm::mat4(1.f), glm::vec3(volume->quadScale.x));
         loadMatrix(getUniform("M"), &M);
 
