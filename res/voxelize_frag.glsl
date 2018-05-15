@@ -85,14 +85,16 @@ void main() {
         /* If this voxel is active (is already either black or white)
          * Set it to white */
         if (worldPos.a > 0) {
-            imageStore(volume, calculateVoxelIndex(worldPos.xyz), vec4(1));
-            imageStore(volume, calculateVoxelIndex(worldPos.xyz + vec3( stepSize, 0, 0)), vec4(1));
-            imageStore(volume, calculateVoxelIndex(worldPos.xyz + vec3(-stepSize, 0, 0)), vec4(1));
-            imageStore(volume, calculateVoxelIndex(worldPos.xyz + vec3(0,  stepSize, 0)), vec4(1));
-            imageStore(volume, calculateVoxelIndex(worldPos.xyz + vec3(0, -stepSize, 0)), vec4(1));
-            imageStore(volume, calculateVoxelIndex(worldPos.xyz + vec3(0, 0,  stepSize)), vec4(1));
-            imageStore(volume, calculateVoxelIndex(worldPos.xyz + vec3(0, 0, -stepSize)), vec4(1));
-            }
+            vec4 col = vec4(1.f);
+            imageStore(volume, calculateVoxelIndex(worldPos.xyz), col);
+            imageStore(volume, calculateVoxelIndex(worldPos.xyz + stepSize * normalize(vec3( 1,  1,  1))), col);
+            imageStore(volume, calculateVoxelIndex(worldPos.xyz + stepSize * normalize(vec3( 1,  1, -1))), col);
+            imageStore(volume, calculateVoxelIndex(worldPos.xyz + stepSize * normalize(vec3( 1, -1,  1))), col);
+            imageStore(volume, calculateVoxelIndex(worldPos.xyz + stepSize * normalize(vec3( 1, -1, -1))), col);
+            imageStore(volume, calculateVoxelIndex(worldPos.xyz + stepSize * normalize(vec3(-1,  1,  1))), col);
+            imageStore(volume, calculateVoxelIndex(worldPos.xyz + stepSize * normalize(vec3(-1,  1, -1))), col);
+            imageStore(volume, calculateVoxelIndex(worldPos.xyz + stepSize * normalize(vec3(-1, -1,  1))), col);
+            imageStore(volume, calculateVoxelIndex(worldPos.xyz + stepSize * normalize(vec3(-1, -1, -1))), col);
         }
     }
 }
