@@ -44,12 +44,6 @@ vec4 traceCone(sampler3D voxelTexture, vec3 position, vec3 direction, int steps,
     direction /= voxelDim;
     position /= voxelDim;
 
-    vec4 c = textureLod(voxelTexture, position, 0);
-    if (a.a < 1) {
-        return vec4(1,0,0,1);
-    else 
-        return c;
-
     vec4 color = vec4(0);
     for (int i = 1; i <= steps; i++) {
         float coneRadius = coneHeight * tan(coneAngle / 2.f);

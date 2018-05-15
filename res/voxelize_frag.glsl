@@ -85,8 +85,14 @@ void main() {
         /* If this voxel is active (is already either black or white)
          * Set it to white */
         if (worldPos.a > 0) {
-            ivec3 voxelIndex = calculateVoxelIndex(worldPos.xyz);
-            imageStore(volume, voxelIndex, vec4(1, 1, 1, 1));
+            imageStore(volume, calculateVoxelIndex(worldPos.xyz), vec4(1));
+            imageStore(volume, calculateVoxelIndex(worldPos.xyz + vec3( stepSize, 0, 0)), vec4(1));
+            imageStore(volume, calculateVoxelIndex(worldPos.xyz + vec3(-stepSize, 0, 0)), vec4(1));
+            imageStore(volume, calculateVoxelIndex(worldPos.xyz + vec3(0,  stepSize, 0)), vec4(1));
+            imageStore(volume, calculateVoxelIndex(worldPos.xyz + vec3(0, -stepSize, 0)), vec4(1));
+            imageStore(volume, calculateVoxelIndex(worldPos.xyz + vec3(0, 0,  stepSize)), vec4(1));
+            imageStore(volume, calculateVoxelIndex(worldPos.xyz + vec3(0, 0, -stepSize)), vec4(1));
+            }
         }
     }
 }
