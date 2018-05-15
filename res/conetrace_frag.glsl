@@ -62,6 +62,9 @@ void main() {
     /* Spherical distance - 1 at center of billboard, 0 at edges */
     float sphereContrib = (distance(center, fragPos)/radius);
     sphereContrib = sqrt(max(0, 1 - sphereContrib * sphereContrib));
+    if (sphereContrib <= 0.f) {
+        discard;
+    }
 
     /* Start at voxel closest to camera */
     vec3 normal = normalize(fragNor);
