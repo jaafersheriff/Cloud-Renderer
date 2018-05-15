@@ -27,9 +27,7 @@ int Window::width = 1280;
 int Window::height = 720;
 
 Spatial Light::spatial = Spatial(glm::vec3(10.f, 10.f, -10.f), glm::vec3(3.f), glm::vec3(0.f));
-glm::mat4 Light::P, Light::V;
-float Light::boxBounds = 10.f;
-glm::vec2 Light::zBounds(0.01f, 1000.f);
+glm::mat4 Light::V(1.f);
 
 Mesh * Library::cube;
 Mesh * Library::quad;
@@ -48,7 +46,7 @@ ConeTraceShader * coneShader;
 #define I_CLOUD_SCALE glm::vec3(10.f)
 #define I_CLOUD_OFFSET 3.f
 #define I_VOLUME_DIMENSION 32
-#define I_VOLUME_BOUNDS glm::vec2(-10.f, 15.f)
+#define I_VOLUME_BOUNDS glm::vec2(-30.f, 30.f)
 #define I_VOLUME_SCALE glm::vec2(10.f)
 #define I_VOLUME_MIPS 4
 Cloud *cloud;
@@ -138,21 +136,20 @@ int main() {
         billboardShader->render(cloudsBillboards);
 
         /* Render Optional */
-        glm::mat4 P = lightView ? Light::P : Camera::getP();
         glm::mat4 V = lightView ? Light::V : Camera::getV();
         glm::vec3 pos = lightView ? Light::spatial.position : Camera::getPosition();
         /* Draw voxels to the screen -- optional */
         if (voxelShader->isEnabled()) {
             cloud->updateVoxelData();
             voxelShader->bind();
-            voxelShader->render(cloud->voxelData, P, V);
+            voxelShader->render(cloud->voxelData, Camera::getP(), V);
             voxelShader->unbind();
         }
         /* Render underlying quad -- optional*/
         if (voxelizeShader->isEnabled()) {
             voxelizeShader->bind();
             for (auto volume : cloud->volumes) {
-                voxelizeShader->renderQuad(cloud, volume, P, V, pos, VoxelizeShader::None);
+                voxelizeShader->renderQuad(cloud, volume, Camera::getP(), V, pos, VoxelizeShader::None);
             }
             voxelizeShader->unbind();
         }
@@ -183,8 +180,6 @@ void createImGuiPanes() {
         [&]() {
             ImGui::Begin("Light");
             ImGui::SliderFloat3("Position", glm::value_ptr(Light::spatial.position), -100.f, 100.f);
-            ImGui::SliderFloat("Bounds", &Light::boxBounds, 1.f, 100.f);
-            ImGui::SliderFloat2("Near/Far", glm::value_ptr(Light::zBounds), 0.1f, 1000.f);
             static bool showLightMap = false;
             ImGui::Checkbox("Light view", &lightView);
             ImGui::Checkbox("Show map", &showLightMap);
