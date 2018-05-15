@@ -57,7 +57,7 @@ void main() {
 
     ivec2 texCoords = ivec2(fragTex.x * mapWidth, fragTex.y * mapHeight);
     /* First Voxelize */
-    if (voxelizeStage == 1 && sphereContrib > 0.f) {
+    if (voxelizeStage == 1) {
         vec3 dir = normalize(fragNor); 
         float dist = radius * sphereContrib;
         vec3 nearestPos = vec3(FLT_MAX, FLT_MAX, FLT_MAX);
@@ -74,7 +74,8 @@ void main() {
             }
         }
         /* Write nearest voxel position to position map */
-        if (nearestPos.x != FLT_MAX) {
+        vec4 oldNearest = imageLoad(positionMap, texCoords);
+        if (nearestPos.x != FLT_MAX && distance(nearestPos, lightPos) < distance(oldNearest.xyz, lightPos)) {
             imageStore(positionMap, texCoords, vec4(nearestPos, 1.0));
         }
     }
