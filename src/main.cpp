@@ -72,7 +72,7 @@ int main() {
     /* Create volume */
     std::vector<Spatial> cloudBoards;
     for (int i = 0; i < I_VOLUME_BOARDS; i++) {
-        Spatial s(Util::genRandomVec3(-15.f, 15.f), glm::vec3(10.f), glm::vec3(0.f));
+        Spatial s(Util::genRandomVec3(-15.f, 15.f), glm::vec3(15.f), glm::vec3(0.f));
         cloudBoards.push_back(s);
     }
     volume = new Volume(I_VOLUME_DIMENSION, I_VOLUME_BOUNDS, I_VOLUME_POSITION, cloudBoards, I_VOLUME_MIPS);
@@ -147,14 +147,6 @@ int main() {
             voxelShader->bind();
             voxelShader->render(volume->voxelData, Camera::getP(), V);
             voxelShader->unbind();
-        }
-        /* Render underlying quad -- optional*/
-        if (voxelizeShader->isEnabled()) {
-            voxelizeShader->bind();
-            for (auto cloudBoard : volume->cloudBoards) {
-                voxelizeShader->renderQuad(volume, cloudBoard, Camera::getP(), V, pos, VoxelizeShader::None);
-            }
-            voxelizeShader->unbind();
         }
 
         /* Render ImGui */
@@ -256,10 +248,7 @@ void createImGuiPanes() {
             // if (ImGui::SliderFloat("ZBounds", &cloud->zBounds, 0.1f, 50.f)) {
             //     cloud->updateBounds();
             // }
-            bool b = voxelizeShader->isEnabled();
-            ImGui::Checkbox("Render underlying quad", &b);
-            voxelizeShader->setEnabled(b);
-            b = voxelShader->isEnabled();
+            bool b = voxelShader->isEnabled();
             ImGui::Checkbox("Render voxels", &b);
             voxelShader->setEnabled(b);
             ImGui::Checkbox("Voxel outlines", &voxelShader->useOutline);

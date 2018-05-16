@@ -12,9 +12,8 @@ class VoxelizeShader : public Shader {
         VoxelizeShader(std::string, std::string);
             
         enum Stage {
-            None,       // 0
-            Voxelize,   // 1
-            Positions,  // 2 
+            Voxelize,   // 0
+            Positions,  // 1 
         };
 
         /* Generic function to render quad -- takes Stage as a parameter to orchestrate GL binds */

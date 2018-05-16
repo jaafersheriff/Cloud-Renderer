@@ -57,7 +57,7 @@ void main() {
 
     ivec2 texCoords = ivec2(fragTex.x * mapWidth, fragTex.y * mapHeight);
     /* First Voxelize */
-    if (voxelizeStage == 1) {
+    if (voxelizeStage == 0) {
         vec3 dir = normalize(fragNor); 
         float dist = radius * sphereContrib;
         vec4 oldNearest = imageLoad(positionMap, texCoords);
@@ -80,7 +80,7 @@ void main() {
         }
     }
     /* Second Voxelize */
-    else if (voxelizeStage == 2) {
+    else if (voxelizeStage == 1) {
         /* Read from position map */
         vec4 worldPos = imageLoad(positionMap, texCoords);
         /* If this voxel is active (is already either black or white)
