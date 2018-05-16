@@ -24,8 +24,6 @@ uniform float stepSize;
 uniform vec3 lightPos;
 
 layout(binding=1, rgba32f) uniform image2D positionMap;
-uniform int mapWidth;
-uniform int mapHeight;
 
 out vec4 color;
 

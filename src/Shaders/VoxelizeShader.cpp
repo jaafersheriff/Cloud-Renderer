@@ -119,8 +119,6 @@ void VoxelizeShader::unbindVolume() {
 
 void VoxelizeShader::bindPositionMap() {
     CHECK_GL_CALL(glBindImageTexture(1, positionMap->textureId, 0, GL_TRUE, 0, GL_READ_WRITE, GL_RGBA32F));
-    loadInt(getUniform("mapWidth"), positionMap->width);
-    loadInt(getUniform("mapHeight"), positionMap->height);
 }
 
 void VoxelizeShader::unbindPositionMap() {
