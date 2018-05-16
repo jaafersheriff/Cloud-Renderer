@@ -33,3 +33,11 @@ void Cloud::updateVoxelData() {
     }
 }
 
+void Cloud::updateBounds() {
+    for (auto vol : volumes) {
+        vol->xBounds = glm::vec2(-xBounds, xBounds);
+        vol->yBounds = glm::vec2(-yBounds, yBounds);
+        vol->zBounds = glm::vec2(-zBounds, zBounds);
+    }
+}
+

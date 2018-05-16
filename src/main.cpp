@@ -44,7 +44,7 @@ ConeTraceShader * coneShader;
 #define I_CLOUD_BOARDS 5
 #define I_CLOUD_POSITION glm::vec3(5.f, 0.f, 0.f)
 #define I_CLOUD_SCALE glm::vec3(10.f)
-#define I_CLOUD_OFFSET 3.f
+#define I_CLOUD_OFFSET 10.f
 #define I_CLOUD_BOUNDS 30.f
 #define I_VOLUME_DIMENSION 32
 #define I_VOLUME_MIPS 4
@@ -243,16 +243,15 @@ void createImGuiPanes() {
                     v->spatial.scale = glm::vec3(cloud->spatial.scale.x);
                 }
             }
-            if (ImGui::SliderFloat("XBounds", &cloud->xBounds, 0.1f, 50.f) ||
-                ImGui::SliderFloat("YBounds", &cloud->yBounds, 0.1f, 50.f) ||
-                ImGui::SliderFloat("ZBounds", &cloud->zBounds, 0.1f, 50.f)) {
-                for (auto v : cloud->volumes) {
-                    v->xBounds = glm::vec2(-cloud->xBounds, cloud->xBounds);
-                    v->yBounds = glm::vec2(-cloud->yBounds, cloud->yBounds);
-                    v->zBounds = glm::vec2(-cloud->zBounds, cloud->zBounds);
-                }
+            if (ImGui::SliderFloat("XBounds", &cloud->xBounds, 0.1f, 50.f)) {
+                cloud->updateBounds();
             }
-
+            if (ImGui::SliderFloat("YBounds", &cloud->yBounds, 0.1f, 50.f)) {
+                cloud->updateBounds();
+            }
+            if (ImGui::SliderFloat("ZBounds", &cloud->zBounds, 0.1f, 50.f)) {
+                cloud->updateBounds();
+            }
             bool b = voxelizeShader->isEnabled();
             ImGui::Checkbox("Render underlying quad", &b);
             voxelizeShader->setEnabled(b);

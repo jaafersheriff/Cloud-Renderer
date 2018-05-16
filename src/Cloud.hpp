@@ -10,13 +10,14 @@ class Cloud {
 
         std::vector<Volume *> volumes;
         Spatial spatial;
-        float xBounds = 0.1f;
-        float yBounds = 0.1f;
-        float zBounds = 0.1f;
+        float xBounds;
+        float yBounds;
+        float zBounds;
 
         void clearCPU();
         void clearGPU();
         void updateVoxelData();
+        void updateBounds();
         std::vector<std::vector<Volume::Voxel> *> voxelData;
 };
 
