@@ -35,12 +35,6 @@ void BillboardShader::render(std::vector<Spatial *> &targets) {
     /* VAO */
     CHECK_GL_CALL(glBindVertexArray(Library::quad->vaoId));
 
-    /* Vertices VBO */
-    int pos = getAttribute("vertPos");
-    CHECK_GL_CALL(glEnableVertexAttribArray(pos));
-    CHECK_GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, Library::quad->vertBufId));
-    CHECK_GL_CALL(glVertexAttribPointer(pos, 3, GL_FLOAT, GL_FALSE, 0, nullptr));
-
     /* Bind textures */
     loadInt(getUniform("diffuseTex"), Library::cloudDiffuseTexture->textureId);
     CHECK_GL_CALL(glActiveTexture(GL_TEXTURE0 + Library::cloudDiffuseTexture->textureId));

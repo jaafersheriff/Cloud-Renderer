@@ -60,19 +60,7 @@ void VoxelizeShader::renderQuad(glm::vec3 cloudPos, Volume *volume, glm::mat4 P,
     loadVector(getUniform("lightPos"), Light::spatial.position);
 
     /* Bind quad */
-    /* VAO */
     CHECK_GL_CALL(glBindVertexArray(Library::quad->vaoId));
-
-    /* Vertices and normals VBO */
-    // TODO : no need to rebind buffer and atrib pointers
-    int pos = getAttribute("vertPos");
-    CHECK_GL_CALL(glEnableVertexAttribArray(pos));
-    CHECK_GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, Library::quad->vertBufId));
-    CHECK_GL_CALL(glVertexAttribPointer(pos, 3, GL_FLOAT, GL_FALSE, 0, nullptr));
-    pos = getAttribute("vertNor");
-    CHECK_GL_CALL(glEnableVertexAttribArray(pos));
-    CHECK_GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, Library::quad->norBufId));
-    CHECK_GL_CALL(glVertexAttribPointer(pos, 3, GL_FLOAT, GL_FALSE, 0, nullptr));
 
     /* Denotes voxelization stage */
     loadInt(getUniform("voxelizeStage"), stage);

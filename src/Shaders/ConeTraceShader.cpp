@@ -26,16 +26,7 @@ void ConeTraceShader::coneTrace(Cloud *cloud) {
         loadVector(getUniform("lightPos"), Light::spatial.position);
 
         /* Bind quad */
-        // TODO : no need to rebind buffers and attrib pointers
         CHECK_GL_CALL(glBindVertexArray(Library::quad->vaoId));
-        int pos = getAttribute("vertPos");
-        CHECK_GL_CALL(glEnableVertexAttribArray(pos));
-        CHECK_GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, Library::quad->vertBufId));
-        CHECK_GL_CALL(glVertexAttribPointer(pos, 3, GL_FLOAT, GL_FALSE, 0, nullptr));
-        pos = getAttribute("vertNor");
-        CHECK_GL_CALL(glEnableVertexAttribArray(pos));
-        CHECK_GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, Library::quad->norBufId));
-        CHECK_GL_CALL(glVertexAttribPointer(pos, 3, GL_FLOAT, GL_FALSE, 0, nullptr));
 
         loadMatrix(getUniform("P"), &Camera::getP());
         loadMatrix(getUniform("V"), &Camera::getV());
