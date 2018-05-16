@@ -1,7 +1,5 @@
 #version 330 core
 
-in vec4 worldPos;
-
 uniform bool isOutline;
 uniform float alpha;
 
