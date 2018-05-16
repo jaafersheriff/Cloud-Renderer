@@ -32,9 +32,8 @@ class Volume {
 
         std::vector<Voxel> voxelData;
 
-    private:
         GLuint volId;
-
+    private:
         glm::ivec3 get3DIndices(int);
         glm::vec3 reverseVoxelIndex(glm::ivec3);
 };
