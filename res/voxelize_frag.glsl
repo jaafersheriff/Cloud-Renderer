@@ -60,7 +60,8 @@ void main() {
     if (voxelizeStage == 1) {
         vec3 dir = normalize(fragNor); 
         float dist = radius * sphereContrib;
-        vec3 nearestPos = vec3(FLT_MAX, FLT_MAX, FLT_MAX);
+        vec4 oldNearest = imageLoad(positionMap, texCoords);
+        vec3 nearestPos = oldNearest.a > 0.f ? oldNearest.xyz : vec3(FLT_MAX, FLT_MAX, FLT_MAX);
         vec3 start = fragPos - dir * dist;
         /* Write to volume in spherical shape from billboard to light source */
         for(float i = 0; i < 2*dist; i += stepSize) {
@@ -74,9 +75,8 @@ void main() {
             }
         }
         /* Write nearest voxel position to position map */
-        vec4 oldNearest = imageLoad(positionMap, texCoords);
-        if (nearestPos.x != FLT_MAX && distance(nearestPos, lightPos) < distance(oldNearest.xyz, lightPos)) {
-            imageStore(positionMap, texCoords, vec4(nearestPos, 1.0));
+        if (nearestPos.x != FLT_MAX) {
+            imageStore(positionMap, texCoords, vec4(nearestPos, 1.f));
         }
     }
     /* Second Voxelize */
