@@ -2,14 +2,17 @@
 
 #include "Util.hpp"
 
-Cloud::Cloud(int billboards, glm::vec3 position, glm::vec3 scale, float offset, int volDim, glm::vec2 volBounds, int volMips) {
+Cloud::Cloud(int billboards, glm::vec3 position, glm::vec3 scale, float offset, float bounds, int volDim, int volMips) {
     for (int i = 0; i < billboards; i++) {
-        Volume *v = new Volume(volDim, volBounds, Util::genRandomVec3(-offset, offset), scale, volMips);
+        Volume *v = new Volume(volDim, glm::vec2(-bounds, bounds), Util::genRandomVec3(-offset, offset), scale, volMips);
         this->volumes.push_back(v);
         this->voxelData.push_back(&v->voxelData);
     }
     this->spatial.position = position;
     this->spatial.scale = scale;
+    this->xBounds = bounds;
+    this->yBounds = bounds;
+    this->zBounds = bounds;
 }
 
 void Cloud::clearCPU() {

@@ -22,19 +22,19 @@ class Volume {
         void clearCPU();
 
         Spatial spatial;
+
         glm::vec2 xBounds;      // Min and max x-mapping in world-space
         glm::vec2 yBounds;      // Min and max y-mapping in world-space
         glm::vec2 zBounds;      // Min and max z-mapping in world-space
         int dimension;          // Voxels per dimension 
         glm::vec3 voxelSize;    // World-size of individual voxels
-
         int levels;             // Mipmap levels
-
-        GLuint volId;
 
         std::vector<Voxel> voxelData;
 
     private:
+        GLuint volId;
+
         glm::ivec3 get3DIndices(int);
         glm::vec3 reverseVoxelIndex(glm::ivec3);
 };

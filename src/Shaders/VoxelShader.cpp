@@ -20,10 +20,8 @@ void VoxelShader::render(std::vector<std::vector<Volume::Voxel> *> allVoxels, gl
     loadFloat(getUniform("alpha"), alpha);
 
     /* Bind mesh */
-    /* VAO */
+    // TODO : No need to rebind buffer and attrib pointers
     CHECK_GL_CALL(glBindVertexArray(Library::cube->vaoId));
-
-    /* Vertices VBO */
     int pos = getAttribute("vertPos");
     if (pos >= 0 && Library::cube->vertBufId) {
         CHECK_GL_CALL(glEnableVertexAttribArray(pos));

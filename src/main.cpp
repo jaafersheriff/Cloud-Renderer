@@ -45,8 +45,8 @@ ConeTraceShader * coneShader;
 #define I_CLOUD_POSITION glm::vec3(5.f, 0.f, 0.f)
 #define I_CLOUD_SCALE glm::vec3(10.f)
 #define I_CLOUD_OFFSET 3.f
+#define I_CLOUD_BOUNDS 30.f
 #define I_VOLUME_DIMENSION 32
-#define I_VOLUME_BOUNDS glm::vec2(-30.f, 30.f)
 #define I_VOLUME_MIPS 4
 Cloud *cloud;
 
@@ -71,7 +71,7 @@ int main() {
     }
 
     /* Create volume */
-    cloud = new Cloud(I_CLOUD_BOARDS, I_CLOUD_POSITION, I_CLOUD_SCALE, I_CLOUD_OFFSET, I_VOLUME_DIMENSION, I_VOLUME_BOUNDS, I_VOLUME_MIPS);
+    cloud = new Cloud(I_CLOUD_BOARDS, I_CLOUD_POSITION, I_CLOUD_SCALE, I_CLOUD_OFFSET, I_CLOUD_BOUNDS, I_VOLUME_DIMENSION, I_VOLUME_MIPS);
 
     /* Create meshes and textures */
     Library::init(RESOURCE_DIR + "cloud.png", RESOURCE_DIR + "cloudMap.png");
@@ -238,13 +238,18 @@ void createImGuiPanes() {
             ImGui::Begin("VXGI");
             // ImGui::Text("Voxels in scene : %d", cloud->voxelCount);
             ImGui::SliderFloat3("Position", glm::value_ptr(cloud->spatial.position), -20.f, 20.f);
-            if (ImGui::SliderFloat("XBounds", &cloud->spatial.scale.x, 0.1f, 50.f) ||
-                ImGui::SliderFloat("YBounds", &cloud->spatial.scale.y, 0.1f, 50.f) ||
-                ImGui::SliderFloat("ZBounds", &cloud->spatial.scale.z, 0.1f, 50.f)) {
+            if (ImGui::SliderFloat("Scale", &cloud->spatial.scale.x, 0.1f, 50.f)) {
                 for (auto v : cloud->volumes) {
-                    v->xBounds = glm::vec2(-cloud->spatial.scale.x, cloud->spatial.scale.x);
-                    v->yBounds = glm::vec2(-cloud->spatial.scale.y, cloud->spatial.scale.y);
-                    v->zBounds = glm::vec2(-cloud->spatial.scale.z, cloud->spatial.scale.z);
+                    v->spatial.scale = glm::vec3(cloud->spatial.scale.x);
+                }
+            }
+            if (ImGui::SliderFloat("XBounds", &cloud->xBounds, 0.1f, 50.f) ||
+                ImGui::SliderFloat("YBounds", &cloud->yBounds, 0.1f, 50.f) ||
+                ImGui::SliderFloat("ZBounds", &cloud->zBounds, 0.1f, 50.f)) {
+                for (auto v : cloud->volumes) {
+                    v->xBounds = glm::vec2(-cloud->xBounds, cloud->xBounds);
+                    v->yBounds = glm::vec2(-cloud->yBounds, cloud->yBounds);
+                    v->zBounds = glm::vec2(-cloud->zBounds, cloud->zBounds);
                 }
             }
 

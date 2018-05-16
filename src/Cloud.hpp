@@ -6,9 +6,13 @@
 
 class Cloud {
     public:
-        Cloud(int, glm::vec3, glm::vec3, float, int, glm::vec2, int);
+        Cloud(int, glm::vec3, glm::vec3, float, float, int, int);
+
         std::vector<Volume *> volumes;
         Spatial spatial;
+        float xBounds = 0.1f;
+        float yBounds = 0.1f;
+        float zBounds = 0.1f;
 
         void clearCPU();
         void clearGPU();
