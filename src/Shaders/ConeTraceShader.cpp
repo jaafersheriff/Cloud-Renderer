@@ -39,7 +39,7 @@ void ConeTraceShader::coneTrace(Volume *volume) {
         loadVector(getUniform("center"), volume->position + cloudBoard.position);
         loadFloat(getUniform("scale"), cloudBoard.scale.x);
 
-       /* Bind M N */
+        /* Bind M N */
         glm::mat4 M = glm::translate(glm::mat4(1.f), volume->position + cloudBoard.position);
         M *= glm::scale(glm::mat4(1.f), glm::vec3(cloudBoard.scale.x));
         loadMatrix(getUniform("M"), &M);

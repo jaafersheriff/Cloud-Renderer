@@ -27,21 +27,22 @@ void VoxelizeShader::voxelize(Volume *volume) {
 
     bind();
     bindPositionMap();
+
     /* First voxelize pass 
      * Initial black voxelization
      * Write nearest voxel positions to texture */
     for (auto cloudBoard : volume->cloudBoards) {
         bindVolume(volume);
-        renderQuad(volume, cloudBoard, Camera::getP(), Light::V, Light::spatial.position, Voxelize);
+        renderQuad(volume->position, cloudBoard, Camera::getP(), Light::V, Light::spatial.position, Voxelize);
         unbindVolume();
     }
 
     /* Second voxelize pass 
-     * Secondary voxelization - use position texture to highlight voxels nearest to light 
+     * Use position texture to highlight voxels nearest to light 
      * Generate mips */
     for (auto cloudBoard : volume->cloudBoards) {
         bindVolume(volume);
-        renderQuad(volume, cloudBoard, Camera::getP(), Light::V, Light::spatial.position, Positions);
+        renderQuad(volume->position, cloudBoard, Camera::getP(), Light::V, Light::spatial.position, Positions);
         CHECK_GL_CALL(glGenerateMipmap(GL_TEXTURE_3D));
         unbindVolume();
     }
@@ -55,8 +56,8 @@ void VoxelizeShader::voxelize(Volume *volume) {
     CHECK_GL_CALL(glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE));
 }
 
-void VoxelizeShader::renderQuad(Volume *volume, Spatial cloudBoard, glm::mat4 P, glm::mat4 V, glm::vec3 lightPos, Stage stage) {
-    loadVector(getUniform("center"), volume->position + cloudBoard.position);
+void VoxelizeShader::renderQuad(glm::vec3 cloudPos, Spatial cloudBoard, glm::mat4 P, glm::mat4 V, glm::vec3 lightPos, Stage stage) {
+    loadVector(getUniform("center"), cloudPos + cloudBoard.position);
     loadFloat(getUniform("scale"), cloudBoard.scale.x);
     loadVector(getUniform("lightPos"), Light::spatial.position);
 
@@ -87,7 +88,7 @@ void VoxelizeShader::renderQuad(Volume *volume, Spatial cloudBoard, glm::mat4 P,
         Vi = glm::transpose(Vi);
         loadMatrix(getUniform("Vi"), &Vi);
 
-        M *= glm::translate(glm::mat4(1.f), volume->position + cloudBoard.position);
+        M *= glm::translate(glm::mat4(1.f), cloudPos + cloudBoard.position);
         M *= glm::scale(glm::mat4(1.f), glm::vec3(cloudBoard.scale.x));
         loadMatrix(getUniform("M"), &M);
 

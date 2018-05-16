@@ -2,7 +2,7 @@
 
 #include "Shaders/GLSL.hpp"
 
-Volume::Volume(int dim, glm::vec2 bounds, glm::vec3 position, std::vector<Spatial> spatials, int mips) {
+Volume::Volume(int dim, glm::vec2 bounds, glm::vec3 position, int mips) {
     for (int i = 0; i < dim*dim*dim; i++) {
         this->voxelData.push_back({
             Spatial(),
@@ -11,7 +11,6 @@ Volume::Volume(int dim, glm::vec2 bounds, glm::vec3 position, std::vector<Spatia
     }
     this->dimension = dim;
     this->position = position;
-    this->cloudBoards = spatials;
     this->xBounds = bounds;
     this->yBounds = bounds;
     this->zBounds = bounds;
@@ -35,6 +34,11 @@ Volume::Volume(int dim, glm::vec2 bounds, glm::vec3 position, std::vector<Spatia
 
     clearGPU();
     CHECK_GL_CALL(glBindTexture(GL_TEXTURE_3D, 0));
+}
+
+/* Add a billboard */
+void Volume::addCloudBoard(Spatial s) {
+    this->cloudBoards.push_back(s);
 }
 
 /* Reset GPU volume */
@@ -65,6 +69,7 @@ void Volume::updateVoxelData() {
         (xBounds.y - xBounds.x) / dimension,
         (yBounds.y - yBounds.x) / dimension,
         (zBounds.y - zBounds.x) / dimension);
+    voxelCount = 0;
     for (unsigned int i = 0; i < voxelData.size(); i++) {
         float r = buffer[4*i + 0];
         float g = buffer[4*i + 1];
@@ -72,6 +77,7 @@ void Volume::updateVoxelData() {
         float a = buffer[4*i + 3];
         /* Update voxel data if data exists */
         if (r || g || b || a) {
+            voxelCount++;
             glm::ivec3 in = get3DIndices(4*i);       // voxel index 
             glm::vec3 wPos = reverseVoxelIndex(in);  // world space
             voxelData[i].spatial.position = this->position + wPos;

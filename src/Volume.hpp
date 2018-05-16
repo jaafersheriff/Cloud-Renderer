@@ -15,8 +15,9 @@ class Volume {
             glm::vec4 data;     // Data stored in voxel
         };
 
-        Volume(int, glm::vec2, glm::vec3, std::vector<Spatial>, int);
+        Volume(int, glm::vec2, glm::vec3, int);
 
+        void addCloudBoard(Spatial);
         void updateVoxelData();
         void clearGPU();
         void clearCPU();
@@ -34,6 +35,7 @@ class Volume {
         std::vector<Voxel> voxelData;
 
         GLuint volId;
+        int voxelCount = 0;
     private:
         glm::ivec3 get3DIndices(int);
         glm::vec3 reverseVoxelIndex(glm::ivec3);
