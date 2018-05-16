@@ -19,6 +19,8 @@ uniform float vctConeAngle;
 uniform float vctConeInitialHeight;
 uniform float vctLodOffset;
 
+uniform int numBoards;
+
 out vec4 color;
 
 /* Linear map from aribtray box(?) in world space to 3D volume 
@@ -49,7 +51,7 @@ vec4 traceCone(sampler3D voxelTexture, vec3 position, vec3 direction, int steps,
         float coneRadius = coneHeight * tan(coneAngle / 2.f);
         float lod = log2(max(1.f, 2.f * coneRadius));
         vec4 sampleColor = textureLod(voxelTexture, position + coneHeight * direction, lod + vctLodOffset);
-        color += sampleColor * float(i)/steps; // TODO : linear scaling
+        color += sampleColor * float(i)/(steps*numBoards); // TODO : linear scaling
         coneHeight += coneRadius;
     }
 
