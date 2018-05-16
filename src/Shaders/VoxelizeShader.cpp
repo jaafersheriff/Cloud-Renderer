@@ -27,25 +27,23 @@ void VoxelizeShader::voxelize(Volume *volume) {
 
     bind();
     bindPositionMap();
+    bindVolume(volume);
 
     /* First voxelize pass 
      * Initial black voxelization
      * Write nearest voxel positions to texture */
     for (auto cloudBoard : volume->cloudBoards) {
-        bindVolume(volume);
         renderQuad(volume->position, cloudBoard, Camera::getP(), Light::V, Light::spatial.position, Voxelize);
-        unbindVolume();
     }
 
     /* Second voxelize pass 
-     * Use position texture to highlight voxels nearest to light 
-     * Generate mips */
+     * Use position texture to highlight voxels nearest to light */
     for (auto cloudBoard : volume->cloudBoards) {
-        bindVolume(volume);
         renderQuad(volume->position, cloudBoard, Camera::getP(), Light::V, Light::spatial.position, Positions);
-        CHECK_GL_CALL(glGenerateMipmap(GL_TEXTURE_3D));
-        unbindVolume();
     }
+
+    CHECK_GL_CALL(glGenerateMipmap(GL_TEXTURE_3D));
+    unbindVolume();
     unbindPositionMap();
     unbind();
 

@@ -11,6 +11,7 @@ ConeTraceShader::ConeTraceShader(std::string v, std::string f) :
 
 void ConeTraceShader::coneTrace(Volume *volume) {
     bind();
+    bindVolume(volume);
 
     /* Bind cone tracing params */
     loadInt(getUniform("vctSteps"), vctSteps);
@@ -33,8 +34,6 @@ void ConeTraceShader::coneTrace(Volume *volume) {
     loadMatrix(getUniform("Vi"), &Vi);
 
     for (auto cloudBoard : volume->cloudBoards) {
-        bindVolume(volume);
-
         /* Cone trace from the camera's perspective */
         loadVector(getUniform("center"), volume->position + cloudBoard.position);
         loadFloat(getUniform("scale"), cloudBoard.scale.x);
@@ -49,11 +48,11 @@ void ConeTraceShader::coneTrace(Volume *volume) {
         /* Cone trace! */
         CHECK_GL_CALL(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
 
-        unbindVolume();
     }
 
     /* Wrap up shader */
     CHECK_GL_CALL(glBindVertexArray(0));
+    unbindVolume();
     unbind();
 }
 
