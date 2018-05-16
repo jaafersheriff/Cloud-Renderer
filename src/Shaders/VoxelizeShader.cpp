@@ -18,26 +18,29 @@ void VoxelizeShader::voxelize(Cloud *cloud) {
     /* Reset volume and position map */
     cloud->clearGPU();
     clearPositionMap();
-    Light::boxBounds = cloud->spatial.scale.x / 2; // TODO : weird
 
     /* Disable quad visualization */
     CHECK_GL_CALL(glDisable(GL_DEPTH_TEST));
     CHECK_GL_CALL(glDisable(GL_CULL_FACE));
     CHECK_GL_CALL(glDepthMask(GL_FALSE));
     CHECK_GL_CALL(glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE));
-    
+
     bind();
+    /* First voxelize pass 
+     * Initial back voxelization - also write nearest voxel positions to texture */
     for (auto volume : cloud->volumes) {
         bindVolume(volume);
+        renderQuad(cloud, volume, Camera::getP(), Light::V, Light::spatial.position, Voxelize);
+        unbindVolume();
+    }
 
-        /* Initial back voxelization - also write nearest voxel positions to texture */
-        renderQuad(cloud, volume, Light::P, Light::V, Light::spatial.position, Voxelize);
-        /* Secondary voxelization - use position texture to highlight voxels nearest to light */
-        renderQuad(cloud, volume, Light::P, Light::V, Light::spatial.position, Positions);
-
-        /* Generate mips */
+    /* Second voxelize pass 
+     * Secondary voxelization - use position texture to highlight voxels nearest to light 
+     * Generate mips */
+    for (auto volume : cloud->volumes) {
+        bindVolume(volume);
+        renderQuad(cloud, volume, Camera::getP(), Light::V, Light::spatial.position, Positions);
         CHECK_GL_CALL(glGenerateMipmap(GL_TEXTURE_3D));
-
         unbindVolume();
     }
     unbind();
@@ -68,7 +71,6 @@ void VoxelizeShader::renderQuad(Cloud *cloud, Volume *volume, glm::mat4 P, glm::
     CHECK_GL_CALL(glEnableVertexAttribArray(pos));
     CHECK_GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, Library::quad->norBufId));
     CHECK_GL_CALL(glVertexAttribPointer(pos, 3, GL_FLOAT, GL_FALSE, 0, nullptr));
-
 
     /* Denotes voxelization stage */
     loadInt(getUniform("voxelizeStage"), stage);
@@ -112,10 +114,11 @@ void VoxelizeShader::bindVolume(Volume *volume) {
     CHECK_GL_CALL(glBindTexture(GL_TEXTURE_3D, volume->volId));
     CHECK_GL_CALL(glBindImageTexture(0, volume->volId, 0, GL_TRUE, 0, GL_READ_WRITE, GL_RGBA16F));
 
+    /* Bind position map */
     CHECK_GL_CALL(glBindImageTexture(1, positionMap->textureId, 0, GL_TRUE, 0, GL_READ_WRITE, GL_RGBA32F));
     loadInt(getUniform("mapWidth"), positionMap->width);
     loadInt(getUniform("mapHeight"), positionMap->height);
-    
+   
     loadVector(getUniform("xBounds"), volume->xBounds);
     loadVector(getUniform("yBounds"), volume->yBounds);
     loadVector(getUniform("zBounds"), volume->zBounds);
