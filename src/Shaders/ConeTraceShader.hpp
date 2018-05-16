@@ -3,13 +3,13 @@
 #define _CONE_TRACE_SHADER_HPP_
 
 #include "Shader.hpp"
-#include "Cloud.hpp"
+#include "Volume.hpp"
 
 class ConeTraceShader : public Shader {
     public:
         ConeTraceShader(std::string, std::string);
 
-        void coneTrace(Cloud *);
+        void coneTrace(Volume *);
 
         /* Cone trace parameters */
         int vctSteps = 16;
@@ -18,7 +18,7 @@ class ConeTraceShader : public Shader {
         float vctLodOffset = 0.1f;
 
     private:
-        void bindVolume(glm::vec3, Volume *);
+        void bindVolume(Volume *);
         void unbindVolume();
 };
 

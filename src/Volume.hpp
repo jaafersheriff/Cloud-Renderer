@@ -15,13 +15,14 @@ class Volume {
             glm::vec4 data;     // Data stored in voxel
         };
 
-        Volume(int, glm::vec2, glm::vec3, glm::vec2, int);
+        Volume(int, glm::vec2, glm::vec3, std::vector<Spatial>, int);
 
-        void updateVoxelData(glm::vec3);
+        void updateVoxelData();
         void clearGPU();
         void clearCPU();
 
-        Spatial spatial;
+        glm::vec3 position;                 // cloud object position
+        std::vector<Spatial> cloudBoards;   // billboard spatials in relation to cloud spatial
 
         glm::vec2 xBounds;      // Min and max x-mapping in world-space
         glm::vec2 yBounds;      // Min and max y-mapping in world-space

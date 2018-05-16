@@ -2,7 +2,7 @@
 
 #include "Shaders/GLSL.hpp"
 
-Volume::Volume(int dim, glm::vec2 bounds, glm::vec3 offset, glm::vec2 size, int mips) {
+Volume::Volume(int dim, glm::vec2 bounds, glm::vec3 position, std::vector<Spatial> spatials, int mips) {
     for (int i = 0; i < dim*dim*dim; i++) {
         this->voxelData.push_back({
             Spatial(),
@@ -10,8 +10,8 @@ Volume::Volume(int dim, glm::vec2 bounds, glm::vec3 offset, glm::vec2 size, int 
             });
     }
     this->dimension = dim;
-    this->spatial.position = offset;
-    this->spatial.scale = glm::vec3(size.x, size.y, 0.f);
+    this->position = position;
+    this->cloudBoards = spatials;
     this->xBounds = bounds;
     this->yBounds = bounds;
     this->zBounds = bounds;
@@ -53,7 +53,7 @@ void Volume::clearCPU() {
     }
 }
 
-void Volume::updateVoxelData(glm::vec3 cloudPos) {
+void Volume::updateVoxelData() {
     /* Pull volume data out of GPU */
     std::vector<float> buffer(voxelData.size() * 4);
     CHECK_GL_CALL(glBindTexture(GL_TEXTURE_3D, volId));
@@ -74,7 +74,7 @@ void Volume::updateVoxelData(glm::vec3 cloudPos) {
         if (r || g || b || a) {
             glm::ivec3 in = get3DIndices(4*i);       // voxel index 
             glm::vec3 wPos = reverseVoxelIndex(in);  // world space
-            voxelData[i].spatial.position = cloudPos + wPos;
+            voxelData[i].spatial.position = this->position + wPos;
             voxelData[i].spatial.scale = voxelSize;
             voxelData[i].data = glm::vec4(r, g, b, a);
         }

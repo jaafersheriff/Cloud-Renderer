@@ -9,7 +9,7 @@ ConeTraceShader::ConeTraceShader(std::string v, std::string f) :
     init();
 }
 
-void ConeTraceShader::coneTrace(Cloud *cloud) {
+void ConeTraceShader::coneTrace(Volume *volume) {
     bind();
 
     /* Bind cone tracing params */
@@ -19,7 +19,7 @@ void ConeTraceShader::coneTrace(Cloud *cloud) {
     loadFloat(getUniform("vctLodOffset"), vctLodOffset);
 
     loadVector(getUniform("lightPos"), Light::spatial.position);
-    loadInt(getUniform("numBoards"), cloud->volumes.size());
+    loadInt(getUniform("numBoards"), volume->cloudBoards.size());
 
     /* Bind quad */
     CHECK_GL_CALL(glBindVertexArray(Library::quad->vaoId));
@@ -32,16 +32,16 @@ void ConeTraceShader::coneTrace(Cloud *cloud) {
     Vi = glm::transpose(Vi);
     loadMatrix(getUniform("Vi"), &Vi);
 
-    for (auto volume : cloud->volumes) {
-        bindVolume(cloud->spatial.position, volume);
+    for (auto cloudBoard : volume->cloudBoards) {
+        bindVolume(volume);
 
         /* Cone trace from the camera's perspective */
-        loadVector(getUniform("center"), cloud->spatial.position + volume->spatial.position);
-        loadFloat(getUniform("scale"), volume->spatial.scale.x);
+        loadVector(getUniform("center"), volume->position + cloudBoard.position);
+        loadFloat(getUniform("scale"), cloudBoard.scale.x);
 
        /* Bind M N */
-        glm::mat4 M = glm::translate(glm::mat4(1.f), cloud->spatial.position + volume->spatial.position);
-        M *= glm::scale(glm::mat4(1.f), glm::vec3(volume->spatial.scale.x));
+        glm::mat4 M = glm::translate(glm::mat4(1.f), volume->position + cloudBoard.position);
+        M *= glm::scale(glm::mat4(1.f), glm::vec3(cloudBoard.scale.x));
         loadMatrix(getUniform("M"), &M);
         glm::mat3 N = glm::mat3(transpose(inverse(M * Vi)));
         loadMatrix(getUniform("N"), &N);
@@ -57,14 +57,14 @@ void ConeTraceShader::coneTrace(Cloud *cloud) {
     unbind();
 }
 
-void ConeTraceShader::bindVolume(glm::vec3 cloudPos, Volume *volume) {
+void ConeTraceShader::bindVolume(Volume *volume) {
     CHECK_GL_CALL(glActiveTexture(GL_TEXTURE0 + volume->volId));
     CHECK_GL_CALL(glBindTexture(GL_TEXTURE_3D, volume->volId));
     loadInt(getUniform("volumeTexture"), volume->volId);
     
-    loadVector(getUniform("xBounds"), cloudPos.x + volume->xBounds);
-    loadVector(getUniform("yBounds"), cloudPos.y + volume->yBounds);
-    loadVector(getUniform("zBounds"), cloudPos.z + volume->zBounds);
+    loadVector(getUniform("xBounds"), volume->position.x + volume->xBounds);
+    loadVector(getUniform("yBounds"), volume->position.y + volume->yBounds);
+    loadVector(getUniform("zBounds"), volume->position.z + volume->zBounds);
     loadInt(getUniform("voxelDim"), volume->dimension);
 }
 

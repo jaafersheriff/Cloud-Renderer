@@ -14,9 +14,9 @@ VoxelizeShader::VoxelizeShader(std::string v, std::string f) :
     initPositionMap(Window::width, Window::height);
 }
 
-void VoxelizeShader::voxelize(Cloud *cloud) {
+void VoxelizeShader::voxelize(Volume *volume) {
     /* Reset volume and position map */
-    cloud->clearGPU();
+    volume->clearGPU();
     clearPositionMap();
 
     /* Disable quad visualization */
@@ -28,19 +28,20 @@ void VoxelizeShader::voxelize(Cloud *cloud) {
     bind();
     bindPositionMap();
     /* First voxelize pass 
-     * Initial back voxelization - also write nearest voxel positions to texture */
-    for (auto volume : cloud->volumes) {
-        bindVolume(cloud->spatial.position, volume);
-        renderQuad(cloud->spatial.position, volume, Camera::getP(), Light::V, Light::spatial.position, Voxelize);
+     * Initial black voxelization
+     * Write nearest voxel positions to texture */
+    for (auto cloudBoard : volume->cloudBoards) {
+        bindVolume(volume);
+        renderQuad(volume, cloudBoard, Camera::getP(), Light::V, Light::spatial.position, Voxelize);
         unbindVolume();
     }
 
     /* Second voxelize pass 
      * Secondary voxelization - use position texture to highlight voxels nearest to light 
      * Generate mips */
-    for (auto volume : cloud->volumes) {
-        bindVolume(cloud->spatial.position, volume);
-        renderQuad(cloud->spatial.position, volume, Camera::getP(), Light::V, Light::spatial.position, Positions);
+    for (auto cloudBoard : volume->cloudBoards) {
+        bindVolume(volume);
+        renderQuad(volume, cloudBoard, Camera::getP(), Light::V, Light::spatial.position, Positions);
         CHECK_GL_CALL(glGenerateMipmap(GL_TEXTURE_3D));
         unbindVolume();
     }
@@ -54,9 +55,9 @@ void VoxelizeShader::voxelize(Cloud *cloud) {
     CHECK_GL_CALL(glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE));
 }
 
-void VoxelizeShader::renderQuad(glm::vec3 cloudPos, Volume *volume, glm::mat4 P, glm::mat4 V, glm::vec3 lightPos, Stage stage) {
-    loadVector(getUniform("center"), cloudPos + volume->spatial.position);
-    loadFloat(getUniform("scale"), volume->spatial.scale.x);
+void VoxelizeShader::renderQuad(Volume *volume, Spatial cloudBoard, glm::mat4 P, glm::mat4 V, glm::vec3 lightPos, Stage stage) {
+    loadVector(getUniform("center"), volume->position + cloudBoard.position);
+    loadFloat(getUniform("scale"), cloudBoard.scale.x);
     loadVector(getUniform("lightPos"), Light::spatial.position);
 
     /* Bind quad */
@@ -86,8 +87,8 @@ void VoxelizeShader::renderQuad(glm::vec3 cloudPos, Volume *volume, glm::mat4 P,
         Vi = glm::transpose(Vi);
         loadMatrix(getUniform("Vi"), &Vi);
 
-        M *= glm::translate(glm::mat4(1.f), cloudPos + volume->spatial.position);
-        M *= glm::scale(glm::mat4(1.f), glm::vec3(volume->spatial.scale.x));
+        M *= glm::translate(glm::mat4(1.f), volume->position + cloudBoard.position);
+        M *= glm::scale(glm::mat4(1.f), glm::vec3(cloudBoard.scale.x));
         loadMatrix(getUniform("M"), &M);
 
         glm::mat3 N = glm::mat3(transpose(inverse(M * Vi)));
@@ -99,13 +100,13 @@ void VoxelizeShader::renderQuad(glm::vec3 cloudPos, Volume *volume, glm::mat4 P,
     CHECK_GL_CALL(glBindVertexArray(0));
 }
 
-void VoxelizeShader::bindVolume(glm::vec3 cloudPos, Volume *volume) {
+void VoxelizeShader::bindVolume(Volume *volume) {
     CHECK_GL_CALL(glActiveTexture(GL_TEXTURE0 + volume->volId));
     CHECK_GL_CALL(glBindImageTexture(0, volume->volId, 0, GL_TRUE, 0, GL_READ_WRITE, GL_RGBA16F));
   
-    loadVector(getUniform("xBounds"), cloudPos.x + volume->xBounds);
-    loadVector(getUniform("yBounds"), cloudPos.y + volume->yBounds);
-    loadVector(getUniform("zBounds"), cloudPos.z + volume->zBounds);
+    loadVector(getUniform("xBounds"), volume->position.x + volume->xBounds);
+    loadVector(getUniform("yBounds"), volume->position.y + volume->yBounds);
+    loadVector(getUniform("zBounds"), volume->position.z + volume->zBounds);
     loadInt(getUniform("voxelDim"), volume->dimension);
     loadFloat(getUniform("stepSize"), glm::min(volume->voxelSize.x, glm::min(volume->voxelSize.y, volume->voxelSize.z)));
 }
