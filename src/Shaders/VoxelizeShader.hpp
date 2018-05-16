@@ -32,6 +32,8 @@ class VoxelizeShader : public Shader {
         void unbindVolume();
 
         void initPositionMap(int, int);
+        void bindPositionMap();
+        void unbindPositionMap();
 };
 
 #endif

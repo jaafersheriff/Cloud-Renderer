@@ -26,6 +26,7 @@ void VoxelizeShader::voxelize(Cloud *cloud) {
     CHECK_GL_CALL(glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE));
 
     bind();
+    bindPositionMap();
     /* First voxelize pass 
      * Initial back voxelization - also write nearest voxel positions to texture */
     for (auto volume : cloud->volumes) {
@@ -43,6 +44,7 @@ void VoxelizeShader::voxelize(Cloud *cloud) {
         CHECK_GL_CALL(glGenerateMipmap(GL_TEXTURE_3D));
         unbindVolume();
     }
+    unbindPositionMap();
     unbind();
 
     /* Reset state */
@@ -62,7 +64,7 @@ void VoxelizeShader::renderQuad(Cloud *cloud, Volume *volume, glm::mat4 P, glm::
     CHECK_GL_CALL(glBindVertexArray(Library::quad->vaoId));
 
     /* Vertices and normals VBO */
-    // TODO : unecessary - clean this up
+    // TODO : no need to rebind buffer and atrib pointers
     int pos = getAttribute("vertPos");
     CHECK_GL_CALL(glEnableVertexAttribArray(pos));
     CHECK_GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, Library::quad->vertBufId));
@@ -111,14 +113,8 @@ void VoxelizeShader::renderQuad(Cloud *cloud, Volume *volume, glm::mat4 P, glm::
 
 void VoxelizeShader::bindVolume(Volume *volume) {
     CHECK_GL_CALL(glActiveTexture(GL_TEXTURE0 + volume->volId));
-    CHECK_GL_CALL(glBindTexture(GL_TEXTURE_3D, volume->volId));
     CHECK_GL_CALL(glBindImageTexture(0, volume->volId, 0, GL_TRUE, 0, GL_READ_WRITE, GL_RGBA16F));
-
-    /* Bind position map */
-    CHECK_GL_CALL(glBindImageTexture(1, positionMap->textureId, 0, GL_TRUE, 0, GL_READ_WRITE, GL_RGBA32F));
-    loadInt(getUniform("mapWidth"), positionMap->width);
-    loadInt(getUniform("mapHeight"), positionMap->height);
-   
+  
     loadVector(getUniform("xBounds"), volume->xBounds);
     loadVector(getUniform("yBounds"), volume->yBounds);
     loadVector(getUniform("zBounds"), volume->zBounds);
@@ -128,10 +124,17 @@ void VoxelizeShader::bindVolume(Volume *volume) {
 
 void VoxelizeShader::unbindVolume() {
     CHECK_GL_CALL(glBindImageTexture(0, 0, 0, GL_TRUE, 0, GL_READ_WRITE, GL_RGBA16F));
-    CHECK_GL_CALL(glBindImageTexture(1, 0, 0, GL_TRUE, 0, GL_READ_WRITE, GL_RGBA32F));
     CHECK_GL_CALL(glActiveTexture(GL_TEXTURE0));
-    CHECK_GL_CALL(glBindTexture(GL_TEXTURE_3D, 0));
-    CHECK_GL_CALL(glBindTexture(GL_TEXTURE_2D, 0));
+}
+
+void VoxelizeShader::bindPositionMap() {
+    CHECK_GL_CALL(glBindImageTexture(1, positionMap->textureId, 0, GL_TRUE, 0, GL_READ_WRITE, GL_RGBA32F));
+    loadInt(getUniform("mapWidth"), positionMap->width);
+    loadInt(getUniform("mapHeight"), positionMap->height);
+}
+
+void VoxelizeShader::unbindPositionMap() {
+    CHECK_GL_CALL(glBindImageTexture(1, 0, 0, GL_TRUE, 0, GL_READ_WRITE, GL_RGBA32F));
 }
 
 void VoxelizeShader::initPositionMap(int width, int height) {
