@@ -4,8 +4,6 @@
 #extension GL_NV_shader_atomic_float: enable
 #extension GL_NV_shader_atomic_fp16_vector: enable
 
-#define FLT_MAX 3.402823466e+38
-
 in vec3 fragPos;
 in vec3 fragNor;
 in vec2 fragTex;
@@ -57,11 +55,10 @@ void main() {
 
     ivec2 texCoords = ivec2(fragTex.x * mapWidth, fragTex.y * mapHeight);
     /* First Voxelize */
-    if (voxelizeStage == 0) {
+    if (voxelizeStage == 0 && sphereContrib > 0.f) {
         vec3 dir = normalize(fragNor); 
         float dist = radius * sphereContrib;
-        vec4 oldNearest = imageLoad(positionMap, texCoords);
-        vec3 nearestPos = oldNearest.a > 0.f ? oldNearest.xyz : vec3(FLT_MAX, FLT_MAX, FLT_MAX);
+        vec3 nearestPos = imageLoad(positionMap, texCoords).xyz;
         vec3 start = fragPos - dir * dist;
         /* Write to volume in spherical shape from billboard to light source */
         for(float i = 0; i < 2*dist; i += stepSize) {
@@ -75,9 +72,7 @@ void main() {
             }
         }
         /* Write nearest voxel position to position map */
-        if (nearestPos.x != FLT_MAX) {
-            imageStore(positionMap, texCoords, vec4(nearestPos, 1.f));
-        }
+        imageStore(positionMap, texCoords, vec4(nearestPos, 1.f));
     }
     /* Second Voxelize */
     else if (voxelizeStage == 1) {

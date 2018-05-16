@@ -36,6 +36,8 @@ void VoxelizeShader::voxelize(Volume *volume) {
         renderQuad(volume->position, cloudBoard, Camera::getP(), Light::V, Light::spatial.position, Voxelize);
     }
 
+    glFinish();
+
     /* Second voxelize pass 
      * Use position texture to highlight voxels nearest to light */
     for (auto cloudBoard : volume->cloudBoards) {
@@ -144,5 +146,6 @@ void VoxelizeShader::initPositionMap(int width, int height) {
 }
 
 void VoxelizeShader::clearPositionMap() {
-    CHECK_GL_CALL(glClearTexImage(positionMap->textureId, 0, GL_RGBA, GL_FLOAT, nullptr));
+    glm::vec4 data(FLT_MAX, FLT_MAX, FLT_MAX, 0.f);
+    CHECK_GL_CALL(glClearTexImage(positionMap->textureId, 0, GL_RGBA, GL_FLOAT, &data[0]));
 }
