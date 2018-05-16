@@ -23,7 +23,6 @@ const std::string RESOURCE_DIR = "../res/";
 bool lightVoxelize = true;
 bool coneTrace = true;
 bool lightView = false;
-bool showLightMap = true;
 int Window::width = 1280;
 int Window::height = 720;
 
@@ -178,6 +177,7 @@ void createImGuiPanes() {
         [&]() {
             ImGui::Begin("Light");
             ImGui::SliderFloat3("Position", glm::value_ptr(Light::spatial.position), -100.f, 100.f);
+            static bool showLightMap = true;
             ImGui::Checkbox("Show map", &showLightMap);
             if (showLightMap) {
                 ImGui::Image((ImTextureID)voxelizeShader->positionMap->textureId, ImVec2(100, 100));
@@ -188,6 +188,22 @@ void createImGuiPanes() {
     imGuiFuncs.push_back(
         [&]() {
             ImGui::Begin("Billboards");
+            static glm::vec3 newPos(0.f);
+            static float scale = 1.f;
+            ImGui::SliderFloat3("Offset", glm::value_ptr(newPos), -20.f, 20.f);
+            ImGui::SliderFloat("Scale", &scale, 1.f, 20.f);
+            if (ImGui::Button("Add Billboard")) {
+                volume->addCloudBoard(Spatial(newPos, glm::vec3(scale), glm::vec3(0.f)));
+            }
+            static int currBoard = 0;
+            ImGui::SliderInt("Curr board", &currBoard, 0, volume->cloudBoards.size() - 1);
+            Spatial *s = &volume->cloudBoards[currBoard];
+            ImGui::SliderFloat3("Position", glm::value_ptr(s->position), -20.f, 20.f);
+            ImGui::SliderFloat("Cscale", &s->scale.x, 1.f, 20.f);
+            if (ImGui::Button("Delete") && volume->cloudBoards.size()) {
+                volume->cloudBoards.erase(volume->cloudBoards.begin() + currBoard);
+                currBoard = glm::max(0, currBoard - 1);
+            }
             ImGui::End();
         } 
     );
