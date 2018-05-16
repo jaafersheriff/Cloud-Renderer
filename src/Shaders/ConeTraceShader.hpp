@@ -18,7 +18,7 @@ class ConeTraceShader : public Shader {
         float vctLodOffset = 0.1f;
 
     private:
-        void bindVolume(Volume *);
+        void bindVolume(glm::vec3, Volume *);
         void unbindVolume();
 };
 

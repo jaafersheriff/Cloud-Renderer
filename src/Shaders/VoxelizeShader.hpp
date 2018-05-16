@@ -18,7 +18,7 @@ class VoxelizeShader : public Shader {
         };
 
         /* Generic function to render quad -- takes Stage as a parameter to orchestrate GL binds */
-        void renderQuad(Cloud *, Volume *, glm::mat4, glm::mat4, glm::vec3, VoxelizeShader::Stage);
+        void renderQuad(glm::vec3, Volume *, glm::mat4, glm::mat4, glm::vec3, VoxelizeShader::Stage);
 
         /* Generate 3D volume */
         void voxelize(Cloud *);
@@ -28,7 +28,7 @@ class VoxelizeShader : public Shader {
         void clearPositionMap();
 
     private:
-        void bindVolume(Volume *);
+        void bindVolume(glm::vec3, Volume *);
         void unbindVolume();
 
         void initPositionMap(int, int);

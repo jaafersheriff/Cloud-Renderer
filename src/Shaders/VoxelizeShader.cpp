@@ -30,8 +30,8 @@ void VoxelizeShader::voxelize(Cloud *cloud) {
     /* First voxelize pass 
      * Initial back voxelization - also write nearest voxel positions to texture */
     for (auto volume : cloud->volumes) {
-        bindVolume(volume);
-        renderQuad(cloud, volume, Camera::getP(), Light::V, Light::spatial.position, Voxelize);
+        bindVolume(cloud->spatial.position, volume);
+        renderQuad(cloud->spatial.position, volume, Camera::getP(), Light::V, Light::spatial.position, Voxelize);
         unbindVolume();
     }
 
@@ -39,8 +39,8 @@ void VoxelizeShader::voxelize(Cloud *cloud) {
      * Secondary voxelization - use position texture to highlight voxels nearest to light 
      * Generate mips */
     for (auto volume : cloud->volumes) {
-        bindVolume(volume);
-        renderQuad(cloud, volume, Camera::getP(), Light::V, Light::spatial.position, Positions);
+        bindVolume(cloud->spatial.position, volume);
+        renderQuad(cloud->spatial.position, volume, Camera::getP(), Light::V, Light::spatial.position, Positions);
         CHECK_GL_CALL(glGenerateMipmap(GL_TEXTURE_3D));
         unbindVolume();
     }
@@ -54,8 +54,8 @@ void VoxelizeShader::voxelize(Cloud *cloud) {
     CHECK_GL_CALL(glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE));
 }
 
-void VoxelizeShader::renderQuad(Cloud *cloud, Volume *volume, glm::mat4 P, glm::mat4 V, glm::vec3 lightPos, Stage stage) {
-    loadVector(getUniform("center"), cloud->spatial.position + volume->spatial.position);
+void VoxelizeShader::renderQuad(glm::vec3 cloudPos, Volume *volume, glm::mat4 P, glm::mat4 V, glm::vec3 lightPos, Stage stage) {
+    loadVector(getUniform("center"), cloudPos + volume->spatial.position);
     loadFloat(getUniform("scale"), volume->spatial.scale.x);
     loadVector(getUniform("lightPos"), Light::spatial.position);
 
@@ -98,7 +98,7 @@ void VoxelizeShader::renderQuad(Cloud *cloud, Volume *volume, glm::mat4 P, glm::
         Vi = glm::transpose(Vi);
         loadMatrix(getUniform("Vi"), &Vi);
 
-        M *= glm::translate(glm::mat4(1.f), cloud->spatial.position + volume->spatial.position);
+        M *= glm::translate(glm::mat4(1.f), cloudPos + volume->spatial.position);
         M *= glm::scale(glm::mat4(1.f), glm::vec3(volume->spatial.scale.x));
         loadMatrix(getUniform("M"), &M);
 
@@ -111,13 +111,13 @@ void VoxelizeShader::renderQuad(Cloud *cloud, Volume *volume, glm::mat4 P, glm::
     CHECK_GL_CALL(glBindVertexArray(0));
 }
 
-void VoxelizeShader::bindVolume(Volume *volume) {
+void VoxelizeShader::bindVolume(glm::vec3 cloudPos, Volume *volume) {
     CHECK_GL_CALL(glActiveTexture(GL_TEXTURE0 + volume->volId));
     CHECK_GL_CALL(glBindImageTexture(0, volume->volId, 0, GL_TRUE, 0, GL_READ_WRITE, GL_RGBA16F));
   
-    loadVector(getUniform("xBounds"), volume->xBounds);
-    loadVector(getUniform("yBounds"), volume->yBounds);
-    loadVector(getUniform("zBounds"), volume->zBounds);
+    loadVector(getUniform("xBounds"), cloudPos.x + volume->xBounds);
+    loadVector(getUniform("yBounds"), cloudPos.y + volume->yBounds);
+    loadVector(getUniform("zBounds"), cloudPos.z + volume->zBounds);
     loadInt(getUniform("voxelDim"), volume->dimension);
     loadFloat(getUniform("stepSize"), glm::min(volume->voxelSize.x, glm::min(volume->voxelSize.y, volume->voxelSize.z)));
 }

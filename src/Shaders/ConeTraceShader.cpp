@@ -12,7 +12,7 @@ ConeTraceShader::ConeTraceShader(std::string v, std::string f) :
 void ConeTraceShader::coneTrace(Cloud *cloud) {
     bind();
     for (auto volume : cloud->volumes) {
-        bindVolume(volume);
+        bindVolume(cloud->spatial.position, volume);
 
         /* Bind cone tracing params */
         loadInt(getUniform("vctSteps"), vctSteps);
@@ -60,15 +60,15 @@ void ConeTraceShader::coneTrace(Cloud *cloud) {
     unbind();
 }
 
-void ConeTraceShader::bindVolume(Volume *volume) {
+void ConeTraceShader::bindVolume(glm::vec3 cloudPos, Volume *volume) {
     CHECK_GL_CALL(glActiveTexture(GL_TEXTURE0 + volume->volId));
     CHECK_GL_CALL(glBindTexture(GL_TEXTURE_3D, volume->volId));
     loadInt(getUniform("volumeTexture"), volume->volId);
     
+    loadVector(getUniform("xBounds"), cloudPos.x + volume->xBounds);
+    loadVector(getUniform("yBounds"), cloudPos.y + volume->yBounds);
+    loadVector(getUniform("zBounds"), cloudPos.z + volume->zBounds);
     loadInt(getUniform("voxelDim"), volume->dimension);
-    loadVector(getUniform("xBounds"), volume->xBounds);
-    loadVector(getUniform("yBounds"), volume->yBounds);
-    loadVector(getUniform("zBounds"), volume->zBounds);
 }
 
 void ConeTraceShader::unbindVolume() {
