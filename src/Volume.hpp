@@ -17,7 +17,7 @@ class Volume {
 
         Volume(int, glm::vec2, glm::vec3, glm::vec2, int);
 
-        void updateVoxelData();
+        void updateVoxelData(glm::vec3);
         void clearGPU();
         void clearCPU();
 
@@ -26,11 +26,9 @@ class Volume {
         glm::vec2 yBounds;      // Min and max y-mapping in world-space
         glm::vec2 zBounds;      // Min and max z-mapping in world-space
         int dimension;          // Voxels per dimension 
-
-        int voxelCount = 0;     // Count of voxels containing any data
         glm::vec3 voxelSize;    // World-size of individual voxels
 
-        int levels;         // Mipmap levels
+        int levels;             // Mipmap levels
 
         GLuint volId;
 

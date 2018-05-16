@@ -53,7 +53,7 @@ void Volume::clearCPU() {
     }
 }
 
-void Volume::updateVoxelData() {
+void Volume::updateVoxelData(glm::vec3 cloudPos) {
     /* Pull volume data out of GPU */
     std::vector<float> buffer(voxelData.size() * 4);
     CHECK_GL_CALL(glBindTexture(GL_TEXTURE_3D, volId));
@@ -65,7 +65,6 @@ void Volume::updateVoxelData() {
         (xBounds.y - xBounds.x) / dimension,
         (yBounds.y - yBounds.x) / dimension,
         (zBounds.y - zBounds.x) / dimension);
-    voxelCount = 0;
     for (unsigned int i = 0; i < voxelData.size(); i++) {
         float r = buffer[4*i + 0];
         float g = buffer[4*i + 1];
@@ -73,10 +72,9 @@ void Volume::updateVoxelData() {
         float a = buffer[4*i + 3];
         /* Update voxel data if data exists */
         if (r || g || b || a) {
-            voxelCount++;
             glm::ivec3 in = get3DIndices(4*i);       // voxel index 
             glm::vec3 wPos = reverseVoxelIndex(in);  // world space
-            voxelData[i].spatial.position = wPos;
+            voxelData[i].spatial.position = cloudPos + wPos;
             voxelData[i].spatial.scale = voxelSize;
             voxelData[i].data = glm::vec4(r, g, b, a);
         }
