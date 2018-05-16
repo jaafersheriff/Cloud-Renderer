@@ -47,7 +47,6 @@ ConeTraceShader * coneShader;
 #define I_CLOUD_OFFSET 3.f
 #define I_VOLUME_DIMENSION 32
 #define I_VOLUME_BOUNDS glm::vec2(-30.f, 30.f)
-#define I_VOLUME_SCALE glm::vec2(10.f)
 #define I_VOLUME_MIPS 4
 Cloud *cloud;
 
@@ -72,7 +71,7 @@ int main() {
     }
 
     /* Create volume */
-    cloud = new Cloud(I_CLOUD_BOARDS, I_CLOUD_POSITION, I_CLOUD_SCALE, I_CLOUD_OFFSET, I_VOLUME_DIMENSION, I_VOLUME_BOUNDS, I_VOLUME_SCALE, I_VOLUME_MIPS);
+    cloud = new Cloud(I_CLOUD_BOARDS, I_CLOUD_POSITION, I_CLOUD_SCALE, I_CLOUD_OFFSET, I_VOLUME_DIMENSION, I_VOLUME_BOUNDS, I_VOLUME_MIPS);
 
     /* Create meshes and textures */
     Library::init(RESOURCE_DIR + "cloud.png", RESOURCE_DIR + "cloudMap.png");
@@ -149,7 +148,7 @@ int main() {
         if (voxelizeShader->isEnabled()) {
             voxelizeShader->bind();
             for (auto volume : cloud->volumes) {
-                voxelizeShader->renderQuad(cloud, volume, Camera::getP(), V, pos, VoxelizeShader::None);
+                voxelizeShader->renderQuad(cloud->spatial.position, volume, Camera::getP(), V, pos, VoxelizeShader::None);
             }
             voxelizeShader->unbind();
         }
@@ -239,10 +238,15 @@ void createImGuiPanes() {
             ImGui::Begin("VXGI");
             // ImGui::Text("Voxels in scene : %d", cloud->voxelCount);
             ImGui::SliderFloat3("Position", glm::value_ptr(cloud->spatial.position), -20.f, 20.f);
-            // ImGui::SliderFloat("Scale", &volume->quadScale.x, 0.f, 20.f);
-            // ImGui::SliderFloat2("XBounds", glm::value_ptr(cloud->xBounds), -20.f, 20.f);
-            // ImGui::SliderFloat2("YBounds", glm::value_ptr(cloud->yBounds), -20.f, 20.f);
-            // ImGui::SliderFloat2("ZBounds", glm::value_ptr(cloud->zBounds), -20.f, 20.f);
+            if (ImGui::SliderFloat("XBounds", &cloud->spatial.scale.x, 0.1f, 50.f) ||
+                ImGui::SliderFloat("YBounds", &cloud->spatial.scale.y, 0.1f, 50.f) ||
+                ImGui::SliderFloat("ZBounds", &cloud->spatial.scale.z, 0.1f, 50.f)) {
+                for (auto v : cloud->volumes) {
+                    v->xBounds = glm::vec2(-cloud->spatial.scale.x, cloud->spatial.scale.x);
+                    v->yBounds = glm::vec2(-cloud->spatial.scale.y, cloud->spatial.scale.y);
+                    v->zBounds = glm::vec2(-cloud->spatial.scale.z, cloud->spatial.scale.z);
+                }
+            }
 
             bool b = voxelizeShader->isEnabled();
             ImGui::Checkbox("Render underlying quad", &b);

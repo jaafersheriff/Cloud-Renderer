@@ -6,7 +6,7 @@
 
 class Cloud {
     public:
-        Cloud(int, glm::vec3, glm::vec3, float, int, glm::vec2, glm::vec2, int);
+        Cloud(int, glm::vec3, glm::vec3, float, int, glm::vec2, int);
         std::vector<Volume *> volumes;
         Spatial spatial;
 
