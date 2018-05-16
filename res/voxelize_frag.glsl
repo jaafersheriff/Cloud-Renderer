@@ -4,6 +4,8 @@
 #extension GL_NV_shader_atomic_float: enable
 #extension GL_NV_shader_atomic_fp16_vector: enable
 
+#define FLT_MAX 3.402823466e+38
+
 in vec3 fragPos;
 in vec3 fragNor;
 in vec2 fragTex;
@@ -53,12 +55,15 @@ void main() {
     sphereContrib = sqrt(max(0, 1 - sphereContrib * sphereContrib));
     color = vec4(sphereContrib);
 
-    ivec2 texCoords = ivec2(fragTex.x * mapWidth, fragTex.y * mapHeight);
+    ivec2 texCoords = ivec2(gl_FragCoord.xy);
     /* First Voxelize */
     if (voxelizeStage == 0 && sphereContrib > 0.f) {
         vec3 dir = normalize(fragNor); 
         float dist = radius * sphereContrib;
-        vec3 nearestPos = imageLoad(positionMap, texCoords).xyz;
+        vec4 nearestPos = imageLoad(positionMap, texCoords);
+        if (nearestPos.a < 1.f) {
+            nearestPos = vec4(FLT_MAX, FLT_MAX, FLT_MAX, 0.f);
+        }
         vec3 start = fragPos - dir * dist;
         /* Write to volume in spherical shape from billboard to light source */
         for(float i = 0; i < 2*dist; i += stepSize) {
@@ -67,12 +72,12 @@ void main() {
             imageAtomicAdd(volume, voxelIndex, f16vec4(0, 0, 0, 1));
 
             /* Keep track of nearest voxel position */
-            if (distance(worldPos, lightPos) < distance(nearestPos, lightPos)) {
-                nearestPos = worldPos;
+            if (distance(worldPos, lightPos) < distance(nearestPos.xyz, lightPos)) {
+                nearestPos = vec4(worldPos, 1.f);
             }
         }
         /* Write nearest voxel position to position map */
-        imageStore(positionMap, texCoords, vec4(nearestPos, 1.f));
+        imageStore(positionMap, texCoords, nearestPos);
     }
     /* Second Voxelize */
     else if (voxelizeStage == 1) {

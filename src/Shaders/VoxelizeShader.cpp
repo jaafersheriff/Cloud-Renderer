@@ -146,6 +146,5 @@ void VoxelizeShader::initPositionMap(int width, int height) {
 }
 
 void VoxelizeShader::clearPositionMap() {
-    glm::vec4 data(FLT_MAX, FLT_MAX, FLT_MAX, 0.f);
-    CHECK_GL_CALL(glClearTexImage(positionMap->textureId, 0, GL_RGBA, GL_FLOAT, &data[0]));
+    CHECK_GL_CALL(glClearTexImage(positionMap->textureId, 0, GL_RGBA, GL_FLOAT, nullptr));
 }
