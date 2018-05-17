@@ -26,6 +26,10 @@ void VoxelShader::render(std::vector<Volume::Voxel> &voxels, glm::mat4 P, glm::m
     glm::mat4 M;
     for (auto v : voxels) {
         if (v.data.r || v.data.g || v.data.b || v.data.a) {
+            if ((disableBlack && glm::vec3(v.data) == glm::vec3(0.f)) ||
+                (disableWhite && v.data == glm::vec4(1.f))) {
+                continue;
+            }
             M = glm::mat4(1.f);
             M *= glm::translate(glm::mat4(1.f), v.spatial.position);
             M *= glm::scale(glm::mat4(1.f), v.spatial.scale);

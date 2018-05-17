@@ -15,6 +15,8 @@ class VoxelShader : public Shader {
         void render(std::vector<Volume::Voxel> &, glm::mat4, glm::mat4);
 
         bool useOutline = true;
+        bool disableWhite = false;
+        bool disableBlack = false;
         float alpha = 0.25f;
 };
 
