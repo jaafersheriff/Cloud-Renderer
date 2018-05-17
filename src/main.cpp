@@ -176,7 +176,7 @@ void createImGuiPanes() {
     imGuiFuncs.push_back(
         [&]() {
             ImGui::Begin("Light");
-            ImGui::SliderFloat3("Position", glm::value_ptr(Light::spatial.position), -100.f, 100.f);
+            ImGui::SliderFloat3("Position", glm::value_ptr(Light::spatial.position), -1000.f, 1000.f);
             static bool showLightMap = true;
             ImGui::Checkbox("Show map", &showLightMap);
             if (showLightMap) {
