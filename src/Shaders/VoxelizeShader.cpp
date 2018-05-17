@@ -29,21 +29,49 @@ void VoxelizeShader::voxelize(Volume *volume) {
     bindPositionMap();
     bindVolume(volume);
 
-    /* First voxelize pass 
-     * Initial black voxelization
-     * Write nearest voxel positions to texture */
-    for (auto cloudBoard : volume->cloudBoards) {
-        renderQuad(volume->position, cloudBoard, Camera::getP(), Light::V, Light::spatial.position, Voxelize);
-    }
+    /* Bind quad */
+    CHECK_GL_CALL(glBindVertexArray(Library::quad->vaoId));
 
-    glFinish();
+    /* Bind light's perspective */
+    loadMatrix(getUniform("P"), &Camera::getP());
+    loadMatrix(getUniform("V"), &Light::V);
+    glm::mat4 Vi = Light::V;
+    Vi[3][0] = Vi[3][1] = Vi[3][2] = 0.f;
+    Vi = glm::transpose(Vi);
+    loadMatrix(getUniform("Vi"), &Vi);
+    loadVector(getUniform("lightPos"), Light::spatial.position);
+
+    /* First voxelize pass 
+     * Initial black voxels using billboards
+     * Write nearest voxel positions to texture */
+    loadInt(getUniform("voxelizeStage"), Voxelize);
+    for (auto cloudBoard : volume->cloudBoards) {
+        loadVector(getUniform("center"), volume->position + cloudBoard.position);
+        loadFloat(getUniform("scale"), cloudBoard.scale.x);
+        glm::mat4 M = glm::translate(glm::mat4(1.f), volume->position + cloudBoard.position);
+        M *= glm::scale(glm::mat4(1.f), glm::vec3(cloudBoard.scale.x));
+        loadMatrix(getUniform("M"), &M);
+        glm::mat3 N = glm::mat3(transpose(inverse(M * Vi)));
+        loadMatrix(getUniform("N"), &N);
+        CHECK_GL_CALL(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
+        glFinish();
+    }
 
     /* Second voxelize pass 
-     * Use position texture to highlight voxels nearest to light */
-    for (auto cloudBoard : volume->cloudBoards) {
-        renderQuad(volume->position, cloudBoard, Camera::getP(), Light::V, Light::spatial.position, Positions);
-    }
+     * Render full screen position texture 
+     * Highlight voxels nearest to light */
+    loadInt(getUniform("voxelizeStage"), Positions);
+    glm::mat4 M = glm::mat4(1.f);
+    loadMatrix(getUniform("P"), &M);
+    loadMatrix(getUniform("V"), &M);
+    loadMatrix(getUniform("Vi"), &M);
+    loadMatrix(getUniform("N"), &M);
+    M *= glm::scale(glm::mat4(1.f), glm::vec3(2.f));
+    loadMatrix(getUniform("M"), &M);
+    CHECK_GL_CALL(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
 
+    /* Wrap up shader*/
+    CHECK_GL_CALL(glBindVertexArray(0));
     CHECK_GL_CALL(glGenerateMipmap(GL_TEXTURE_3D));
     unbindVolume();
     unbindPositionMap();
@@ -54,51 +82,6 @@ void VoxelizeShader::voxelize(Volume *volume) {
     CHECK_GL_CALL(glEnable(GL_CULL_FACE));
     CHECK_GL_CALL(glDepthMask(GL_TRUE));
     CHECK_GL_CALL(glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE));
-}
-
-void VoxelizeShader::renderQuad(glm::vec3 cloudPos, Spatial cloudBoard, glm::mat4 P, glm::mat4 V, glm::vec3 lightPos, Stage stage) {
-    loadVector(getUniform("center"), cloudPos + cloudBoard.position);
-    loadFloat(getUniform("scale"), cloudBoard.scale.x);
-    loadVector(getUniform("lightPos"), Light::spatial.position);
-
-    /* Bind quad */
-    CHECK_GL_CALL(glBindVertexArray(Library::quad->vaoId));
-
-    /* Denotes voxelization stage */
-    loadInt(getUniform("voxelizeStage"), stage);
-
-    glm::mat4 M(1.f);
-    /* Render a full-screen position map quad for sampling 
-     * Implemented in same shader to reuse volume functions */
-    if (stage == Positions) {
-        loadMatrix(getUniform("P"), &M);
-        loadMatrix(getUniform("V"), &M);
-        loadMatrix(getUniform("Vi"), &M);
-        loadMatrix(getUniform("N"), &M);
-        M *= glm::scale(glm::mat4(1.f), glm::vec3(2.f));
-        loadMatrix(getUniform("M"), &M);
-        CHECK_GL_CALL(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
-    }
-    /* Render cloud billboard from the provided perspective */
-    else {
-        loadMatrix(getUniform("P"), &P);
-        loadMatrix(getUniform("V"), &V);
-        glm::mat4 Vi = V;
-        Vi[3][0] = Vi[3][1] = Vi[3][2] = 0.f;
-        Vi = glm::transpose(Vi);
-        loadMatrix(getUniform("Vi"), &Vi);
-
-        M *= glm::translate(glm::mat4(1.f), cloudPos + cloudBoard.position);
-        M *= glm::scale(glm::mat4(1.f), glm::vec3(cloudBoard.scale.x));
-        loadMatrix(getUniform("M"), &M);
-
-        glm::mat3 N = glm::mat3(transpose(inverse(M * Vi)));
-        loadMatrix(getUniform("N"), &N);
-        CHECK_GL_CALL(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
-    };
-
-    /* Wrap up shader */
-    CHECK_GL_CALL(glBindVertexArray(0));
 }
 
 void VoxelizeShader::bindVolume(Volume *volume) {
