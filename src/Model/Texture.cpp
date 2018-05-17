@@ -11,30 +11,20 @@ Texture::Texture(std::string fileName) {
     uint8_t *data = loadImageData(fileName);
 
     /* Copy to gpu */
-    copyToGPU(data);
-
-    /* Free texture data */
-    stbi_image_free(data);
-}
-
-Texture::Texture() {
-    width = height = components = -1;
-
-}
-
-uint8_t* Texture::loadImageData(const std::string fileName) {
-    uint8_t *data;
-
-    stbi_set_flip_vertically_on_load(true);
-    data = stbi_load(fileName.c_str(), &width, &height, &components, STBI_rgb_alpha);
-
     if (data) {
+        copyToGPU(data);
         std::cout << "Loaded texture (" << width << ", " << height << "): " << fileName << std::endl;
     }
     else {
         std::cerr << "Could not find texture file " << fileName << std::endl;
     }
-    return data;
+
+    stbi_image_free(data);
+}
+
+uint8_t* Texture::loadImageData(const std::string fileName) {
+    stbi_set_flip_vertically_on_load(true);
+    return stbi_load(fileName.c_str(), &width, &height, &components, STBI_rgb_alpha);
 }
 
 void Texture::copyToGPU(const uint8_t *data) {

@@ -5,21 +5,29 @@
 #include "Model/Mesh.hpp"
 #include "Model/Texture.hpp"
 
+#include <map>
+
 class Library {
     public:
         static Mesh * cube;
         static Mesh * quad;
-        static Texture * cloudDiffuseTexture;
-        static Texture * cloudNormalTexture;
+        static std::map<std::string, Texture *> textures;
 
-        static void init(std::string diffuseName, std::string normalName) {
+        static void init() {
             /* Create meshes */
             createCube();
             createQuad();
+        }
 
-            /* Create textures */
-            cloudDiffuseTexture = new Texture(diffuseName);
-            cloudNormalTexture = new Texture(normalName);
+
+        static void addTexture(std::string fileName) {
+            Texture *texture = new Texture(fileName);
+            if (texture->textureId) {
+                textures[fileName] = texture;
+            }
+            else {
+                delete texture;
+            }
         }
 
         static void createCube() {

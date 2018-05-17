@@ -31,8 +31,6 @@ glm::mat4 Light::V(1.f);
 
 Mesh * Library::cube;
 Mesh * Library::quad;
-Texture * Library::cloudDiffuseTexture;
-Texture * Library::cloudNormalTexture;
 
 /* Shaders */
 BillboardShader * billboardShader;
@@ -80,7 +78,9 @@ int main() {
     }
 
     /* Create meshes and textures */
-    Library::init(RESOURCE_DIR + "cloud.png", RESOURCE_DIR + "cloudMap.png");
+    Library::init();
+    Library::addTexture(RESOURCE_DIR + "cloud.png");
+    Library::addTexture(RESOURCE_DIR + "cloudmap.png");
 
     /* Create shaders */
     billboardShader = new BillboardShader(RESOURCE_DIR + "billboard_vert.glsl", RESOURCE_DIR + "cloud_frag.glsl");
