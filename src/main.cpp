@@ -36,10 +36,7 @@ Volume *volume;
 
 /* Light */
 Spatial Light::spatial = Spatial(glm::vec3(10.f, 10.f, -10.f), glm::vec3(3.f), glm::vec3(0.f));
-glm::mat4 Light::P(1.f);
 glm::mat4 Light::V(1.f);
-float Light::nearPlane(0.01f);
-float Light::farPlane(10000.f);
 
 /* Library things */
 const std::string RESOURCE_DIR("../res/");
@@ -120,7 +117,7 @@ int main() {
         Camera::update(Window::timeStep);
 
         /* Update light */
-        Light::update(volume->position, volume->xBounds, volume->yBounds);
+        Light::update(volume->position);
 
         /* IMGUI */
         if (Window::isImGuiEnabled()) {
@@ -149,13 +146,12 @@ int main() {
         billboardShader->render(cloudsBillboards, Library::textures[diffuseTexName], Library::textures[normalTexName]);
 
         /* Render Optional */
-        glm::mat4 P = lightView ? Light::P : Camera::getP();
         glm::mat4 V = lightView ? Light::V : Camera::getV();
         /* Draw voxels to the screen -- optional */
         if (voxelShader->isEnabled()) {
             volume->updateVoxelData();
             voxelShader->bind();
-            voxelShader->render(volume, P, V);
+            voxelShader->render(volume, Camera::getP(), V);
             voxelShader->unbind();
         }
 
