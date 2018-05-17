@@ -15,11 +15,11 @@ class Texture {
         GLuint textureId = 0;
 
         Texture(std::string);
+        Texture() {};
 
-        int width;
-        int height;
-        int components;
-        GLenum mode;
+        int width = 0;
+        int height = 0;
+        int components = 0;
 
     private:
         uint8_t* loadImageData(const std::string);

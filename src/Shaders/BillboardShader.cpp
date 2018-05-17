@@ -9,8 +9,8 @@ BillboardShader::BillboardShader(std::string v, std::string f) :
     init();
 }
 
-void BillboardShader::render(std::vector<Spatial *> &targets) {
-    if (!enabled) {
+void BillboardShader::render(std::vector<Spatial *> &targets, Texture *diffuseTex, Texture *normalTex) {
+    if (!enabled || !diffuseTex || !normalTex) {
         return;
     }
 
@@ -36,12 +36,12 @@ void BillboardShader::render(std::vector<Spatial *> &targets) {
     CHECK_GL_CALL(glBindVertexArray(Library::quad->vaoId));
 
     /* Bind textures */
-    loadInt(getUniform("diffuseTex"), Library::cloudDiffuseTexture->textureId);
-    CHECK_GL_CALL(glActiveTexture(GL_TEXTURE0 + Library::cloudDiffuseTexture->textureId));
-    CHECK_GL_CALL(glBindTexture(GL_TEXTURE_2D, Library::cloudDiffuseTexture->textureId));
-    loadInt(getUniform("normalTex"), Library::cloudNormalTexture->textureId);
-    CHECK_GL_CALL(glActiveTexture(GL_TEXTURE0 + Library::cloudNormalTexture->textureId));
-    CHECK_GL_CALL(glBindTexture(GL_TEXTURE_2D, Library::cloudNormalTexture->textureId));
+    loadInt(getUniform("diffuseTex"), diffuseTex->textureId);
+    CHECK_GL_CALL(glActiveTexture(GL_TEXTURE0 + diffuseTex->textureId));
+    CHECK_GL_CALL(glBindTexture(GL_TEXTURE_2D, diffuseTex->textureId));
+    loadInt(getUniform("normalTex"), normalTex->textureId);
+    CHECK_GL_CALL(glActiveTexture(GL_TEXTURE0 + normalTex->textureId));
+    CHECK_GL_CALL(glBindTexture(GL_TEXTURE_2D, normalTex->textureId));
 
     glm::mat4 M;
     for (auto target : targets) {
@@ -49,7 +49,7 @@ void BillboardShader::render(std::vector<Spatial *> &targets) {
         M *= glm::translate(glm::mat4(1.f), target->position);
         // TODO : fix rotation
         // M *= glm::rotate(glm::mat4(1.f), glm::radians(cloud->rotation), glm::vec3(0, 0, 1));
-        glm::vec2 tScale(Library::cloudDiffuseTexture->width, Library::cloudDiffuseTexture->height);
+        glm::vec2 tScale(diffuseTex->width, diffuseTex->height);
         M *= glm::scale(glm::mat4(1.f), target->scale * glm::vec3(glm::normalize(tScale), 1.f));
         loadMatrix(getUniform("M"), &M);
 

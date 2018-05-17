@@ -14,7 +14,7 @@ class BillboardShader : public Shader {
         BillboardShader(std::string, std::string);
 
         /* Render billboard list */
-        void render(std::vector<Spatial *> &);
+        void render(std::vector<Spatial *> &, Texture *, Texture *);
 };
 
 #endif

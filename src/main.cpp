@@ -19,18 +19,23 @@
 
 /* Initial values */
 #define IMGUI_FONT_SIZE 13.f
-const std::string RESOURCE_DIR = "../res/";
 bool lightVoxelize = true;
 bool coneTrace = true;
 bool lightView = false;
 int Window::width = 1280;
 int Window::height = 720;
 
+/* Light */
 Spatial Light::spatial = Spatial(glm::vec3(10.f, 10.f, -10.f), glm::vec3(3.f), glm::vec3(0.f));
 glm::mat4 Light::V(1.f);
 
+/* Library things */
+const std::string RESOURCE_DIR("../res/");
+const std::string diffuseTexName(RESOURCE_DIR + "cloud.png");
+const std::string normalTexName(RESOURCE_DIR + "cloudmap.png");
 Mesh * Library::cube;
 Mesh * Library::quad;
+std::map<std::string, Texture *> Library::textures;
 
 /* Shaders */
 BillboardShader * billboardShader;
@@ -79,8 +84,8 @@ int main() {
 
     /* Create meshes and textures */
     Library::init();
-    Library::addTexture(RESOURCE_DIR + "cloud.png");
-    Library::addTexture(RESOURCE_DIR + "cloudmap.png");
+    Library::addTexture(diffuseTexName);
+    Library::addTexture(normalTexName);
 
     /* Create shaders */
     billboardShader = new BillboardShader(RESOURCE_DIR + "billboard_vert.glsl", RESOURCE_DIR + "cloud_frag.glsl");
@@ -138,7 +143,7 @@ int main() {
         }
 
         /* Render cloud billboards */
-        billboardShader->render(cloudsBillboards);
+        billboardShader->render(cloudsBillboards, Library::textures[diffuseTexName], Library::textures[normalTexName]);
 
         /* Render Optional */
         glm::mat4 V = lightView ? Light::V : Camera::getV();
