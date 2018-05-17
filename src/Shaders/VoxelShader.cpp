@@ -13,7 +13,7 @@ VoxelShader::VoxelShader(std::string v, std::string f) :
 }
 
 /* Visualize voxels */
-void VoxelShader::render(std::vector<Volume::Voxel> &voxels, glm::mat4 P, glm::mat4 V) {
+void VoxelShader::render(Volume *volume, glm::mat4 P, glm::mat4 V) {
     /* Bind projeciton, view, inverise view matrices */
     loadMatrix(getUniform("P"), &P);
     loadMatrix(getUniform("V"), &V);
@@ -24,7 +24,26 @@ void VoxelShader::render(std::vector<Volume::Voxel> &voxels, glm::mat4 P, glm::m
     CHECK_GL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Library::cube->eleBufId));
 
     glm::mat4 M;
-    for (auto v : voxels) {
+    
+    /* Render bounds */
+    if (!disableBounds) {
+        M = glm::mat4(1.f);
+        M *= glm::translate(glm::mat4(1.f), volume->position);
+        float xRange = volume->xBounds.y - volume->xBounds.x;
+        float yRange = volume->yBounds.y - volume->yBounds.x;
+        float zRange = volume->zBounds.y - volume->zBounds.x;
+        glm::vec3 scale = glm::vec3(xRange, yRange, zRange);
+        M *= glm::scale(glm::mat4(1.f), scale);
+        loadMatrix(getUniform("M"), &M);
+        loadBool(getUniform("isOutline"), true);
+        CHECK_GL_CALL(glPolygonMode(GL_FRONT_AND_BACK, GL_LINE));
+        CHECK_GL_CALL(glDrawElements(GL_TRIANGLES, (int)Library::cube->eleBuf.size(), GL_UNSIGNED_INT, nullptr));
+        CHECK_GL_CALL(glPolygonMode(GL_FRONT_AND_BACK, GL_FILL));
+ 
+    }
+
+    /* Render individual voxels */
+    for (auto v : volume->voxelData) {
         if (v.data.r || v.data.g || v.data.b || v.data.a) {
             if ((disableBlack && glm::vec3(v.data) == glm::vec3(0.f)) ||
                 (disableWhite && v.data == glm::vec4(1.f))) {

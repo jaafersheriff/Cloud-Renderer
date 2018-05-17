@@ -44,7 +44,7 @@ ConeTraceShader * coneShader;
 #define I_VOLUME_BOARDS 5
 #define I_VOLUME_POSITION glm::vec3(5.f, 0.f, 0.f)
 #define I_VOLUME_SCALE glm::vec2(10.f)
-#define I_VOLUME_BOUNDS glm::vec2(-50.f, 50.f)
+#define I_VOLUME_BOUNDS glm::vec2(-100.f, 100.f)
 #define I_VOLUME_DIMENSION 32
 #define I_VOLUME_MIPS 4
 Volume *volume;
@@ -147,7 +147,7 @@ int main() {
         if (voxelShader->isEnabled()) {
             volume->updateVoxelData();
             voxelShader->bind();
-            voxelShader->render(volume->voxelData, Camera::getP(), V);
+            voxelShader->render(volume, Camera::getP(), V);
             voxelShader->unbind();
         }
 
@@ -190,16 +190,16 @@ void createImGuiPanes() {
             ImGui::Begin("Billboards");
             static glm::vec3 newPos(0.f);
             static float scale = 1.f;
-            ImGui::SliderFloat3("Offset", glm::value_ptr(newPos), -20.f, 20.f);
-            ImGui::SliderFloat("Scale", &scale, 1.f, 20.f);
+            ImGui::SliderFloat3("Offset", glm::value_ptr(newPos), -200.f, 200.f);
+            ImGui::SliderFloat("Scale", &scale, 1.f, 200.f);
             if (ImGui::Button("Add Billboard")) {
                 volume->addCloudBoard(Spatial(newPos, glm::vec3(scale), glm::vec3(0.f)));
             }
             static int currBoard = 0;
             ImGui::SliderInt("Curr board", &currBoard, 0, volume->cloudBoards.size() - 1);
             Spatial *s = &volume->cloudBoards[currBoard];
-            ImGui::SliderFloat3("Position", glm::value_ptr(s->position), -20.f, 20.f);
-            ImGui::SliderFloat("Cscale", &s->scale.x, 1.f, 20.f);
+            ImGui::SliderFloat3("Position", glm::value_ptr(s->position), -200.f, 200.f);
+            ImGui::SliderFloat("Cscale", &s->scale.x, 1.f, 200.f);
             if (ImGui::Button("Delete") && volume->cloudBoards.size()) {
                 volume->cloudBoards.erase(volume->cloudBoards.begin() + currBoard);
                 currBoard = glm::max(0, currBoard - 1);
@@ -211,9 +211,11 @@ void createImGuiPanes() {
         [&]() {
             ImGui::Begin("Cloud Volume");
             ImGui::SliderFloat3("Position", glm::value_ptr(volume->position), -20.f, 20.f);
-            ImGui::SliderFloat2("XBounds", glm::value_ptr(volume->xBounds), -100.f, 100.f);
-            ImGui::SliderFloat2("YBounds", glm::value_ptr(volume->yBounds), -100.f, 100.f);
-            ImGui::SliderFloat2("ZBounds", glm::value_ptr(volume->zBounds), -100.f, 100.f);
+            float minBounds[2] = { -100.f,  0.1f };
+            float maxBounds[2] = {  -0.1f, 100.f };
+            ImGui::SliderFloat2("XBounds", glm::value_ptr(volume->xBounds), minBounds, maxBounds);
+            ImGui::SliderFloat2("YBounds", glm::value_ptr(volume->yBounds), minBounds, maxBounds);
+            ImGui::SliderFloat2("ZBounds", glm::value_ptr(volume->zBounds), minBounds, maxBounds);
             ImGui::Checkbox("Light Voxelize!", &lightVoxelize);
             if (ImGui::Button("Single voxelize")) {
                 volume->clearCPU();
@@ -238,10 +240,9 @@ void createImGuiPanes() {
                 voxelShader->disableBlack = false;
                 voxelShader->disableWhite = false;
             }
-            if (voxelShader->isEnabled()) {
-                ImGui::Checkbox("Disable black", &voxelShader->disableBlack);
-                ImGui::Checkbox("Disable white", &voxelShader->disableWhite);
-            }
+            ImGui::Checkbox("Disable bounds", &voxelShader->disableBounds);
+            ImGui::Checkbox("Disable black", &voxelShader->disableBlack);
+            ImGui::Checkbox("Disable white", &voxelShader->disableWhite);
             ImGui::Checkbox("Voxel outlines", &voxelShader->useOutline);
             ImGui::SliderFloat("Voxel alpha", &voxelShader->alpha, 0.f, 1.f);
             ImGui::End();
