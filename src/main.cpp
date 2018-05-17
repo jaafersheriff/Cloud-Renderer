@@ -25,9 +25,21 @@ bool lightView = false;
 int Window::width = 1280;
 int Window::height = 720;
 
+/* Volume */
+#define I_VOLUME_BOARDS 5
+#define I_VOLUME_POSITION glm::vec3(5.f, 0.f, 0.f)
+#define I_VOLUME_SCALE glm::vec2(10.f)
+#define I_VOLUME_BOUNDS glm::vec2(-100.f, 100.f)
+#define I_VOLUME_DIMENSION 32
+#define I_VOLUME_MIPS 4
+Volume *volume;
+
 /* Light */
 Spatial Light::spatial = Spatial(glm::vec3(10.f, 10.f, -10.f), glm::vec3(3.f), glm::vec3(0.f));
+glm::mat4 Light::P(1.f);
 glm::mat4 Light::V(1.f);
+float Light::nearPlane(0.01f);
+float Light::farPlane(10000.f);
 
 /* Library things */
 const std::string RESOURCE_DIR("../res/");
@@ -42,15 +54,6 @@ BillboardShader * billboardShader;
 VoxelizeShader * voxelizeShader;
 VoxelShader * voxelShader;
 ConeTraceShader * coneShader;
-
-/* Volume */
-#define I_VOLUME_BOARDS 5
-#define I_VOLUME_POSITION glm::vec3(5.f, 0.f, 0.f)
-#define I_VOLUME_SCALE glm::vec2(10.f)
-#define I_VOLUME_BOUNDS glm::vec2(-100.f, 100.f)
-#define I_VOLUME_DIMENSION 32
-#define I_VOLUME_MIPS 4
-Volume *volume;
 
 /* Render targets */
 std::vector<Spatial *> cloudsBillboards;
@@ -117,7 +120,7 @@ int main() {
         Camera::update(Window::timeStep);
 
         /* Update light */
-        Light::update(volume->position);
+        Light::update(volume->position, volume->xBounds, volume->yBounds);
 
         /* IMGUI */
         if (Window::isImGuiEnabled()) {
@@ -146,13 +149,13 @@ int main() {
         billboardShader->render(cloudsBillboards, Library::textures[diffuseTexName], Library::textures[normalTexName]);
 
         /* Render Optional */
+        glm::mat4 P = lightView ? Light::P : Camera::getP();
         glm::mat4 V = lightView ? Light::V : Camera::getV();
-        glm::vec3 pos = lightView ? Light::spatial.position : Camera::getPosition();
         /* Draw voxels to the screen -- optional */
         if (voxelShader->isEnabled()) {
             volume->updateVoxelData();
             voxelShader->bind();
-            voxelShader->render(volume, Camera::getP(), V);
+            voxelShader->render(volume, P, V);
             voxelShader->unbind();
         }
 
