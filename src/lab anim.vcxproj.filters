@@ -169,9 +169,6 @@
     <None Include="..\res\cloud_frag.glsl">
       <Filter>glsl</Filter>
     </None>
-    <None Include="..\res\voxelize_frag.glsl">
-      <Filter>glsl</Filter>
-    </None>
     <None Include="ThirdParty\imgui\LICENSE">
       <Filter>src\ThirdParty\imgui</Filter>
     </None>
@@ -185,6 +182,12 @@
       <Filter>glsl</Filter>
     </None>
     <None Include="..\res\billboard_vert.glsl">
+      <Filter>glsl</Filter>
+    </None>
+    <None Include="..\res\first_voxelize.glsl">
+      <Filter>glsl</Filter>
+    </None>
+    <None Include="..\res\second_voxelize.glsl">
       <Filter>glsl</Filter>
     </None>
   </ItemGroup>

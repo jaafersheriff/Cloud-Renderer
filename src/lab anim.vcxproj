@@ -72,9 +72,10 @@
   <ItemGroup>
     <None Include="..\res\cloud_frag.glsl" />
     <None Include="..\res\conetrace_frag.glsl" />
+    <None Include="..\res\second_voxelize.glsl" />
     <None Include="..\res\voxel_frag.glsl" />
     <None Include="..\res\voxel_vert.glsl" />
-    <None Include="..\res\voxelize_frag.glsl" />
+    <None Include="..\res\first_voxelize.glsl" />
     <None Include="..\res\billboard_vert.glsl" />
     <None Include="ThirdParty\imgui\LICENSE" />
   </ItemGroup>

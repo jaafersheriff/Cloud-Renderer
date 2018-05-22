@@ -23,9 +23,21 @@ void VoxelizeShader::voxelize(Volume *volume) {
     volume->clearGPU();
     clearPositionMap();
 
+    /* Disable quad visualization */
+    CHECK_GL_CALL(glDisable(GL_DEPTH_TEST));
+    CHECK_GL_CALL(glDisable(GL_CULL_FACE));
+    CHECK_GL_CALL(glDepthMask(GL_FALSE));
+    CHECK_GL_CALL(glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE));
+
     /* Voxelize */
     firstVoxelize(volume);
     secondVoxelize(volume);
+
+    /* Reset state */
+    CHECK_GL_CALL(glEnable(GL_DEPTH_TEST));
+    CHECK_GL_CALL(glEnable(GL_CULL_FACE));
+    CHECK_GL_CALL(glDepthMask(GL_TRUE));
+    CHECK_GL_CALL(glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE));
 }
 
 /* First voxelize pass 
@@ -78,12 +90,6 @@ void VoxelizeShader::firstVoxelize(Volume *volume) {
  * Render position map 
  * Highlight voxels nearest to light */
 void VoxelizeShader::secondVoxelize(Volume *volume) {
-    /* Disable quad visualization */
-    CHECK_GL_CALL(glDisable(GL_DEPTH_TEST));
-    CHECK_GL_CALL(glDisable(GL_CULL_FACE));
-    CHECK_GL_CALL(glDepthMask(GL_FALSE));
-    CHECK_GL_CALL(glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE));
-
     secondVoxelizer->bind();
 
     /* Bind volume and position map */
@@ -115,12 +121,6 @@ void VoxelizeShader::secondVoxelize(Volume *volume) {
     unbindVolume();
     unbindPositionMap();
     secondVoxelizer->unbind();
-
-    /* Reset state */
-    CHECK_GL_CALL(glEnable(GL_DEPTH_TEST));
-    CHECK_GL_CALL(glEnable(GL_CULL_FACE));
-    CHECK_GL_CALL(glDepthMask(GL_TRUE));
-    CHECK_GL_CALL(glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE));
 }
 
 void VoxelizeShader::bindVolume(Shader *shader, Volume *volume) {
