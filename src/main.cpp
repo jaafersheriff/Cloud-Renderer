@@ -91,8 +91,7 @@ int main() {
     billboardShader = new BillboardShader(RESOURCE_DIR + "billboard_vert.glsl", RESOURCE_DIR + "cloud_frag.glsl");
     voxelShader = new VoxelShader(RESOURCE_DIR + "voxel_vert.glsl", RESOURCE_DIR + "voxel_frag.glsl");
     voxelShader->setEnabled(false);
-    voxelizeShader = new VoxelizeShader(RESOURCE_DIR + "billboard_vert.glsl", RESOURCE_DIR + "voxelize_frag.glsl");
-    voxelizeShader->setEnabled(false);
+    voxelizeShader = new VoxelizeShader(RESOURCE_DIR + "billboard_vert.glsl", RESOURCE_DIR + "first_voxelize.glsl", RESOURCE_DIR + "second_voxelize.glsl");
     coneShader = new ConeTraceShader(RESOURCE_DIR + "billboard_vert.glsl", RESOURCE_DIR + "conetrace_frag.glsl");
 
     /* Init ImGui Panes */
