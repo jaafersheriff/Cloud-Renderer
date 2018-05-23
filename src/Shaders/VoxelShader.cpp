@@ -7,11 +7,6 @@
 
 #include "glm/gtc/matrix_transform.hpp"
 
-VoxelShader::VoxelShader(std::string v, std::string f) :
-    Shader(v, f) {
-    init();
-}
-
 /* Visualize voxels */
 void VoxelShader::render(Volume *volume, glm::mat4 P, glm::mat4 V) {
     /* Bind projeciton, view, inverise view matrices */

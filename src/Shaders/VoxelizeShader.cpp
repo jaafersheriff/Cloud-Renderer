@@ -6,13 +6,10 @@
 #include "Light.hpp"
 #include "IO/Window.hpp"
 
-VoxelizeShader::VoxelizeShader(std::string v, std::string f1, std::string f2) {
+VoxelizeShader::VoxelizeShader(const std::string &r, const std::string &v, const std::string &f1, const std::string &f2) {
     /* Initialize first and second pass shaders */
-    firstVoxelizer = new Shader(v, f1);
-    firstVoxelizer->init();
-
-    secondVoxelizer = new Shader(v, f2);
-    secondVoxelizer->init();
+    firstVoxelizer = new Shader(r, v, f1);
+    secondVoxelizer = new Shader(r, v, f2);
 
     /* Create position map */
     initPositionMap(Window::width, Window::height);

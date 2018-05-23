@@ -22,6 +22,7 @@
 bool lightVoxelize = true;
 bool coneTrace = true;
 bool lightView = false;
+bool showVoxels = false;
 int Window::width = 1280;
 int Window::height = 720;
 
@@ -90,12 +91,11 @@ int main() {
     Library::addTexture(normalTexName);
 
     /* Create shaders */
-    billboardShader = new BillboardShader(RESOURCE_DIR + "billboard_vert.glsl", RESOURCE_DIR + "cloud_frag.glsl");
-    voxelShader = new VoxelShader(RESOURCE_DIR + "voxel_vert.glsl", RESOURCE_DIR + "voxel_frag.glsl");
-    voxelizeShader = new VoxelizeShader(RESOURCE_DIR + "billboard_vert.glsl", RESOURCE_DIR + "first_voxelize.glsl", RESOURCE_DIR + "second_voxelize.glsl");
-    coneShader = new ConeTraceShader(RESOURCE_DIR + "billboard_vert.glsl", RESOURCE_DIR + "conetrace_frag.glsl");
-    debugShader = new Shader(RESOURCE_DIR + "billboard_vert.glsl", RESOURCE_DIR + "debug_frag.glsl");
-    debugShader->init();
+    billboardShader = new BillboardShader(RESOURCE_DIR, "billboard_vert.glsl", "cloud_frag.glsl");
+    voxelShader = new VoxelShader(RESOURCE_DIR, "voxel_vert.glsl", "voxel_frag.glsl");
+    voxelizeShader = new VoxelizeShader(RESOURCE_DIR, "billboard_vert.glsl", "first_voxelize.glsl", "second_voxelize.glsl");
+    coneShader = new ConeTraceShader(RESOURCE_DIR, "billboard_vert.glsl", "conetrace_frag.glsl");
+    debugShader = new Shader(RESOURCE_DIR, "billboard_vert.glsl", "debug_frag.glsl");
 
     /* Init ImGui Panes */
     createImGuiPanes();
@@ -134,9 +134,7 @@ int main() {
 
         /* Voxelize from the light's perspective */
         if (lightVoxelize) {
-            if (voxelShader->isEnabled()) {
-                volume->clearCPU();
-            }
+            volume->clearCPU();
             voxelizeShader->voxelize(volume);
         }
         /* Cone trace from the camera's perspective */
@@ -150,7 +148,7 @@ int main() {
         /* Render Optional */
         glm::mat4 V = lightView ? Light::V : Camera::getV();
         /* Draw voxels to the screen */
-        if (voxelShader->isEnabled()) {
+        if (showVoxels) {
             volume->updateVoxelData();
             voxelShader->bind();
             voxelShader->render(volume, Camera::getP(), V);
@@ -266,9 +264,7 @@ void createImGuiPanes() {
             ImGui::Begin("Voxels");
             ImGui::Text("Voxels in scene : %d", volume->voxelCount);
             ImGui::Checkbox("Light view", &lightView);
-            bool b = voxelShader->isEnabled();
-            if (ImGui::Checkbox("Render voxels", &b)) {
-                voxelShader->setEnabled(b);
+            if (ImGui::Checkbox("Render voxels", &showVoxels)) {
                 voxelShader->disableBlack = false;
                 voxelShader->disableWhite = false;
             }

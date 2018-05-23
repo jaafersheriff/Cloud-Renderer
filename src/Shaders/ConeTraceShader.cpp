@@ -4,11 +4,6 @@
 #include "Light.hpp"
 #include "Library.hpp"
 
-ConeTraceShader::ConeTraceShader(std::string v, std::string f) :
-    Shader(v, f) {
-    init();
-}
-
 void ConeTraceShader::coneTrace(Volume *volume) {
     bind();
     bindVolume(volume);

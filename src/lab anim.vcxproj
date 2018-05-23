@@ -71,6 +71,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\res\cloud_frag.glsl" />
+    <None Include="..\res\common.glsl" />
     <None Include="..\res\conetrace_frag.glsl" />
     <None Include="..\res\debug_frag.glsl" />
     <None Include="..\res\second_voxelize.glsl" />

@@ -16,25 +16,8 @@
 
 class Shader {
     public:
-        /* Empty constructor
-         * Only used to set GLSL shader names */
-        Shader(std::string v, std::string f) : 
-            vShaderName(v), 
-            fShaderName(f),
-            gShaderName(""),
-            enabled(true)
-        { }
-
-        Shader(std::string v, std::string f, std::string g) : 
-            vShaderName(v), 
-            fShaderName(f),
-            gShaderName(g),
-            enabled(true)
-        { }
-
-        /* Call parent Shader::init()
-         * Add uniforms and attributes to GLSL shaders */
-        void init();
+        Shader(const std::string &, const std::string &, const std::string &, const std::string &);
+        Shader(const std::string &, const std::string &, const std::string &);
 
         /* Utility functions */
         void bind();
@@ -57,16 +40,6 @@ class Shader {
         GLint getAttribute(const std::string &);
         GLint getUniform(const std::string &);
 
-        bool isEnabled() { return enabled; }
-        void setEnabled(bool b) { enabled = b; }
-
-    protected:
-        /* GLSL shader names */
-        const std::string vShaderName;
-        const std::string fShaderName;
-        const std::string gShaderName;
-
-        bool enabled;
     private:    
         /* GLSL shader attributes */
         GLuint pid = 0;
@@ -76,8 +49,8 @@ class Shader {
         std::map<std::string, GLint> attributes;
         std::map<std::string, GLint> uniforms;
 
-        GLuint compileShader(GLenum, const std::string &);
-        void findAttributesAndUniforms(const std::string &);
+        GLuint compileShader(GLenum, const std::string &, const std::string &);
+        void findAttributesAndUniforms(const std::string &, const std::string &);
 };
 
 #endif

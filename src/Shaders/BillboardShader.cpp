@@ -4,13 +4,8 @@
 #include "Camera.hpp"
 #include "Util.hpp"
 
-BillboardShader::BillboardShader(std::string v, std::string f) :
-    Shader(v, f) {
-    init();
-}
-
 void BillboardShader::render(std::vector<Spatial *> &targets, Texture *diffuseTex, Texture *normalTex) {
-    if (!enabled || !diffuseTex || !normalTex) {
+    if (!diffuseTex || !normalTex) {
         return;
     }
 

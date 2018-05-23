@@ -3,11 +3,53 @@
 #include <fstream>
 #include <vector>
 
-GLuint Shader::compileShader(GLenum shaderType, const std::string &shaderSourceFile) {
-    GLint compileSuccess;
-    
+Shader::Shader(const std::string &res, const std::string &v, const std::string &f) :
+    Shader(res, v, f, "")
+{ }
+
+Shader::Shader(const std::string &res, const std::string &vName, const std::string &fName, const std::string &gName) {
+	pid = glCreateProgram();
+    if (vName.size() && (vShaderId = compileShader(GL_VERTEX_SHADER, res, vName))) {
+	    CHECK_GL_CALL(glAttachShader(pid, vShaderId));
+    }
+    if (fName.size() && (fShaderId = compileShader(GL_FRAGMENT_SHADER, res, fName))) {
+        CHECK_GL_CALL(glAttachShader(pid, fShaderId));
+    }
+    if (gName.size() && (gShaderId = compileShader(GL_GEOMETRY_SHADER, res, gName))) {
+	    CHECK_GL_CALL(glAttachShader(pid, gShaderId));
+    }
+	CHECK_GL_CALL(glLinkProgram(pid));
+
+    // See whether link was successful
+    GLint linkSuccess;
+	CHECK_GL_CALL(glGetProgramiv(pid, GL_LINK_STATUS, &linkSuccess));
+	if (!linkSuccess) {
+        GLSL::printProgramInfoLog(pid);
+        std::cout << "Error linking shaders " << vName << " and " << fName;
+        if (gShaderId) {
+            std::cout << " and " << gName << std::endl;
+        }
+        else {
+            std::cout << std::endl;
+        }
+        std::cin.get();
+        exit(EXIT_FAILURE);
+	}
+
+    if (vShaderId) {
+        findAttributesAndUniforms(res, vName);
+    }
+    if (fShaderId) {
+        findAttributesAndUniforms(res, fName);
+    }
+    if (gShaderId) {
+        findAttributesAndUniforms(res, gName);
+    }
+}
+
+GLuint Shader::compileShader(GLenum shaderType, const std::string &res, const std::string &shaderName) {
     // Read the shader source file into a string
-    char *shaderString = GLSL::textFileRead(shaderSourceFile.c_str());
+    char *shaderString = GLSL::textFileRead((res + shaderName).c_str());
     // Stop if there was an error reading the shader source file
     if (shaderString == NULL) return 0;
     
@@ -15,11 +57,13 @@ GLuint Shader::compileShader(GLenum shaderType, const std::string &shaderSourceF
     GLuint shader = glCreateShader(shaderType);
     CHECK_GL_CALL(glShaderSource(shader, 1, &shaderString, NULL));
     CHECK_GL_CALL(glCompileShader(shader));
+
     // See whether compile was successful
+    GLint compileSuccess;
     CHECK_GL_CALL(glGetShaderiv(shader, GL_COMPILE_STATUS, &compileSuccess));
     if (!compileSuccess) {
         GLSL::printShaderInfoLog(shader);
-        std::cout << "Error compiling shader: " << shaderSourceFile << std::endl;
+        std::cout << "Error compiling shader: " << res << shaderName << std::endl;
         std::cin.get();
         exit(EXIT_FAILURE);
     }
@@ -30,48 +74,8 @@ GLuint Shader::compileShader(GLenum shaderType, const std::string &shaderSourceF
     return shader;
 }
 
-void Shader::init() {
-	pid = glCreateProgram();
-    if (vShaderName.size() && (vShaderId = compileShader(GL_VERTEX_SHADER, vShaderName))) {
-	    CHECK_GL_CALL(glAttachShader(pid, vShaderId));
-    }
-    if (fShaderName.size() && (fShaderId = compileShader(GL_FRAGMENT_SHADER, fShaderName))) {
-        CHECK_GL_CALL(glAttachShader(pid, fShaderId));
-    }
-    if (gShaderName.size() && (gShaderId = compileShader(GL_GEOMETRY_SHADER, gShaderName))) {
-	    CHECK_GL_CALL(glAttachShader(pid, gShaderId));
-    }
-	CHECK_GL_CALL(glLinkProgram(pid));
-
-    // See whether link was successful
-    GLint linkSuccess;
-	CHECK_GL_CALL(glGetProgramiv(pid, GL_LINK_STATUS, &linkSuccess));
-	if (!linkSuccess) {
-        GLSL::printProgramInfoLog(pid);
-        std::cout << "Error linking shaders " << vShaderName << " and " << fShaderName;
-        if (gShaderId) {
-            std::cout << " and " << gShaderName << std::endl;
-        }
-        else {
-            std::cout << std::endl;
-        }
-        std::cin.get();
-        exit(EXIT_FAILURE);
-	}
-
-    if (vShaderId) {
-        findAttributesAndUniforms(vShaderName);
-    }
-    if (fShaderId) {
-        findAttributesAndUniforms(fShaderName);
-    }
-    if (gShaderId) {
-        findAttributesAndUniforms(gShaderName);
-    }
-}
-
-void Shader::findAttributesAndUniforms(const std::string &shaderSourceFile) {
-    char *fileText = GLSL::textFileRead(shaderSourceFile.c_str());
+void Shader::findAttributesAndUniforms(const std::string &res, const std::string &shaderName) {
+    char *fileText = GLSL::textFileRead((res + shaderName).c_str());
     char *token;
     char *lastToken = nullptr;
     
@@ -133,7 +137,7 @@ void Shader::unbind() {
 }
 
 void Shader::addAttribute(const std::string &name) {
-    GLint r = glGetAttribLocation(pid, name.c_str());
+    GLint r = CHECK_GL_CALL(glGetAttribLocation(pid, name.c_str()));
     if (r < 0) {
         std::cerr << "WARN: " << name << " cannot be bound (it either doesn't exist or has been optimized away). safe_glAttrib calls will silently ignore it\n" << std::endl;
     }
@@ -141,7 +145,7 @@ void Shader::addAttribute(const std::string &name) {
 }
 
 void Shader::addUniform(const std::string &name) {
-    GLint r = glGetUniformLocation(pid, name.c_str());
+    GLint r = CHECK_GL_CALL(glGetUniformLocation(pid, name.c_str()));
     if (r < 0) {
         std::cerr << "WARN: " << name << " cannot be bound (it either doesn't exist or has been optimized away). safe_glAttrib calls will silently ignore it\n" << std::endl;
     }  
