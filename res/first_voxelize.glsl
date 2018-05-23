@@ -8,7 +8,6 @@
 
 in vec3 fragPos;
 in vec3 fragNor;
-in vec2 fragTex;
 
 uniform vec3 center;
 uniform float scale;
@@ -19,6 +18,7 @@ uniform vec2 xBounds;
 uniform vec2 yBounds;
 uniform vec2 zBounds;
 uniform float stepSize;
+
 uniform vec3 lightPos;
 
 layout(binding=1, rgba32f) uniform image2D positionMap;
@@ -59,8 +59,9 @@ void main() {
         if (nearestPos.a < 1.f) {
             nearestPos = vec4(FLT_MAX, FLT_MAX, FLT_MAX, 0.f);
         }
-        vec3 start = fragPos - dir * dist;
+
         /* Write to volume in spherical shape from billboard to light source */
+        vec3 start = fragPos - dir * dist;
         for(float i = 0; i < 2*dist; i += stepSize) {
             vec3 worldPos = start + dir * i;
             ivec3 voxelIndex = calculateVoxelIndex(worldPos);

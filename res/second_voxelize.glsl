@@ -1,14 +1,6 @@
 #version 440 core
 
-#extension GL_NV_gpu_shader5: enable
-#extension GL_NV_shader_atomic_float: enable
-#extension GL_NV_shader_atomic_fp16_vector: enable
-
-#define FLT_MAX 3.402823466e+38
-
 in vec3 fragPos;
-in vec3 fragNor;
-in vec2 fragTex;
 
 uniform vec3 center;
 uniform float scale;
@@ -19,7 +11,6 @@ uniform vec2 xBounds;
 uniform vec2 yBounds;
 uniform vec2 zBounds;
 uniform float stepSize;
-uniform vec3 lightPos;
 
 layout(binding=1, rgba32f) uniform image2D positionMap;
 
@@ -51,9 +42,8 @@ void main() {
     sphereContrib = sqrt(max(0, 1 - sphereContrib * sphereContrib));
     color = vec4(sphereContrib);
 
-    ivec2 texCoords = ivec2(gl_FragCoord.xy);
     /* Read from position map */
-    vec4 worldPos = imageLoad(positionMap, texCoords);
+    vec4 worldPos = imageLoad(positionMap, ivec2(gl_FragCoord.xy));
     /* If this voxel is active (is already either black or white)
      * Set it to white */
     if (worldPos.a > 0) {
