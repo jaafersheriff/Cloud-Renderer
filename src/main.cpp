@@ -51,6 +51,7 @@ BillboardShader * billboardShader;
 VoxelizeShader * voxelizeShader;
 VoxelShader * voxelShader;
 ConeTraceShader * coneShader;
+Shader * debugShader;
 
 /* Render targets */
 std::vector<Spatial *> cloudsBillboards;
@@ -64,6 +65,7 @@ void exitError(std::string st) {
     std::cin.get();
     exit(EXIT_FAILURE);
 }
+
 int main() {
     srand((unsigned int)(time(0)));  
 
@@ -90,9 +92,10 @@ int main() {
     /* Create shaders */
     billboardShader = new BillboardShader(RESOURCE_DIR + "billboard_vert.glsl", RESOURCE_DIR + "cloud_frag.glsl");
     voxelShader = new VoxelShader(RESOURCE_DIR + "voxel_vert.glsl", RESOURCE_DIR + "voxel_frag.glsl");
-    voxelShader->setEnabled(false);
     voxelizeShader = new VoxelizeShader(RESOURCE_DIR + "billboard_vert.glsl", RESOURCE_DIR + "first_voxelize.glsl", RESOURCE_DIR + "second_voxelize.glsl");
     coneShader = new ConeTraceShader(RESOURCE_DIR + "billboard_vert.glsl", RESOURCE_DIR + "conetrace_frag.glsl");
+    debugShader = new Shader(RESOURCE_DIR + "billboard_vert.glsl", RESOURCE_DIR + "debug_frag.glsl");
+    debugShader->init();
 
     /* Init ImGui Panes */
     createImGuiPanes();
@@ -118,16 +121,16 @@ int main() {
         /* Update light */
         Light::update(volume->position);
 
+        /* Cloud render! */
+        CHECK_GL_CALL(glClearColor(0.2f, 0.3f, 0.5f, 1.f));
+        CHECK_GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+
         /* IMGUI */
         if (Window::isImGuiEnabled()) {
             for (auto func : imGuiFuncs) {
                 func();
             }
         }
-    
-        /* Cloud render! */
-        CHECK_GL_CALL(glClearColor(0.2f, 0.3f, 0.5f, 1.f));
-        CHECK_GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
         /* Voxelize from the light's perspective */
         if (lightVoxelize) {
@@ -180,10 +183,32 @@ void createImGuiPanes() {
         [&]() {
             ImGui::Begin("Light");
             ImGui::SliderFloat3("Position", glm::value_ptr(Light::spatial.position), -1000.f, 1000.f);
-            static float mapSize = 0.1f;
-            static bool showLightMap = true;
-            ImGui::Checkbox("Show map", &showLightMap);
-            if (showLightMap) {
+            static float mapSize = 0.2f;
+            static bool showFullMap = false;
+            static bool showSmallMap = false;
+            ImGui::Checkbox("Show full map", &showFullMap);
+            ImGui::Checkbox("Show small map", &showSmallMap);
+            if (showFullMap) {
+                CHECK_GL_CALL(glClearColor(0.2f, 0.3f, 0.5f, 1.f));
+                CHECK_GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+                debugShader->bind();
+                CHECK_GL_CALL(glActiveTexture(GL_TEXTURE0 + voxelizeShader->positionMap->textureId));
+                CHECK_GL_CALL(glBindTexture(GL_TEXTURE_2D, voxelizeShader->positionMap->textureId));
+                debugShader->loadInt(debugShader->getUniform("positionMap"), voxelizeShader->positionMap->textureId);
+                CHECK_GL_CALL(glBindVertexArray(Library::quad->vaoId));
+                glm::mat4 M = glm::mat4(1.f);
+                debugShader->loadMatrix(debugShader->getUniform("P"), &M);
+                debugShader->loadMatrix(debugShader->getUniform("V"), &M);
+                debugShader->loadMatrix(debugShader->getUniform("Vi"), &M);
+                debugShader->loadMatrix(debugShader->getUniform("N"), &M);
+                M *= glm::scale(glm::mat4(1.f), glm::vec3(2.f));
+                debugShader->loadMatrix(debugShader->getUniform("M"), &M);
+                CHECK_GL_CALL(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
+                CHECK_GL_CALL(glBindVertexArray(0));
+                CHECK_GL_CALL(glActiveTexture(GL_TEXTURE0));
+                debugShader->unbind();
+            }
+            if (showSmallMap) {
                 ImGui::End();
                 ImGui::Begin("Position Map");
                 ImGui::SliderFloat("Map Size", &mapSize, 0.1f, 1.f);

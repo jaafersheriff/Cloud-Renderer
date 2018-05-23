@@ -190,5 +190,8 @@
     <None Include="..\res\second_voxelize.glsl">
       <Filter>glsl</Filter>
     </None>
+    <None Include="..\res\debug_frag.glsl">
+      <Filter>glsl</Filter>
+    </None>
   </ItemGroup>
 </Project>
