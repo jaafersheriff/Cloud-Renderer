@@ -91,8 +91,7 @@ int main() {
     billboardShader = new BillboardShader(RESOURCE_DIR + "billboard_vert.glsl", RESOURCE_DIR + "cloud_frag.glsl");
     voxelShader = new VoxelShader(RESOURCE_DIR + "voxel_vert.glsl", RESOURCE_DIR + "voxel_frag.glsl");
     voxelShader->setEnabled(false);
-    voxelizeShader = new VoxelizeShader(RESOURCE_DIR + "billboard_vert.glsl", RESOURCE_DIR + "voxelize_frag.glsl");
-    voxelizeShader->setEnabled(false);
+    voxelizeShader = new VoxelizeShader(RESOURCE_DIR + "billboard_vert.glsl", RESOURCE_DIR + "first_voxelize.glsl", RESOURCE_DIR + "second_voxelize.glsl");
     coneShader = new ConeTraceShader(RESOURCE_DIR + "billboard_vert.glsl", RESOURCE_DIR + "conetrace_frag.glsl");
 
     /* Init ImGui Panes */
@@ -147,7 +146,7 @@ int main() {
 
         /* Render Optional */
         glm::mat4 V = lightView ? Light::V : Camera::getV();
-        /* Draw voxels to the screen -- optional */
+        /* Draw voxels to the screen */
         if (voxelShader->isEnabled()) {
             volume->updateVoxelData();
             voxelShader->bind();
@@ -181,10 +180,14 @@ void createImGuiPanes() {
         [&]() {
             ImGui::Begin("Light");
             ImGui::SliderFloat3("Position", glm::value_ptr(Light::spatial.position), -1000.f, 1000.f);
+            static float mapSize = 0.1f;
             static bool showLightMap = true;
             ImGui::Checkbox("Show map", &showLightMap);
             if (showLightMap) {
-                ImGui::Image((ImTextureID)voxelizeShader->positionMap->textureId, ImVec2(100, 100));
+                ImGui::End();
+                ImGui::Begin("Position Map");
+                ImGui::SliderFloat("Map Size", &mapSize, 0.1f, 1.f);
+                ImGui::Image((ImTextureID)voxelizeShader->positionMap->textureId, ImVec2(voxelizeShader->positionMap->width*mapSize, voxelizeShader->positionMap->height*mapSize));
             }
             ImGui::End();
         } 
