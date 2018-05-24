@@ -34,7 +34,6 @@ void VoxelShader::render(Volume *volume, glm::mat4 P, glm::mat4 V) {
         CHECK_GL_CALL(glPolygonMode(GL_FRONT_AND_BACK, GL_LINE));
         CHECK_GL_CALL(glDrawElements(GL_TRIANGLES, (int)Library::cube->eleBuf.size(), GL_UNSIGNED_INT, nullptr));
         CHECK_GL_CALL(glPolygonMode(GL_FRONT_AND_BACK, GL_FILL));
- 
     }
 
     /* Render individual voxels */
