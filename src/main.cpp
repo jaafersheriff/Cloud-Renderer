@@ -125,13 +125,6 @@ int main() {
         CHECK_GL_CALL(glClearColor(0.2f, 0.3f, 0.5f, 1.f));
         CHECK_GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
-        /* IMGUI */
-        if (Window::isImGuiEnabled()) {
-            for (auto func : imGuiFuncs) {
-                func();
-            }
-        }
-
         /* Voxelize from the light's perspective */
         if (lightVoxelize) {
             volume->clearCPU();
@@ -155,8 +148,11 @@ int main() {
             voxelShader->unbind();
         }
 
-        /* Render ImGui */
+        /* IMGUI */
         if (Window::isImGuiEnabled()) {
+            for (auto func : imGuiFuncs) {
+                func();
+            }
             ImGui::Render();
         }
     }
