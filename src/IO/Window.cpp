@@ -33,9 +33,6 @@ void Window::keyCallback(GLFWwindow *window, int key, int scancode, int action, 
     if (isImGuiEnabled() && (ImGui::IsWindowFocused() || ImGui::IsMouseHoveringAnyWindow())) {
         ImGui_ImplGlfwGL3_KeyCallback(window, key, scancode, action, mode);
     }
-    else {
-        Keyboard::setKeyStatus(key, action);
-    }
 }
 
 void Window::mouseButtonCallback(GLFWwindow *window, int button, int action, int mods) {
