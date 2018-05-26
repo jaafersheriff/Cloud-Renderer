@@ -22,12 +22,11 @@ void VoxelShader::render(Volume *volume, glm::mat4 P, glm::mat4 V) {
     
     /* Render bounds */
     if (!disableBounds) {
+        glm::vec3 min(volume->xBounds.x, volume->yBounds.x, volume->zBounds.x);
+        glm::vec3 max(volume->xBounds.y, volume->yBounds.y, volume->zBounds.y);
+        glm::vec3 scale(max - min);
         M = glm::mat4(1.f);
-        M *= glm::translate(glm::mat4(1.f), volume->position);
-        float xRange = volume->xBounds.y - volume->xBounds.x;
-        float yRange = volume->yBounds.y - volume->yBounds.x;
-        float zRange = volume->zBounds.y - volume->zBounds.x;
-        glm::vec3 scale = glm::vec3(xRange, yRange, zRange);
+        M *= glm::translate(glm::mat4(1.f), scale / 2.f + min + volume->position);
         M *= glm::scale(glm::mat4(1.f), scale);
         loadMatrix(getUniform("M"), &M);
         loadBool(getUniform("isOutline"), true);
