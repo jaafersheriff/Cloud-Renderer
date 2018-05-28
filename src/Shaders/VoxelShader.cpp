@@ -26,7 +26,7 @@ void VoxelShader::render(Volume *volume, glm::mat4 P, glm::mat4 V) {
         glm::vec3 max(volume->xBounds.y, volume->yBounds.y, volume->zBounds.y);
         glm::vec3 scale(max - min);
         M = glm::mat4(1.f);
-        M *= glm::translate(glm::mat4(1.f), scale / 2.f + min + volume->position);
+        M *= glm::translate(glm::mat4(1.f), volume->position + min + scale / 2.f);
         M *= glm::scale(glm::mat4(1.f), scale);
         loadMatrix(getUniform("M"), &M);
         loadBool(getUniform("isOutline"), true);
