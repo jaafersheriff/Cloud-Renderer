@@ -137,7 +137,7 @@ void Shader::unbind() {
 }
 
 void Shader::addAttribute(const std::string &name) {
-    GLint r = CHECK_GL_CALL(glGetAttribLocation(pid, name.c_str()));
+    GLint r = glGetAttribLocation(pid, name.c_str());
     if (r < 0) {
         std::cerr << "WARN: " << name << " cannot be bound (it either doesn't exist or has been optimized away). safe_glAttrib calls will silently ignore it\n" << std::endl;
     }
@@ -145,7 +145,7 @@ void Shader::addAttribute(const std::string &name) {
 }
 
 void Shader::addUniform(const std::string &name) {
-    GLint r = CHECK_GL_CALL(glGetUniformLocation(pid, name.c_str()));
+    GLint r = glGetUniformLocation(pid, name.c_str());
     if (r < 0) {
         std::cerr << "WARN: " << name << " cannot be bound (it either doesn't exist or has been optimized away). safe_glAttrib calls will silently ignore it\n" << std::endl;
     }  
