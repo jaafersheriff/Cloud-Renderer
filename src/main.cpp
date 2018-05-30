@@ -172,12 +172,13 @@ void runImGuiPanes() {
     ImGui::Checkbox("Show full map", &showFullMap);
     ImGui::Checkbox("Show small map", &showSmallMap);
     if (showFullMap) {
+        const Texture *posMap = voxelizeShader->positionMap;
         CHECK_GL_CALL(glClearColor(0.2f, 0.3f, 0.5f, 1.f));
         CHECK_GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
         debugShader->bind();
-        CHECK_GL_CALL(glActiveTexture(GL_TEXTURE0 + voxelizeShader->positionMap->textureId));
-        CHECK_GL_CALL(glBindTexture(GL_TEXTURE_2D, voxelizeShader->positionMap->textureId));
-        debugShader->loadInt(debugShader->getUniform("positionMap"), voxelizeShader->positionMap->textureId);
+        CHECK_GL_CALL(glActiveTexture(GL_TEXTURE0 + posMap->textureId));
+        CHECK_GL_CALL(glBindTexture(GL_TEXTURE_2D, posMap->textureId));
+        debugShader->loadInt(debugShader->getUniform("positionMap"), posMap->textureId);
         CHECK_GL_CALL(glBindVertexArray(Library::quad->vaoId));
         glm::mat4 M = glm::mat4(1.f);
         debugShader->loadMatrix(debugShader->getUniform("P"), &M);
