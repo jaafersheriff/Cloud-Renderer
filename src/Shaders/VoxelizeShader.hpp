@@ -28,7 +28,8 @@ class VoxelizeShader {
         void bindVolume(Shader *, Volume *);
         void unbindVolume();
 
-        void initPositionMap(int, int);
+        void initPositionMap(const int, const int);
+        void resizePositionMap(const int, const int);
         void bindPositionMap();
         void unbindPositionMap();
 };

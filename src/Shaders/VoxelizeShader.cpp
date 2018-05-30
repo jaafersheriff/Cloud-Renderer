@@ -16,6 +16,11 @@ VoxelizeShader::VoxelizeShader(const std::string &r, const std::string &v, const
 }
 
 void VoxelizeShader::voxelize(Volume *volume) {
+    /* Resize position map if window was resized */
+    if (Window::width != positionMap->width || Window::height != positionMap->height) {
+        resizePositionMap(Window::width, Window::height);
+    }
+
     /* Reset volume and position map */
     volume->clearGPU();
     clearPositionMap();
@@ -145,11 +150,11 @@ void VoxelizeShader::unbindPositionMap() {
     CHECK_GL_CALL(glBindImageTexture(1, 0, 0, GL_TRUE, 0, GL_READ_WRITE, GL_RGBA32F));
 }
 
-void VoxelizeShader::initPositionMap(int width, int height) {
+void VoxelizeShader::initPositionMap(const int width, const int height) {
     positionMap = new Texture();
     positionMap->width = width;
     positionMap->height = height;
- 
+
     /* Generate the texture */
     CHECK_GL_CALL(glGenTextures(1, &positionMap->textureId));
     CHECK_GL_CALL(glBindTexture(GL_TEXTURE_2D, positionMap->textureId));
@@ -160,6 +165,14 @@ void VoxelizeShader::initPositionMap(int width, int height) {
     CHECK_GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
     CHECK_GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
 
+    CHECK_GL_CALL(glBindTexture(GL_TEXTURE_2D, 0));
+}
+
+void VoxelizeShader::resizePositionMap(const int width, const int height) {
+    positionMap->width = width;
+    positionMap->height = height;
+    CHECK_GL_CALL(glBindTexture(GL_TEXTURE_2D, positionMap->textureId));
+    CHECK_GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, positionMap->width, positionMap->height, 0, GL_RGBA, GL_FLOAT, NULL));
     CHECK_GL_CALL(glBindTexture(GL_TEXTURE_2D, 0));
 }
 
