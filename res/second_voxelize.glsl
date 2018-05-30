@@ -36,12 +36,6 @@ ivec3 calculateVoxelIndex(vec3 pos) {
 
 void main() {
     float radius = scale/2;
-
-    /* Spherical distance - 1 at center of billboard, 0 at edges */
-    float sphereContrib = (distance(center, fragPos)/radius);
-    sphereContrib = sqrt(max(0, 1 - sphereContrib * sphereContrib));
-    color = vec4(sphereContrib);
-
     /* Read from position map */
     vec4 worldPos = imageLoad(positionMap, ivec2(gl_FragCoord.xy));
     /* If this voxel is active (is already either black or white)
