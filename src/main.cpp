@@ -36,7 +36,7 @@ int Window::height = 720;
 Volume *volume;
 
 /* Light */
-Spatial Light::spatial = Spatial(glm::vec3(10.f, 10.f, -10.f), glm::vec3(3.f), glm::vec3(0.f));
+Spatial Light::spatial = Spatial(glm::vec3(10.f, 10.f, -10.f), glm::vec3(15.f), glm::vec3(0.f));
 glm::mat4 Light::V(1.f);
 
 /* Library things */
@@ -79,7 +79,7 @@ int main() {
     for (int i = 0; i < I_VOLUME_BOARDS; i++) {
         volume->addCloudBoard(Spatial(
             Util::genRandomVec3(-10.f, 15.f),   // position offset
-            glm::vec3(15.f),                    // scale
+            glm::vec3(35.f),                    // scale
             glm::vec3(0.f)                      // rotation
         ));
     }
