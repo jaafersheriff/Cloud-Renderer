@@ -27,7 +27,7 @@ int Window::width = 1280;
 int Window::height = 720;
 
 /* Volume */
-#define I_VOLUME_BOARDS 5
+#define I_VOLUME_BOARDS 30
 #define I_VOLUME_POSITION glm::vec3(5.f, 0.f, 0.f)
 #define I_VOLUME_SCALE glm::vec2(10.f)
 #define I_VOLUME_BOUNDS glm::vec2(-100.f, 100.f)
@@ -78,8 +78,8 @@ int main() {
     volume = new Volume(I_VOLUME_DIMENSION, I_VOLUME_BOUNDS, I_VOLUME_POSITION, I_VOLUME_MIPS);
     for (int i = 0; i < I_VOLUME_BOARDS; i++) {
         volume->addCloudBoard(Spatial(
-            Util::genRandomVec3(-10.f, 15.f),   // position offset
-            glm::vec3(35.f),                    // scale
+            Util::genRandomVec3(-I_VOLUME_BOARDS, I_VOLUME_BOARDS),
+            glm::vec3(Util::genRandom(15.f, 2*I_VOLUME_BOARDS)),
             glm::vec3(0.f)                      // rotation
         ));
     }
@@ -88,6 +88,9 @@ int main() {
     Library::init();
     Library::addTexture(RESOURCE_DIR, diffuseTexName);
     Library::addTexture(RESOURCE_DIR, normalTexName);
+    Library::addTexture(RESOURCE_DIR, "a.png");
+    Library::addTexture(RESOURCE_DIR, "a.jpg");
+    Library::addTexture(RESOURCE_DIR, "b.png");
 
     /* Create shaders */
     billboardShader = new BillboardShader(RESOURCE_DIR, "billboard_vert.glsl", "cloud_frag.glsl");
@@ -257,6 +260,7 @@ void runImGuiPanes() {
     ImGui::SliderFloat("Angle", &coneShader->vctConeAngle, 0.f, 3.f);
     ImGui::SliderFloat("Height", &coneShader->vctConeInitialHeight, -0.5f, 3.f);
     ImGui::SliderFloat("LOD Offset", &coneShader->vctLodOffset, 0.f, 5.f);
+    ImGui::SliderFloat("Down Scaling", &coneShader->vctDownScaling, 1.f, 10.f);
     ImGui::Checkbox("Cone trace!", &coneTrace);
     ImGui::End();
 }
