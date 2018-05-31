@@ -41,8 +41,8 @@ glm::mat4 Light::V(1.f);
 
 /* Library things */
 const std::string RESOURCE_DIR("../res/");
-const std::string diffuseTexName(RESOURCE_DIR + "cloud.png");
-const std::string normalTexName(RESOURCE_DIR + "cloudmap.png");
+const std::string diffuseTexName("cloud.png");
+const std::string normalTexName("cloudmap.png");
 Mesh * Library::cube;
 Mesh * Library::quad;
 std::map<std::string, Texture *> Library::textures;
@@ -86,8 +86,8 @@ int main() {
 
     /* Create meshes and textures */
     Library::init();
-    Library::addTexture(diffuseTexName);
-    Library::addTexture(normalTexName);
+    Library::addTexture(RESOURCE_DIR, diffuseTexName);
+    Library::addTexture(RESOURCE_DIR, normalTexName);
 
     /* Create shaders */
     billboardShader = new BillboardShader(RESOURCE_DIR, "billboard_vert.glsl", "cloud_frag.glsl");

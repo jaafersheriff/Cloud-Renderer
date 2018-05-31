@@ -20,8 +20,8 @@ class Library {
         }
 
 
-        static void addTexture(std::string fileName) {
-            Texture *texture = new Texture(fileName);
+        static void addTexture(std::string res, std::string fileName) {
+            Texture *texture = new Texture(res + fileName);
             if (texture->textureId) {
                 textures[fileName] = texture;
             }
