@@ -91,6 +91,7 @@ int Window::init(std::string name, float fontSize = 15.f) {
 	}
 
 	std::cout << "OpenGL version: " << glGetString(GL_VERSION) << std::endl;
+	std::cout << "Renderer: " << glGetString(GL_VENDOR) << std::endl;
 	std::cout << "GLSL version: " << glGetString(GL_SHADING_LANGUAGE_VERSION) << std::endl;
 
     /* Vsync */
