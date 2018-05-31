@@ -29,7 +29,7 @@ class Util {
         }
         /* Generate a random value in a range [min, max] */
         static inline float genRandom(const float min, const float max) {
-            return genRandom() * (max - min) + min;
+            return genPosRandom() * (max - min) + min;
         }
         /* Generate a random vec3 with values [-1, 1] */
         static inline glm::vec3 genRandomVec3() {
