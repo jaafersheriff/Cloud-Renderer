@@ -18,6 +18,7 @@ class ConeTraceShader : public Shader {
         float vctConeAngle = 0.784398163f;
         float vctConeInitialHeight = 0.1f;
         float vctLodOffset = 0.1f;
+        float vctDownScaling = 1.f;
 
     private:
         void bindVolume(Volume *);

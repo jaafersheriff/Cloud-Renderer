@@ -8,14 +8,21 @@ void ConeTraceShader::coneTrace(Volume *volume) {
     bind();
     bindVolume(volume);
 
+    // CHECK_GL_CALL(glDisable(GL_DEPTH_TEST));
+
     /* Bind cone tracing params */
     loadInt(getUniform("vctSteps"), vctSteps);
     loadFloat(getUniform("vctConeAngle"), vctConeAngle);
     loadFloat(getUniform("vctConeInitialHeight"), vctConeInitialHeight);
     loadFloat(getUniform("vctLodOffset"), vctLodOffset);
+    loadFloat(getUniform("vctDownScaling"), vctDownScaling);
 
     loadVector(getUniform("lightPos"), Light::spatial.position);
     loadInt(getUniform("numBoards"), volume->cloudBoards.size());
+
+    CHECK_GL_CALL(glActiveTexture(GL_TEXTURE0 + Library::textures["b.png"]->textureId));
+    CHECK_GL_CALL(glBindTexture(GL_TEXTURE_2D, Library::textures["b.png"]->textureId));
+    loadInt(getUniform("tex"), Library::textures["b.png"]->textureId);
 
     /* Bind quad */
     CHECK_GL_CALL(glBindVertexArray(Library::quad->vaoId));
@@ -49,6 +56,8 @@ void ConeTraceShader::coneTrace(Volume *volume) {
     CHECK_GL_CALL(glBindVertexArray(0));
     unbindVolume();
     unbind();
+
+    // CHECK_GL_CALL(glEnable(GL_DEPTH_TEST));
 }
 
 void ConeTraceShader::bindVolume(Volume *volume) {
