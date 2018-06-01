@@ -9,8 +9,12 @@ void ConeTraceShader::coneTrace(Volume *volume, float dt) {
         volume->sortBoards(Camera::getPosition());
     }
 
+    glDisable(GL_DEPTH_TEST);
+
     bind();
     bindVolume(volume);
+
+    loadVector(getUniform("lightPos"), Light::spatial.position);
 
     /* Bind cone tracing params */
     loadInt(getUniform("vctSteps"), vctSteps);
@@ -19,7 +23,10 @@ void ConeTraceShader::coneTrace(Volume *volume, float dt) {
     loadFloat(getUniform("vctLodOffset"), vctLodOffset);
     loadFloat(getUniform("vctDownScaling"), vctDownScaling);
 
-    loadVector(getUniform("lightPos"), Light::spatial.position);
+    /* Bind noise map params */
+    loadFloat(getUniform("g_stepSize"), g_stepSize);
+    loadFloat(getUniform("g_noiseOpacity"), g_noiseOpacity);
+    loadVector(getUniform("g_directional"), g_directional);
 
     		glm::vec4 Octaves[4];
 		static float totaltime = 0;
@@ -65,6 +72,8 @@ void ConeTraceShader::coneTrace(Volume *volume, float dt) {
     CHECK_GL_CALL(glBindVertexArray(0));
     unbindVolume();
     unbind();
+
+    glEnable(GL_DEPTH_TEST);
 }
 
 void ConeTraceShader::bindVolume(Volume *volume) {

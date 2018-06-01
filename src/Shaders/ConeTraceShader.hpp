@@ -15,6 +15,11 @@ class ConeTraceShader : public Shader {
 
         void coneTrace(Volume *, float);
 
+        /* Noise map parameters */
+        float g_stepSize = 0.01;
+        float g_noiseOpacity = 20.0;
+        glm::vec4 g_directional = glm::vec4(0.992, 1.0, 0.880, 0.0);
+
         /* Cone trace parameters */
         int vctSteps = 16;
         float vctConeAngle = 0.784398163f;

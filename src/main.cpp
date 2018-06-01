@@ -260,5 +260,12 @@ void runImGuiPanes() {
     ImGui::SliderFloat("Down Scaling", &coneShader->vctDownScaling, 1.f, 10.f);
     ImGui::Checkbox("Cone trace!", &coneTrace);
     ImGui::End();
+
+    ImGui::Begin("Noise");
+    ImGui::SliderFloat("Step size", &coneShader->g_stepSize, 0.1f, 5.f);
+    ImGui::SliderFloat("Noise opacity", &coneShader->g_noiseOpacity, 0.1f, 5.f);
+    ImGui::SliderFloat4("Direction", glm::value_ptr(coneShader->g_directional), 0.0f, 1.f);
+    ImGui::End();
+
 }
 
