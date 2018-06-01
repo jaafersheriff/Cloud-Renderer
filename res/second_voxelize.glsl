@@ -35,7 +35,6 @@ ivec3 calculateVoxelIndex(vec3 pos) {
 }
 
 void main() {
-    float radius = scale/2;
     /* Read from position map */
     vec4 worldPos = imageLoad(positionMap, ivec2(gl_FragCoord.xy));
     /* If this voxel is active (is already either black or white)
