@@ -20,11 +20,6 @@ void ConeTraceShader::coneTrace(Volume *volume, float dt) {
     loadFloat(getUniform("vctDownScaling"), vctDownScaling);
 
     loadVector(getUniform("lightPos"), Light::spatial.position);
-    loadInt(getUniform("numBoards"), volume->cloudBoards.size());
-
-    CHECK_GL_CALL(glActiveTexture(GL_TEXTURE0 + Library::textures["cloud.png"]->textureId));
-    CHECK_GL_CALL(glBindTexture(GL_TEXTURE_2D, Library::textures["cloud.png"]->textureId));
-    loadInt(getUniform("tex"), Library::textures["cloud.png"]->textureId);
 
     		glm::vec4 Octaves[4];
 		static float totaltime = 0;
