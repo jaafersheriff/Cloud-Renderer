@@ -100,7 +100,7 @@ vec4 Noise3D(vec3 uv, int octaves) {
     float pers = 1;
     for (int i = 0; i < octaves; i++) {
         uvOffset = uv + g_OctaveOffsets[i].xyz;
-        octaveVal = texture(noisemap, uvOffset*freq, 0);
+        octaveVal = texture(noisemap, uvOffset*freq);
         noiseVal += pers * octaveVal;
         freq *= frequency;
         pers *= persistence;

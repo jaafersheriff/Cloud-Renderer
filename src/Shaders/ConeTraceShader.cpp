@@ -187,5 +187,4 @@ void ConeTraceShader::genNoise(int VolumeSize=32) {
 		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA8_SNORM, VolumeSize, VolumeSize, VolumeSize, 0, GL_RGBA, GL_BYTE, pData);
-		glGenerateMipmap(GL_TEXTURE_3D);
 }
