@@ -41,6 +41,24 @@ void Volume::addCloudBoard(Spatial s) {
     this->cloudBoards.push_back(s);
 }
 
+/* Sort billboards by distance to a point */
+void Volume::sortBoards(glm::vec3 orig) {
+    for (int i = 0; i < cloudBoards.size(); i++) {
+        int minIdx = i;
+        for (int j = i + 1; j < cloudBoards.size(); j++) {
+            if (glm::distance(cloudBoards[minIdx].position, orig) < glm::distance(cloudBoards[j].position, orig)) {
+                minIdx = j;
+            }
+        }
+        if (i != minIdx) {
+            Spatial tmp = cloudBoards[i];
+            cloudBoards[i] = cloudBoards[minIdx];
+            cloudBoards[minIdx] = tmp;
+        }
+    }
+}
+
+
 /* Reset GPU volume */
 void Volume::clearGPU() {
     for (int i = 0; i < levels; i++) {

@@ -5,10 +5,12 @@
 #include "Library.hpp"
 
 void ConeTraceShader::coneTrace(Volume *volume) {
+    if (sort) {
+        volume->sortBoards(Camera::getPosition());
+    }
+
     bind();
     bindVolume(volume);
-
-    // CHECK_GL_CALL(glDisable(GL_DEPTH_TEST));
 
     /* Bind cone tracing params */
     loadInt(getUniform("vctSteps"), vctSteps);
@@ -20,9 +22,9 @@ void ConeTraceShader::coneTrace(Volume *volume) {
     loadVector(getUniform("lightPos"), Light::spatial.position);
     loadInt(getUniform("numBoards"), volume->cloudBoards.size());
 
-    CHECK_GL_CALL(glActiveTexture(GL_TEXTURE0 + Library::textures["b.png"]->textureId));
-    CHECK_GL_CALL(glBindTexture(GL_TEXTURE_2D, Library::textures["b.png"]->textureId));
-    loadInt(getUniform("tex"), Library::textures["b.png"]->textureId);
+    CHECK_GL_CALL(glActiveTexture(GL_TEXTURE0 + Library::textures["cloud.png"]->textureId));
+    CHECK_GL_CALL(glBindTexture(GL_TEXTURE_2D, Library::textures["cloud.png"]->textureId));
+    loadInt(getUniform("tex"), Library::textures["cloud.png"]->textureId);
 
     /* Bind quad */
     CHECK_GL_CALL(glBindVertexArray(Library::quad->vaoId));
@@ -56,8 +58,6 @@ void ConeTraceShader::coneTrace(Volume *volume) {
     CHECK_GL_CALL(glBindVertexArray(0));
     unbindVolume();
     unbind();
-
-    // CHECK_GL_CALL(glEnable(GL_DEPTH_TEST));
 }
 
 void ConeTraceShader::bindVolume(Volume *volume) {

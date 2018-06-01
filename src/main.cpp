@@ -36,7 +36,7 @@ int Window::height = 720;
 Volume *volume;
 
 /* Light */
-Spatial Light::spatial = Spatial(glm::vec3(10.f, 10.f, -10.f), glm::vec3(15.f), glm::vec3(0.f));
+Spatial Light::spatial = Spatial(glm::vec3(250.f, 250.f, -10.f), glm::vec3(15.f), glm::vec3(0.f));
 glm::mat4 Light::V(1.f);
 
 /* Library things */
@@ -204,6 +204,7 @@ void runImGuiPanes() {
     ImGui::End();
 
     ImGui::Begin("Billboards");
+    ImGui::Checkbox("Sort", &coneShader->sort);
     static glm::vec3 newPos(0.f);
     static float scale = 1.f;
     ImGui::SliderFloat3("Offset", glm::value_ptr(newPos), -200.f, 200.f);
