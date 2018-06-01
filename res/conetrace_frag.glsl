@@ -29,6 +29,9 @@ uniform mat4 g_OctaveOffsets;
 uniform float g_stepSize;
 uniform float g_noiseOpacity;
 uniform vec4 g_directional;
+uniform int octaves;
+uniform float frequency;
+uniform float persistence;
 
 out vec4 color;
 
@@ -99,8 +102,8 @@ vec4 Noise3D(vec3 uv, int octaves) {
         uvOffset = uv + g_OctaveOffsets[i].xyz;
         octaveVal = texture(noisemap, uvOffset*freq, 0);
         noiseVal += pers * octaveVal;
-        freq *= 3.0;
-        pers *= 0.5;
+        freq *= frequency;
+        pers *= persistence;
     }
 
     noiseVal.a = abs(noiseVal.a);
@@ -147,13 +150,12 @@ void main() {
     vec4 runningLight = vec4(0, 0, 0, 0);
     float depthFade = 1.0;
     for (int i = 0; i < iSteps; i++) {
-        vec4 noiseCell = Noise3D(currentTex, 4);
+        vec4 noiseCell = Noise3D(currentTex, octaves);
         noiseCell.xyz += normalize(unitTex);
         noiseCell.xyz = normalize(noiseCell.xyz);
         float lenSq = dot(unitTex, unitTex);
         float falloff = 1.0 - lenSq;
-        //1 - len^2 falloff
-	float localOpacity = noiseCell.a*falloff;
+	    float localOpacity = noiseCell.a*falloff;
         runningOpacity += localOpacity;
         vec4 localLight = g_directional*saturate(dot(noiseCell.xyz, vec3(0, 1, 0))*0.5 + 0.5);
         localLight = vec4(saturate(dot(noiseCell.xyz, vec3(0, 1, 0))*0.5 + 0.5));

@@ -27,6 +27,9 @@ void ConeTraceShader::coneTrace(Volume *volume, float dt) {
     loadFloat(getUniform("g_stepSize"), g_stepSize);
     loadFloat(getUniform("g_noiseOpacity"), g_noiseOpacity);
     loadVector(getUniform("g_directional"), g_directional);
+    loadInt(getUniform("octaves"), octaves);
+    loadFloat(getUniform("frequency"), frequency);
+    loadFloat(getUniform("persistence"), persistence);
 
     		glm::vec4 Octaves[4];
 		static float totaltime = 0;

@@ -19,6 +19,9 @@ class ConeTraceShader : public Shader {
         float g_stepSize = 0.01;
         float g_noiseOpacity = 20.0;
         glm::vec4 g_directional = glm::vec4(0.992, 1.0, 0.880, 0.0);
+        int octaves = 4;
+        float frequency = 3;
+        float persistence = 0.5;
 
         /* Cone trace parameters */
         int vctSteps = 16;
