@@ -26,7 +26,6 @@ void ConeTraceShader::coneTrace(Volume *volume, float dt) {
     /* Bind noise map params */
     loadFloat(getUniform("g_stepSize"), g_stepSize);
     loadFloat(getUniform("g_noiseOpacity"), g_noiseOpacity);
-    loadVector(getUniform("g_directional"), g_directional);
     loadInt(getUniform("octaves"), octaves);
     loadFloat(getUniform("frequency"), frequency);
     loadFloat(getUniform("persistence"), persistence);
@@ -36,7 +35,7 @@ void ConeTraceShader::coneTrace(Volume *volume, float dt) {
         totaltime += dt*100.f;
 		for (int i = 0; i<4; i++)
 			{
-			Octaves[i].x = -(float)(totaltime*0.001);
+			Octaves[i].x = -(float)(totaltime*0.0001);
 			Octaves[i].y = 0;
 			Octaves[i].z = 0;
 			Octaves[i].w = 0;

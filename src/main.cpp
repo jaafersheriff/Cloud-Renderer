@@ -35,7 +35,7 @@ int I_VOLUME_MIPS = 4;
 Volume *volume;
 
 /* Light */
-Spatial Light::spatial = Spatial(glm::vec3(50.f, 50.f, -5.f), glm::vec3(1.f), glm::vec3(0.f));
+Spatial Light::spatial = Spatial(glm::vec3(5.f, 20.f, -5.f), glm::vec3(1.f), glm::vec3(0.f));
 glm::mat4 Light::V(1.f);
 
 /* Library things */
@@ -280,7 +280,6 @@ void runImGuiPanes() {
     ImGui::Begin("Noise");
     ImGui::SliderFloat("Step size", &coneShader->g_stepSize, 0.001f, 10.f);
     ImGui::SliderFloat("Noise opacity", &coneShader->g_noiseOpacity, 0.1f, 100.f);
-    ImGui::SliderFloat4("Direction", glm::value_ptr(coneShader->g_directional), 0.0f, 1.f);
     ImGui::SliderInt("Octaves", &coneShader->octaves, 1, 100);
     ImGui::SliderFloat("Frequency", &coneShader->frequency, 0.01f, 100.f);
     ImGui::SliderFloat("Persistence", &coneShader->persistence, 0.01f, 100.f);

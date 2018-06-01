@@ -17,8 +17,7 @@ class ConeTraceShader : public Shader {
 
         /* Noise map parameters */
         float g_stepSize = 0.01;
-        float g_noiseOpacity = 20.0;
-        glm::vec4 g_directional = glm::vec4(0.992, 1.0, 0.880, 0.0);
+        float g_noiseOpacity = 4.0;
         int octaves = 4;
         float frequency = 3;
         float persistence = 0.5;
@@ -28,7 +27,7 @@ class ConeTraceShader : public Shader {
         float vctConeAngle = 0.784398163f;
         float vctConeInitialHeight = 0.1f;
         float vctLodOffset = 0.1f;
-        float vctDownScaling = 3.f;
+        float vctDownScaling = 1.f;
 
         bool sort = true;
 

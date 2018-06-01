@@ -193,8 +193,5 @@
     <None Include="..\res\debug_frag.glsl">
       <Filter>glsl</Filter>
     </None>
-    <None Include="..\res\common.glsl">
-      <Filter>glsl</Filter>
-    </None>
   </ItemGroup>
 </Project>

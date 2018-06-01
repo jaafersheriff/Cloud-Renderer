@@ -113,7 +113,7 @@ vec4 Noise3D(vec3 uv, int octaves) {
 
 #define MAX_STEPS 8
 void main() {
-    float radius = scale/2;
+    float radius = scale;
     /* Spherical distance - 1 at center of billboard, 0 at edges */
     float sphereContrib = (distance(center, fragPos)/radius);
     sphereContrib = sqrt(max(0, 1 - sphereContrib * sphereContrib));
@@ -135,7 +135,8 @@ void main() {
     float currentDepth = viewNear.z/ viewNear.w;
     float farDepth = viewFar.z / viewFar.w;
     vec3 unitTex = (worldNear - center) / radius;
-    float fNoiseSizeAdjust = 1 / scale;
+    float density = 40;
+    float fNoiseSizeAdjust = 1 / density;
     vec3 localTexNear = worldNear * fNoiseSizeAdjust;
     vec3 localTexFar = worldFar * fNoiseSizeAdjust;
     float iSteps = length(localTexFar - localTexNear) / g_stepSize;
@@ -157,8 +158,7 @@ void main() {
         float falloff = 1.0 - lenSq;
 	    float localOpacity = noiseCell.a*falloff;
         runningOpacity += localOpacity;
-        vec4 localLight = g_directional*saturate(dot(noiseCell.xyz, vec3(0, 1, 0))*0.5 + 0.5);
-        localLight = vec4(saturate(dot(noiseCell.xyz, vec3(0, 1, 0))*0.5 + 0.5));
+        vec4 localLight = vec4(saturate(dot(noiseCell.xyz, vec3(0, 1, 0))*0.5 + 0.5));
         runningLight += localLight;
         currentTex += localTexDelta;
         unitTex += localTexDelta;
