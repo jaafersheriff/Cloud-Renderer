@@ -6,8 +6,8 @@
 
 #include "glm/glm.hpp"
 
-#define LOOK_SPEED 0.003f
-#define MOVE_SPEED 2.f
+#define LOOK_SPEED 0.004f
+#define MOVE_SPEED 0.25f
 
 class Camera {
     public:
@@ -16,7 +16,7 @@ class Camera {
         Camera() : Camera(glm::vec3(0.f)) { }
 
         /* Update */
-        static void update(float dt);
+        static void update();
 
         /* Move according to UVW */
         static void moveForward(const float);

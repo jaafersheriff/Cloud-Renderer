@@ -14,10 +14,10 @@ Camera::Camera(const glm::vec3 position) {
     this->position = position;
     phi = theta = 0.0;
 
-    update(0.f);
+    update();
 }
 
-void Camera::update(float dt) {
+void Camera::update() {
     /* Update view angles */
     if (Mouse::isDown(0)) {
         theta += Mouse::dx * LOOK_SPEED;
@@ -41,7 +41,6 @@ void Camera::update(float dt) {
     if (Keyboard::isKeyPressed(GLFW_KEY_LEFT_SHIFT) || Keyboard::isKeyPressed(GLFW_KEY_RIGHT_SHIFT)) {
         moveSpeed *= 2.f;
     }
-    moveSpeed *= dt;
 
     /* Update position*/
     if (Keyboard::isKeyPressed(GLFW_KEY_W)) {

@@ -100,7 +100,7 @@ int main() {
     CHECK_GL_CALL(glEnable(GL_DEPTH_TEST));
     CHECK_GL_CALL(glEnable(GL_BLEND));
     CHECK_GL_CALL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
-    Camera::update(Window::timeStep);
+    Camera::update();
 
     // add light spatial to cloud billboards so we can visualize light pos 
     // TODO : replace with proper sun rendering
@@ -111,7 +111,7 @@ int main() {
         Window::update();
 
         /* Update camera */
-        Camera::update(Window::timeStep);
+        Camera::update();
 
         /* Update light */
         Light::update(volume->position);
