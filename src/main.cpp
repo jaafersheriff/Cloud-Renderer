@@ -210,11 +210,12 @@ void runImGuiPanes() {
         volume->addCloudBoard(Spatial(newPos, glm::vec3(scale), glm::vec3(0.f)));
     }
     static glm::vec2 ranPos = glm::vec2(-3.f, 3.f);
-    static glm::vec2 ranScale = glm::vec2(0.f, 3.f);
-    ImGui::SliderFloat2("Random Offset", glm::value_ptr(ranPos), -15.f, 15.f);
-    ImGui::SliderFloat2("Random Scale", glm::value_ptr(ranScale), 1.f, 10.f);
-    ImGui::SliderInt("Number billboards", &I_VOLUME_BOARDS, 0, 200);
-    if (ImGui::Button("Reset billboards")) {
+    static glm::vec2 ranScale = glm::vec2(1.f, 3.f);
+    bool changing = false;
+    changing |= ImGui::SliderFloat2("Random Offset", glm::value_ptr(ranPos), -5.f, 5.f);
+    changing |= ImGui::SliderFloat2("Random Scale", glm::value_ptr(ranScale), 1.f, 10.f);
+    changing |= ImGui::SliderInt("Number billboards", &I_VOLUME_BOARDS, 0, 200);
+    if (ImGui::Button("Reset billboards") || changing) {
         volume->cloudBoards.clear();
         for (int i = 0; i < I_VOLUME_BOARDS; i++) {
             volume->addCloudBoard(Spatial(
