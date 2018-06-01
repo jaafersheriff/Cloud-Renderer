@@ -9,9 +9,11 @@ class ConeTraceShader : public Shader {
     public:
         ConeTraceShader(const std::string &r, const std::string &v, const std::string &f) :
             Shader(r, v, f)
-        {}
+        {
+            genNoise(32);
+        }
 
-        void coneTrace(Volume *);
+        void coneTrace(Volume *, float);
 
         /* Cone trace parameters */
         int vctSteps = 16;
@@ -25,6 +27,10 @@ class ConeTraceShader : public Shader {
     private:
         void bindVolume(Volume *);
         void unbindVolume();
+
+
+        void genNoise(int);
+        GLuint TexNoise;
 };
 
 #endif

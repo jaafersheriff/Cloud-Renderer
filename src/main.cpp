@@ -131,7 +131,7 @@ int main() {
         }
         /* Cone trace from the camera's perspective */
         if (coneTrace) {
-            coneShader->coneTrace(volume);
+            coneShader->coneTrace(volume, Window::timeStep);
         }
 
         /* Render cloud billboards */
