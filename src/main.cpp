@@ -27,16 +27,15 @@ int Window::width = 1280;
 int Window::height = 720;
 
 /* Volume */
-#define I_VOLUME_BOARDS 30
-#define I_VOLUME_POSITION glm::vec3(5.f, 0.f, 0.f)
-#define I_VOLUME_SCALE glm::vec2(10.f)
-#define I_VOLUME_BOUNDS glm::vec2(-100.f, 100.f)
-#define I_VOLUME_DIMENSION 32
-#define I_VOLUME_MIPS 4
+int I_VOLUME_BOARDS = 200;
+glm::vec3 I_VOLUME_POSITION = glm::vec3(5.f, 0.f, 0.f);
+glm::vec2 I_VOLUME_BOUNDS = glm::vec2(-20.f, 20.f);
+int I_VOLUME_DIMENSION = 32;
+int I_VOLUME_MIPS = 4;
 Volume *volume;
 
 /* Light */
-Spatial Light::spatial = Spatial(glm::vec3(250.f, 250.f, -10.f), glm::vec3(15.f), glm::vec3(0.f));
+Spatial Light::spatial = Spatial(glm::vec3(50.f, 50.f, -5.f), glm::vec3(1.f), glm::vec3(0.f));
 glm::mat4 Light::V(1.f);
 
 /* Library things */
@@ -75,11 +74,11 @@ int main() {
     }
 
     /* Create volume */
-    volume = new Volume(I_VOLUME_DIMENSION, I_VOLUME_BOUNDS, I_VOLUME_POSITION, I_VOLUME_MIPS);
+    volume = new Volume(I_VOLUME_DIMENSION, glm::vec2(-5.f, 5.f), I_VOLUME_POSITION, I_VOLUME_MIPS);
     for (int i = 0; i < I_VOLUME_BOARDS; i++) {
         volume->addCloudBoard(Spatial(
-            Util::genRandomVec3(-I_VOLUME_BOARDS, I_VOLUME_BOARDS),
-            glm::vec3(Util::genRandom(15.f, 2*I_VOLUME_BOARDS)),
+            Util::genRandomVec3(-3.f, 3.f),
+            glm::vec3(Util::genRandom(1.f, 4.f)),
             glm::vec3(0.f)                      // rotation
         ));
     }
@@ -165,7 +164,8 @@ void runImGuiPanes() {
     ImGui::End();
 
     ImGui::Begin("Light");
-    ImGui::SliderFloat3("Position", glm::value_ptr(Light::spatial.position), -1000.f, 1000.f);
+    ImGui::SliderFloat3("Position", glm::value_ptr(Light::spatial.position), -100.f, 100.f);
+    ImGui::SliderFloat("Scale", &Light::spatial.scale.x, 0.f, 10.f);
     static float mapSize = 0.2f;
     static bool showFullMap = false;
     static bool showSmallMap = false;
@@ -185,6 +185,7 @@ void runImGuiPanes() {
         debugShader->loadMatrix(debugShader->getUniform("V"), &M);
         debugShader->loadMatrix(debugShader->getUniform("Vi"), &M);
         debugShader->loadMatrix(debugShader->getUniform("N"), &M);
+        M *= glm::scale(glm::mat4(1.f), glm::vec3(2.f));
         debugShader->loadMatrix(debugShader->getUniform("M"), &M);
         CHECK_GL_CALL(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
         CHECK_GL_CALL(glBindVertexArray(0));
@@ -203,11 +204,26 @@ void runImGuiPanes() {
     ImGui::Checkbox("Sort", &coneShader->sort);
     static glm::vec3 newPos(0.f);
     static float scale = 1.f;
-    ImGui::SliderFloat3("Offset", glm::value_ptr(newPos), -200.f, 200.f);
-    ImGui::SliderFloat("Scale", &scale, 1.f, 200.f);
+    ImGui::SliderFloat3("Offset", glm::value_ptr(newPos), -10.f, 10.f);
+    ImGui::SliderFloat("Scale", &scale, 0.1f, 10.f);
     if (ImGui::Button("Add Billboard")) {
         volume->addCloudBoard(Spatial(newPos, glm::vec3(scale), glm::vec3(0.f)));
     }
+    static glm::vec2 ranPos = glm::vec2(-3.f, 3.f);
+    static glm::vec2 ranScale = glm::vec2(0.f, 3.f);
+    ImGui::SliderFloat2("Random Offset", glm::value_ptr(ranPos), -15.f, 15.f);
+    ImGui::SliderFloat2("Random Scale", glm::value_ptr(ranScale), 1.f, 10.f);
+    ImGui::SliderInt("Number billboards", &I_VOLUME_BOARDS, 0, 200);
+    if (ImGui::Button("Reset billboards")) {
+        volume->cloudBoards.clear();
+        for (int i = 0; i < I_VOLUME_BOARDS; i++) {
+            volume->addCloudBoard(Spatial(
+                Util::genRandomVec3(ranPos.x, ranPos.y),
+                glm::vec3(Util::genRandom(ranScale.x, ranScale.y)),
+                glm::vec3(0.f)
+            ));
+        }
+   }
     static int currBoard = 0;
     ImGui::SliderInt("Curr board", &currBoard, 0, volume->cloudBoards.size() - 1);
     Spatial *s = &volume->cloudBoards[currBoard];
@@ -221,8 +237,8 @@ void runImGuiPanes() {
 
     ImGui::Begin("Cloud Volume");
     ImGui::SliderFloat3("Position", glm::value_ptr(volume->position), -20.f, 20.f);
-    float minBounds[2] = { -100.f,  0.1f };
-    float maxBounds[2] = { -0.1f, 100.f };
+    float minBounds[2] = { -10.f,  0.1f };
+    float maxBounds[2] = { -0.1f, 10.f };
     ImGui::SliderFloat2("XBounds", glm::value_ptr(volume->xBounds), minBounds, maxBounds);
     ImGui::SliderFloat2("YBounds", glm::value_ptr(volume->yBounds), minBounds, maxBounds);
     ImGui::SliderFloat2("ZBounds", glm::value_ptr(volume->zBounds), minBounds, maxBounds);
@@ -262,12 +278,12 @@ void runImGuiPanes() {
     ImGui::End();
 
     ImGui::Begin("Noise");
-    ImGui::SliderFloat("Step size", &coneShader->g_stepSize, 0.1f, 5.f);
-    ImGui::SliderFloat("Noise opacity", &coneShader->g_noiseOpacity, 0.1f, 5.f);
+    ImGui::SliderFloat("Step size", &coneShader->g_stepSize, 0.001f, 10.f);
+    ImGui::SliderFloat("Noise opacity", &coneShader->g_noiseOpacity, 0.1f, 100.f);
     ImGui::SliderFloat4("Direction", glm::value_ptr(coneShader->g_directional), 0.0f, 1.f);
-    ImGui::SliderInt("Octaves", &coneShader->octaves, 1, 12);
-    ImGui::SliderFloat("Frequency", &coneShader->frequency, 0.1f, 10.f);
-    ImGui::SliderFloat("Persistence", &coneShader->persistence, 0.1f, 2.f);
+    ImGui::SliderInt("Octaves", &coneShader->octaves, 1, 100);
+    ImGui::SliderFloat("Frequency", &coneShader->frequency, 0.01f, 100.f);
+    ImGui::SliderFloat("Persistence", &coneShader->persistence, 0.01f, 100.f);
     ImGui::End();
 
 }

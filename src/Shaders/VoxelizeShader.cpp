@@ -109,7 +109,6 @@ void VoxelizeShader::secondVoxelize(Volume *volume) {
     secondVoxelizer->loadMatrix(secondVoxelizer->getUniform("N"), &M);
 
     /* Quad goes [-0.5, 0.5], we need it to be [-1, 1] */
-    M *= glm::scale(glm::mat4(1.f), glm::vec3(2.f));
     secondVoxelizer->loadMatrix(secondVoxelizer->getUniform("M"), &M);
     
     /* Draw full screen quad */
