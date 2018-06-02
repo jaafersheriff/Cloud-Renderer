@@ -20,7 +20,6 @@
 /* Initial values */
 #define IMGUI_FONT_SIZE 13.f
 bool lightVoxelize = true;
-bool coneTrace = true;
 bool lightView = false;
 bool showVoxels = false;
 int Window::width = 1280;
@@ -126,9 +125,7 @@ int main() {
             voxelizeShader->voxelize(volume);
         }
         /* Cone trace from the camera's perspective */
-        if (coneTrace) {
-            coneShader->coneTrace(volume, Window::timeStep);
-        }
+        coneShader->coneTrace(volume, Window::timeStep);
 
         /* Render cloud billboards */
         billboardShader->render(cloudsBillboards, Library::textures[diffuseTexName], Library::textures[normalTexName]);
@@ -201,7 +198,7 @@ void runImGuiPanes() {
     ImGui::End();
 
     ImGui::Begin("Billboards");
-    ImGui::Checkbox("Sort", &coneShader->sort);
+    ImGui::Checkbox("Sort", &coneShader->doSort);
     static glm::vec3 newPos(0.f);
     static float scale = 1.f;
     ImGui::SliderFloat3("Offset", glm::value_ptr(newPos), -10.f, 10.f);
@@ -275,7 +272,7 @@ void runImGuiPanes() {
     ImGui::SliderFloat("Height", &coneShader->vctConeInitialHeight, -0.5f, 3.f);
     ImGui::SliderFloat("LOD Offset", &coneShader->vctLodOffset, 0.f, 5.f);
     ImGui::SliderFloat("Down Scaling", &coneShader->vctDownScaling, 1.f, 10.f);
-    ImGui::Checkbox("Cone trace!", &coneTrace);
+    ImGui::Checkbox("Cone trace!", &coneShader->doConeTrace);
     ImGui::End();
 
     ImGui::Begin("Noise");
@@ -284,6 +281,7 @@ void runImGuiPanes() {
     ImGui::SliderInt("Octaves", &coneShader->numOctaves, 1, 100);
     ImGui::SliderFloat("Frequency", &coneShader->freqStep, 0.01f, 100.f);
     ImGui::SliderFloat("Persistence", &coneShader->persStep, 0.01f, 100.f);
+    ImGui::Checkbox("Noise sample", &coneShader->doNoiseSample);
     ImGui::End();
 
 }

@@ -12,7 +12,11 @@ ConeTraceShader::ConeTraceShader(const std::string &r, const std::string &v, con
 }
 
 void ConeTraceShader::coneTrace(Volume *volume, float dt) {
-    if (sort) {
+    if (!doConeTrace && !doNoiseSample) {
+        return;
+    }
+
+    if (doSort) {
         volume->sortBoards(Camera::getPosition());
     }
 
@@ -24,6 +28,7 @@ void ConeTraceShader::coneTrace(Volume *volume, float dt) {
     loadVector(getUniform("lightPos"), Light::spatial.position);
 
     /* Bind cone tracing params */
+    loadBool(getUniform("doConeTrace"), doConeTrace);
     loadInt(getUniform("vctSteps"), vctSteps);
     loadFloat(getUniform("vctConeAngle"), vctConeAngle);
     loadFloat(getUniform("vctConeInitialHeight"), vctConeInitialHeight);
@@ -31,6 +36,7 @@ void ConeTraceShader::coneTrace(Volume *volume, float dt) {
     loadFloat(getUniform("vctDownScaling"), vctDownScaling);
 
     /* Bind noise map and params */
+    loadBool(getUniform("doNoise"), doNoiseSample);
     CHECK_GL_CALL(glActiveTexture(GL_TEXTURE0 + noiseMapId));
     CHECK_GL_CALL(glBindTexture(GL_TEXTURE_3D, noiseMapId));
     loadInt(getUniform("noiseMap"), noiseMapId);
