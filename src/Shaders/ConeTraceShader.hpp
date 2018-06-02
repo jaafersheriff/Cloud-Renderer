@@ -3,13 +3,13 @@
 #define _CONE_TRACE_SHADER_HPP_
 
 #include "Shader.hpp"
-#include "Volume.hpp"
+#include "CloudVolume.hpp"
 
 class ConeTraceShader : public Shader {
     public:
         ConeTraceShader(const std::string &r, const std::string &v, const std::string &f);
 
-        void coneTrace(Volume *, float);
+        void coneTrace(CloudVolume *, float);
 
         /* Noise map parameters */
         float stepSize = 0.01f;
@@ -30,7 +30,7 @@ class ConeTraceShader : public Shader {
         bool doNoiseSample = true;
 
     private:
-        void bindVolume(Volume *);
+        void bindVolume(CloudVolume *);
         void unbindVolume();
 
         void initNoiseMap(int);

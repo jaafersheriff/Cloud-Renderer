@@ -11,7 +11,7 @@ ConeTraceShader::ConeTraceShader(const std::string &r, const std::string &v, con
     initNoiseMap(32);
 }
 
-void ConeTraceShader::coneTrace(Volume *volume, float dt) {
+void ConeTraceShader::coneTrace(CloudVolume *volume, float dt) {
     if (!doConeTrace && !doNoiseSample) {
         return;
     }
@@ -89,7 +89,7 @@ void ConeTraceShader::coneTrace(Volume *volume, float dt) {
     CHECK_GL_CALL(glEnable(GL_DEPTH_TEST));
 }
 
-void ConeTraceShader::bindVolume(Volume *volume) {
+void ConeTraceShader::bindVolume(CloudVolume *volume) {
     CHECK_GL_CALL(glActiveTexture(GL_TEXTURE0 + volume->volId));
     CHECK_GL_CALL(glBindTexture(GL_TEXTURE_3D, volume->volId));
     loadInt(getUniform("volumeTexture"), volume->volId);

@@ -1,6 +1,6 @@
 #pragma once
-#ifndef _VOLUME_HPP_
-#define _VOLUME_HPP_
+#ifndef _CLOUD_VOLUME_HPP_
+#define _CLOUD_VOLUME_HPP_
 
 #include <glad/glad.h>
 
@@ -8,14 +8,14 @@
 
 #include <vector>
 
-class Volume {
+class CloudVolume {
     public:
         struct Voxel {
             Spatial spatial;    // Position and scale in world-space
             glm::vec4 data;     // Data stored in voxel
         };
 
-        Volume(int, glm::vec2, glm::vec3, int);
+        CloudVolume(int, glm::vec2, glm::vec3, int);
 
         void addCloudBoard(Spatial);
         void sortBoards(glm::vec3);

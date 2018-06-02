@@ -3,7 +3,7 @@
 #define _VOXEL_SHADER_HPP_
 
 #include "Shader.hpp"
-#include "Volume.hpp"
+#include "CloudVolume.hpp"
 
 #include <vector>
 
@@ -14,7 +14,7 @@ class VoxelShader : public Shader {
             Shader(r, v, f)
         {}
 
-        void render(Volume *, glm::mat4, glm::mat4);
+        void render(CloudVolume *, glm::mat4, glm::mat4);
 
         bool useOutline = true;
         bool disableBounds = false;

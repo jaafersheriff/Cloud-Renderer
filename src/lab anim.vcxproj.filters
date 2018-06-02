@@ -49,14 +49,14 @@
     <ClCompile Include="Shaders\VoxelShader.cpp">
       <Filter>src\Shaders</Filter>
     </ClCompile>
-    <ClCompile Include="Volume.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
     <ClCompile Include="Shaders\VoxelizeShader.cpp">
       <Filter>src\Shaders</Filter>
     </ClCompile>
     <ClCompile Include="Shaders\ConeTraceShader.cpp">
       <Filter>src\Shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="CloudVolume.cpp">
+      <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -152,14 +152,14 @@
     <ClInclude Include="Shaders\VoxelShader.hpp">
       <Filter>src\Shaders</Filter>
     </ClInclude>
-    <ClInclude Include="Volume.hpp">
-      <Filter>src</Filter>
-    </ClInclude>
     <ClInclude Include="Shaders\VoxelizeShader.hpp">
       <Filter>src\Shaders</Filter>
     </ClInclude>
     <ClInclude Include="Shaders\ConeTraceShader.hpp">
       <Filter>src\Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="CloudVolume.hpp">
+      <Filter>src</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

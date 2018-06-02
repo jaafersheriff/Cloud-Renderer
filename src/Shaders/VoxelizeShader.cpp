@@ -15,7 +15,7 @@ VoxelizeShader::VoxelizeShader(const std::string &r, const std::string &v, const
     initPositionMap(Window::width, Window::height);
 }
 
-void VoxelizeShader::voxelize(Volume *volume) {
+void VoxelizeShader::voxelize(CloudVolume *volume) {
     /* Resize position map if window was resized */
     if (Window::width != positionMap->width || Window::height != positionMap->height) {
         resizePositionMap(Window::width, Window::height);
@@ -45,7 +45,7 @@ void VoxelizeShader::voxelize(Volume *volume) {
 /* First voxelize pass 
  * Render all billboards and initialize black voxels
  * Write out nearest voxel positions to position map */
-void VoxelizeShader::firstVoxelize(Volume *volume) {
+void VoxelizeShader::firstVoxelize(CloudVolume *volume) {
     firstVoxelizer->bind();
 
     /* Bind volume and position map */
@@ -91,7 +91,7 @@ void VoxelizeShader::firstVoxelize(Volume *volume) {
 /* Second voxelize pass 
  * Render position map 
  * Highlight voxels nearest to light */
-void VoxelizeShader::secondVoxelize(Volume *volume) {
+void VoxelizeShader::secondVoxelize(CloudVolume *volume) {
     secondVoxelizer->bind();
 
     /* Bind volume and position map */
@@ -124,7 +124,7 @@ void VoxelizeShader::secondVoxelize(Volume *volume) {
     secondVoxelizer->unbind();
 }
 
-void VoxelizeShader::bindVolume(Shader *shader, Volume *volume) {
+void VoxelizeShader::bindVolume(Shader *shader, CloudVolume *volume) {
     CHECK_GL_CALL(glActiveTexture(GL_TEXTURE0 + volume->volId));
     CHECK_GL_CALL(glBindImageTexture(0, volume->volId, 0, GL_TRUE, 0, GL_READ_WRITE, GL_RGBA16F));
   

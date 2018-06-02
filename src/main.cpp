@@ -4,7 +4,7 @@
 #include "Library.hpp"
 
 #include "Light.hpp"
-#include "Volume.hpp"
+#include "CloudVolume.hpp"
 
 #include "Shaders/GLSL.hpp"
 #include "Shaders/BillboardShader.hpp"
@@ -31,7 +31,7 @@ glm::vec3 I_VOLUME_POSITION = glm::vec3(5.f, 0.f, 0.f);
 glm::vec2 I_VOLUME_BOUNDS = glm::vec2(-20.f, 20.f);
 int I_VOLUME_DIMENSION = 32;
 int I_VOLUME_MIPS = 4;
-Volume *volume;
+CloudVolume *volume;
 
 /* Light */
 Spatial Light::spatial = Spatial(glm::vec3(5.f, 20.f, -5.f), glm::vec3(1.f), glm::vec3(0.f));
@@ -73,7 +73,7 @@ int main() {
     }
 
     /* Create volume */
-    volume = new Volume(I_VOLUME_DIMENSION, glm::vec2(-5.f, 5.f), I_VOLUME_POSITION, I_VOLUME_MIPS);
+    volume = new CloudVolume(I_VOLUME_DIMENSION, glm::vec2(-5.f, 5.f), I_VOLUME_POSITION, I_VOLUME_MIPS);
     for (int i = 0; i < I_VOLUME_BOARDS; i++) {
         volume->addCloudBoard(Spatial(
             Util::genRandomVec3(-3.f, 3.f),

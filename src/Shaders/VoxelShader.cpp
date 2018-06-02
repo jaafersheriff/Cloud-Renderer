@@ -8,7 +8,7 @@
 #include "glm/gtc/matrix_transform.hpp"
 
 /* Visualize voxels */
-void VoxelShader::render(Volume *volume, glm::mat4 P, glm::mat4 V) {
+void VoxelShader::render(CloudVolume *volume, glm::mat4 P, glm::mat4 V) {
     /* Bind projeciton, view, inverise view matrices */
     loadMatrix(getUniform("P"), &P);
     loadMatrix(getUniform("V"), &V);

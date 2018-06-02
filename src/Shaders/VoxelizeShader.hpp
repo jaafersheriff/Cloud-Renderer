@@ -5,7 +5,7 @@
 #include "Shader.hpp"
 
 #include "Model/Texture.hpp"
-#include "Volume.hpp"
+#include "CloudVolume.hpp"
 
 class VoxelizeShader {
     public:
@@ -15,17 +15,17 @@ class VoxelizeShader {
         Shader * secondVoxelizer;
 
         /* Generate 3D volume */
-        void voxelize(Volume *);
+        void voxelize(CloudVolume *);
 
         /* 2D position FBO */
         Texture * positionMap;
         void clearPositionMap();
 
     private:
-        void firstVoxelize(Volume *);
-        void secondVoxelize(Volume *);
+        void firstVoxelize(CloudVolume *);
+        void secondVoxelize(CloudVolume *);
         
-        void bindVolume(Shader *, Volume *);
+        void bindVolume(Shader *, CloudVolume *);
         void unbindVolume();
 
         void initPositionMap(const int, const int);

@@ -37,7 +37,7 @@
     <ClCompile Include="ThirdParty\imgui\imgui_demo.cpp" />
     <ClCompile Include="ThirdParty\imgui\imgui_draw.cpp" />
     <ClCompile Include="ThirdParty\imgui\imgui_impl_glfw_gl3.cpp" />
-    <ClCompile Include="Volume.cpp" />
+    <ClCompile Include="CloudVolume.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.hpp" />
@@ -64,7 +64,7 @@
     <ClInclude Include="ThirdParty\imgui\stb_textedit.h" />
     <ClInclude Include="ThirdParty\imgui\stb_truetype.h" />
     <ClInclude Include="Util.hpp" />
-    <ClInclude Include="Volume.hpp" />
+    <ClInclude Include="CloudVolume.hpp" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\CMakeLists.txt" />

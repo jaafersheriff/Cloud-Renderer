@@ -1,8 +1,8 @@
-#include "Volume.hpp"
+#include "CloudVolume.hpp"
 
 #include "Shaders/GLSL.hpp"
 
-Volume::Volume(int dim, glm::vec2 bounds, glm::vec3 position, int mips) {
+CloudVolume::CloudVolume(int dim, glm::vec2 bounds, glm::vec3 position, int mips) {
     for (int i = 0; i < dim*dim*dim; i++) {
         this->voxelData.push_back({
             Spatial(),
@@ -37,12 +37,12 @@ Volume::Volume(int dim, glm::vec2 bounds, glm::vec3 position, int mips) {
 }
 
 /* Add a billboard */
-void Volume::addCloudBoard(Spatial s) {
+void CloudVolume::addCloudBoard(Spatial s) {
     this->cloudBoards.push_back(s);
 }
 
 /* Sort billboards by distance to a point */
-void Volume::sortBoards(glm::vec3 orig) {
+void CloudVolume::sortBoards(glm::vec3 orig) {
     for (int i = 0; i < cloudBoards.size(); i++) {
         int minIdx = i;
         for (int j = i + 1; j < cloudBoards.size(); j++) {
@@ -60,14 +60,14 @@ void Volume::sortBoards(glm::vec3 orig) {
 
 
 /* Reset GPU volume */
-void Volume::clearGPU() {
+void CloudVolume::clearGPU() {
     for (int i = 0; i < levels; i++) {
         CHECK_GL_CALL(glClearTexImage(volId, i, GL_RGBA, GL_FLOAT, nullptr));
     }
 }
 
 /* Reset CPU representation of volume */
-void Volume::clearCPU() {
+void CloudVolume::clearCPU() {
     for (unsigned int i = 0; i < voxelData.size(); i++) {
         voxelData[i].spatial.position = glm::vec3(0.f);
         voxelData[i].spatial.scale = glm::vec3(0.f);
@@ -75,7 +75,7 @@ void Volume::clearCPU() {
     }
 }
 
-void Volume::updateVoxelData() {
+void CloudVolume::updateVoxelData() {
     /* Pull volume data out of GPU */
     std::vector<float> buffer(voxelData.size() * 4);
     CHECK_GL_CALL(glBindTexture(GL_TEXTURE_3D, volId));
@@ -106,7 +106,7 @@ void Volume::updateVoxelData() {
 }
 
 // Assume 4 bytes per voxel
-glm::ivec3 Volume::get3DIndices(int index) {
+glm::ivec3 CloudVolume::get3DIndices(int index) {
 	int line = dimension * 4;
 	int slice = dimension  * line;
 	int z = index / slice;
@@ -115,7 +115,7 @@ glm::ivec3 Volume::get3DIndices(int index) {
 	return glm::ivec3(x, y, z);
 }
 
-glm::vec3 Volume::reverseVoxelIndex(glm::ivec3 voxelIndex) {
+glm::vec3 CloudVolume::reverseVoxelIndex(glm::ivec3 voxelIndex) {
     float xRange = xBounds.y - xBounds.x;
     float yRange = yBounds.y - yBounds.x;
     float zRange = zBounds.y - zBounds.x;
