@@ -113,13 +113,6 @@ vec4 noise3D(vec3 uv, int octaves) {
 #define MAX_STEPS 8
 void main() {
     float radius = scale;
-    /* Spherical distance - 1 at center of billboard, 0 at edges */
-    float sphereContrib = (distance(center, fragPos)/radius);
-    sphereContrib = sqrt(max(0, 1 - sphereContrib * sphereContrib));
-
-    /* Start at voxel closest to camera */
-    vec3 billboardNormal = normalize(fragNor);
-    vec3 pos = fragPos + billboardNormal * radius * sphereContrib;
 
     /* Sample noise texture */
     vec3 viewRay = normalize(vec3(V._13, V._23, V._33));
@@ -173,10 +166,19 @@ void main() {
     runningOpacity = saturate(runningOpacity*opacityAdjust);
     color = vec4(col.rgb, runningOpacity*alpha);
 
+    /* Spherical distance - 1 at center of billboard, 0 at edges */
+    float sphereContrib = (distance(center, fragPos)/radius);
+    sphereContrib = sqrt(max(0, 1 - sphereContrib * sphereContrib));
+
+    /* Start at voxel closest to camera */
+    vec3 billboardNormal = normalize(fragNor);
+    vec3 pos = fragPos + billboardNormal * radius * sphereContrib;
+ 
     /* Cone trace */
     vec3 voxelPosition = calculateVoxelLerp(pos);
     vec3 dir = lightPos - pos;
     vec4 indirect = traceCone(volumeTexture, voxelPosition, dir, vctSteps, vctConeAngle, vctConeInitialHeight);
+
     /* Output */
     color.rgb *= indirect.xyz; 
 }

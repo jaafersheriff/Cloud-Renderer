@@ -45,8 +45,6 @@ void ConeTraceShader::coneTrace(Volume *volume, float dt) {
     std::vector<glm::vec3> octaveOffsets(numOctaves, glm::vec3(0.f));
     for (int i = 0; i < numOctaves; i++) {
         octaveOffsets[i].x = -(float)(totalTime);
-        octaveOffsets[i].y = -(float)(totalTime);
-        octaveOffsets[i].z = -(float)(totalTime);
     }
     loadVector(getUniform("octaveOffsets"), octaveOffsets.data()[0]);
 
