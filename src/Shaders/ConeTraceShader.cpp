@@ -33,12 +33,12 @@ void ConeTraceShader::coneTrace(Volume *volume, float dt) {
     /* Bind noise map and params */
     CHECK_GL_CALL(glActiveTexture(GL_TEXTURE0 + noiseMapId));
     CHECK_GL_CALL(glBindTexture(GL_TEXTURE_3D, noiseMapId));
-    loadInt(getUniform("noisemap"), noiseMapId);
-    loadFloat(getUniform("g_stepSize"), g_stepSize);
-    loadFloat(getUniform("g_noiseOpacity"), g_noiseOpacity);
-    loadInt(getUniform("octaves"), numOctaves);
-    loadFloat(getUniform("frequency"), freqStep);
-    loadFloat(getUniform("persistence"), persStep);
+    loadInt(getUniform("noiseMap"), noiseMapId);
+    loadFloat(getUniform("stepSize"), g_stepSize);
+    loadFloat(getUniform("noiseOpacity"), g_noiseOpacity);
+    loadInt(getUniform("numOctaves"), numOctaves);
+    loadFloat(getUniform("freqStep"), freqStep);
+    loadFloat(getUniform("persStep"), persStep);
 
     /* Octaves offsets */
     totalTime += dt * 0.01f;
@@ -48,7 +48,7 @@ void ConeTraceShader::coneTrace(Volume *volume, float dt) {
         octaveOffsets[i].y = -(float)(totalTime);
         octaveOffsets[i].z = -(float)(totalTime);
     }
-    loadVector(getUniform("g_OctaveOffsets"), octaveOffsets.data()[0]);
+    loadVector(getUniform("octaveOffsets"), octaveOffsets.data()[0]);
 
     /* Bind quad */
     CHECK_GL_CALL(glBindVertexArray(Library::quad->vaoId));

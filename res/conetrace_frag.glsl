@@ -24,14 +24,13 @@ uniform float vctConeInitialHeight;
 uniform float vctLodOffset;
 uniform float vctDownScaling;
 
-uniform sampler3D noisemap;
-uniform vec3 g_OctaveOffsets;
-uniform float g_stepSize;
-uniform float g_noiseOpacity;
-uniform vec4 g_directional;
-uniform int octaves;
-uniform float frequency;
-uniform float persistence;
+uniform sampler3D noiseMap;
+uniform vec3 octaveOffsets;
+uniform float stepSize;
+uniform float noiseOpacity;
+uniform int numOctaves;
+uniform float freqStep;
+uniform float persStep;
 
 out vec4 color;
 
@@ -75,7 +74,7 @@ float saturate(float x) {
 }
 
 #define DIST_BIAS 0.01
-bool RaySphereIntersect(vec3 rO, vec3 rD, vec3 sO, float sR, inout float tnear, inout float tfar) {
+bool raySphereIntersect(vec3 rO, vec3 rD, vec3 sO, float sR, inout float tnear, inout float tfar) {
     vec3 delta = rO - sO;
     float A = dot(rD, rD);
     float B = 2 * dot(delta, rD);
@@ -92,18 +91,18 @@ bool RaySphereIntersect(vec3 rO, vec3 rD, vec3 sO, float sR, inout float tnear, 
     }
 }
 
-vec4 Noise3D(vec3 uv, int octaves) {
+vec4 noise3D(vec3 uv, int octaves) {
     vec4 noiseVal = vec4(0, 0, 0, 0);
     vec4 octaveVal = vec4(0, 0, 0, 0);
     vec3 uvOffset;
     float freq = 1;
     float pers = 1;
     for (int i = 0; i < octaves; i++) {
-        uvOffset = uv + g_OctaveOffsets[i];
-        octaveVal = texture(noisemap, uvOffset*freq);
+        uvOffset = uv + octaveOffsets[i];
+        octaveVal = texture(noiseMap, uvOffset*freq);
         noiseVal += pers * octaveVal;
-        freq *= frequency;
-        pers *= persistence;
+        freq *= freqStep;
+        pers *= persStep;
     }
 
     noiseVal.a = abs(noiseVal.a);
@@ -125,7 +124,7 @@ void main() {
     /* Sample noise texture */
     vec3 viewRay = normalize(vec3(V._13, V._23, V._33));
     float tnear, tfar;
-    if (!RaySphereIntersect(fragPos, viewRay, center, radius, tnear, tfar)) {
+    if (!raySphereIntersect(fragPos, viewRay, center, radius, tnear, tfar)) {
     	discard;
     }
     vec3 worldNear = fragPos + viewRay*tnear;
@@ -139,19 +138,19 @@ void main() {
     float fNoiseSizeAdjust = 1 / density;
     vec3 localTexNear = worldNear * fNoiseSizeAdjust;
     vec3 localTexFar = worldFar * fNoiseSizeAdjust;
-    float iSteps = length(localTexFar - localTexNear) / g_stepSize;
+    float iSteps = length(localTexFar - localTexNear) / stepSize;
     iSteps = min(iSteps, MAX_STEPS - 2) + 2;
     vec3 currentTex = localTexNear;
     vec3 localTexDelta = (localTexFar - localTexNear) / (iSteps - 1);
     float depthDelta = (farDepth - currentDepth) / (iSteps - 1);
-    float opacityAdjust = g_noiseOpacity / (iSteps - 1);
+    float opacityAdjust = noiseOpacity / (iSteps - 1);
     float lightAdjust = 1.0 / (iSteps - 1);
     float lifePower = 0;
     float runningOpacity = 0;
     vec4 runningLight = vec4(0, 0, 0, 0);
     float depthFade = 1.0;
     for (int i = 0; i < iSteps; i++) {
-        vec4 noiseCell = Noise3D(currentTex, octaves);
+        vec4 noiseCell = noise3D(currentTex, numOctaves);
         noiseCell.xyz += normalize(unitTex);
         noiseCell.xyz = normalize(noiseCell.xyz);
         float lenSq = dot(unitTex, unitTex);
