@@ -34,8 +34,8 @@ void ConeTraceShader::coneTrace(Volume *volume, float dt) {
     CHECK_GL_CALL(glActiveTexture(GL_TEXTURE0 + noiseMapId));
     CHECK_GL_CALL(glBindTexture(GL_TEXTURE_3D, noiseMapId));
     loadInt(getUniform("noiseMap"), noiseMapId);
-    loadFloat(getUniform("stepSize"), g_stepSize);
-    loadFloat(getUniform("noiseOpacity"), g_noiseOpacity);
+    loadFloat(getUniform("stepSize"), stepSize);
+    loadFloat(getUniform("noiseOpacity"), noiseOpacity);
     loadInt(getUniform("numOctaves"), numOctaves);
     loadFloat(getUniform("freqStep"), freqStep);
     loadFloat(getUniform("persStep"), persStep);
