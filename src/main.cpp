@@ -228,8 +228,8 @@ void runImGuiPanes() {
     static int currBoard = 0;
     ImGui::SliderInt("Curr board", &currBoard, 0, volume->cloudBoards.size() - 1);
     Spatial *s = &volume->cloudBoards[currBoard];
-    ImGui::SliderFloat3("Position", glm::value_ptr(s->position), -200.f, 200.f);
-    ImGui::SliderFloat("Cscale", &s->scale.x, 1.f, 200.f);
+    ImGui::SliderFloat3("Position", glm::value_ptr(s->position), -10.f, 10.f);
+    ImGui::SliderFloat("Cscale", &s->scale.x, 1.f, 10.f);
     if (ImGui::Button("Delete") && volume->cloudBoards.size()) {
         volume->cloudBoards.erase(volume->cloudBoards.begin() + currBoard);
         currBoard = glm::max(0, currBoard - 1);
