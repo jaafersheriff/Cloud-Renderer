@@ -40,7 +40,7 @@ void ConeTraceShader::coneTrace(Volume *volume, float dt) {
     loadFloat(getUniform("freqStep"), freqStep);
     loadFloat(getUniform("persStep"), persStep);
 
-    /* Octaves offsets */
+    /* Per-octave samplign offset */
     totalTime += dt * 0.01f;
     std::vector<glm::vec3> octaveOffsets(numOctaves, glm::vec3(0.f));
     for (int i = 0; i < numOctaves; i++) {
@@ -147,7 +147,6 @@ void ConeTraceShader::initNoiseMap(int dimension) {
     CHECK_GL_CALL(glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
     CHECK_GL_CALL(glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
     CHECK_GL_CALL(glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA8_SNORM, dimension, dimension, dimension, 0, GL_RGBA, GL_BYTE, pData));
-
 }
 
 float ConeTraceShader::getDensity(int index, glm::u8vec4* pTexels) {
