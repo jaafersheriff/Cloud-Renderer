@@ -7,11 +7,7 @@
 
 class ConeTraceShader : public Shader {
     public:
-        ConeTraceShader(const std::string &r, const std::string &v, const std::string &f) :
-            Shader(r, v, f)
-        {
-            genNoise(32);
-        }
+        ConeTraceShader(const std::string &r, const std::string &v, const std::string &f);
 
         void coneTrace(Volume *, float);
 
@@ -35,9 +31,8 @@ class ConeTraceShader : public Shader {
         void bindVolume(Volume *);
         void unbindVolume();
 
-
-        void genNoise(int);
-        GLuint TexNoise;
+        void initNoiseMap(int);
+        GLuint noiseMapId;
 };
 
 #endif
