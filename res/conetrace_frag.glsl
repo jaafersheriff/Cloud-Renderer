@@ -24,13 +24,14 @@ uniform float vctConeInitialHeight;
 uniform float vctLodOffset;
 uniform float vctDownScaling;
 
-uniform sampler3D noiseMap;
-uniform vec3 octaveOffsets;
-uniform float stepSize;
-uniform float noiseOpacity;
-uniform int numOctaves;
-uniform float freqStep;
-uniform float persStep;
+uniform sampler3D noisemap;
+uniform vec3 g_OctaveOffsets;
+uniform float g_stepSize;
+uniform float g_noiseOpacity;
+uniform vec4 g_directional;
+uniform int octaves;
+uniform float frequency;
+uniform float persistence;
 
 out vec4 color;
 
@@ -98,11 +99,11 @@ vec4 Noise3D(vec3 uv, int octaves) {
     float freq = 1;
     float pers = 1;
     for (int i = 0; i < octaves; i++) {
-        uvOffset = uv + octaveOffsets[i];
-        octaveVal = texture(noiseMap, uvOffset*freq);
+        uvOffset = uv + g_OctaveOffsets[i];
+        octaveVal = texture(noisemap, uvOffset*freq);
         noiseVal += pers * octaveVal;
-        freq *= freqStep;
-        pers *= persStep;
+        freq *= frequency;
+        pers *= persistence;
     }
 
     noiseVal.a = abs(noiseVal.a);
@@ -138,19 +139,19 @@ void main() {
     float fNoiseSizeAdjust = 1 / density;
     vec3 localTexNear = worldNear * fNoiseSizeAdjust;
     vec3 localTexFar = worldFar * fNoiseSizeAdjust;
-    float iSteps = length(localTexFar - localTexNear) / stepSize;
+    float iSteps = length(localTexFar - localTexNear) / g_stepSize;
     iSteps = min(iSteps, MAX_STEPS - 2) + 2;
     vec3 currentTex = localTexNear;
     vec3 localTexDelta = (localTexFar - localTexNear) / (iSteps - 1);
     float depthDelta = (farDepth - currentDepth) / (iSteps - 1);
-    float opacityAdjust = noiseOpacity / (iSteps - 1);
+    float opacityAdjust = g_noiseOpacity / (iSteps - 1);
     float lightAdjust = 1.0 / (iSteps - 1);
     float lifePower = 0;
     float runningOpacity = 0;
     vec4 runningLight = vec4(0, 0, 0, 0);
     float depthFade = 1.0;
     for (int i = 0; i < iSteps; i++) {
-        vec4 noiseCell = Noise3D(currentTex, numOctaves);
+        vec4 noiseCell = Noise3D(currentTex, octaves);
         noiseCell.xyz += normalize(unitTex);
         noiseCell.xyz = normalize(noiseCell.xyz);
         float lenSq = dot(unitTex, unitTex);
