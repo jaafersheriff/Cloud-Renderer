@@ -32,6 +32,8 @@ class ConeTraceShader : public Shader {
         void unbindVolume();
 
         void initNoiseMap(int);
+        float getDensity(int, glm::u8vec4 *);
+        void setNormal(glm::vec3, int, glm::u8vec4 *);
         GLuint noiseMapId;
 };
 

@@ -105,11 +105,28 @@ void ConeTraceShader::unbindVolume() {
     CHECK_GL_CALL(glBindTexture(GL_TEXTURE_3D, 0));
 }
 
+int getIndex(int x, int y, int z, int dim) {
+    if (x < 0)
+        x += dim;
+    if (y < 0)
+        y += dim;
+    if (z < 0)
+        z += dim;
+
+    x = x % dim;
+    y = y % dim;
+    z = z % dim;
+
+    return x + y * dim + z * dim * dim;
+}
+
 void ConeTraceShader::initNoiseMap(int dimension) {
     glm::u8vec4* pData = new glm::u8vec4[dimension*dimension*dimension];
 
+    /* Populate data */
     for (unsigned int i = 0; i < dimension*dimension*dimension; i++) {
-        pData[i].w = (char)(RPercent() * 128.0f);
+        float ran = (float)((rand() % 20000) - 10000) / 10000.f;
+        pData[i].w = (glm::uint8)(ran * 128.0f);
     }
 
     // Generate normals from the density gradient
@@ -119,11 +136,12 @@ void ConeTraceShader::initNoiseMap(int dimension) {
     for (unsigned int z = 0; z < dimension; z++) {
         for (unsigned int y = 0; y < dimension; y++) {
             for (unsigned int x = 0; x < dimension; x++) {
-                densityGradient.x = getDensity(x + 1, y, z, pData, dimension) - getDensity(x - 1, y, z, pData, dimension) / heightAdjust;
-                densityGradient.y = getDensity(x, y + 1, z, pData, dimension) - getDensity(x, y - 1, z, pData, dimension) / heightAdjust;
-                densityGradient.z = getDensity(x, y, z + 1, pData, dimension) - getDensity(x, y, z - 1, pData, dimension) / heightAdjust;
+                densityGradient.x = getDensity(getIndex(x+1, y, z, dimension), pData) - getDensity(getIndex(x-1, y, z, dimension), pData);
+                densityGradient.y = getDensity(getIndex(x, y+1, z, dimension), pData) - getDensity(getIndex(x, y-1, z, dimension), pData);
+                densityGradient.z = getDensity(getIndex(x, y, z+1, dimension), pData) - getDensity(getIndex(x, y, z-1, dimension), pData);
+                densityGradient /= heightAdjust;
                 normal = glm::normalize(densityGradient);
-                setNormal(normal, x, y, z, pData, dimension);
+                setNormal(normal, getIndex(x, y, z, dimension), pData);
             }
         }
     }
@@ -138,43 +156,12 @@ void ConeTraceShader::initNoiseMap(int dimension) {
 
 }
 
-float RPercent() {
-    float ret = (float)((rand() % 20000) - 10000);
-    return ret / 10000.0f;
-}
-
-float getDensity(int x, int y, int z, glm::u8vec4* pTexels, unsigned int VolumeSize) {
-    if (x < 0)
-        x += VolumeSize;
-    if (y < 0)
-        y += VolumeSize;
-    if (z < 0)
-        z += VolumeSize;
-
-    x = x % VolumeSize;
-    y = y % VolumeSize;
-    z = z % VolumeSize;
-
-    int index = x + y * VolumeSize + z * VolumeSize*VolumeSize;
-
+float ConeTraceShader::getDensity(int index, glm::u8vec4* pTexels) {
     return (float)pTexels[index].w / 128.0f;
 }
 
-void setNormal(glm::vec3 Normal, int x, int y, int z, glm::u8vec4* pTexels, UINT VolumeSize) {
-    if (x < 0)
-        x += VolumeSize;
-    if (y < 0)
-        y += VolumeSize;
-    if (z < 0)
-        z += VolumeSize;
-
-    x = x % VolumeSize;
-    y = y % VolumeSize;
-    z = z % VolumeSize;
-
-    int index = x + y * VolumeSize + z * VolumeSize*VolumeSize;
-
-    pTexels[index].x = (char)(Normal.x * 128.0f);
-    pTexels[index].y = (char)(Normal.y * 128.0f);
-    pTexels[index].z = (char)(Normal.z * 128.0f);
+void ConeTraceShader::setNormal(glm::vec3 normal, int index, glm::u8vec4* pTexels) {
+    pTexels[index].x = (glm::uint8)(normal.x * 128.0f);
+    pTexels[index].y = (glm::uint8)(normal.y * 128.0f);
+    pTexels[index].z = (glm::uint8)(normal.z * 128.0f);
 }
