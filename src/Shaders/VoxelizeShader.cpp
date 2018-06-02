@@ -78,7 +78,7 @@ void VoxelizeShader::firstVoxelize(CloudVolume *volume) {
         CHECK_GL_CALL(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
 
         /* Solves concurrency issues */
-        CHECK_GL_CALL(glFinish());
+        CHECK_GL_CALL(glFlush());
     }
 
     /* Wrap up shader */
