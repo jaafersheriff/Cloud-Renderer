@@ -136,10 +136,9 @@ void ConeTraceShader::initNoiseMap(int dimension) {
     for (int z = 0; z < dimension; z++) {
         for (int y = 0; y < dimension; y++) {
             for (int x = 0; x < dimension; x++) {
-                densityGradient.x = getDensity(getIndex(x+1, y, z, dimension), pData) - getDensity(getIndex(x-1, y, z, dimension), pData);
-                densityGradient.y = getDensity(getIndex(x, y+1, z, dimension), pData) - getDensity(getIndex(x, y-1, z, dimension), pData);
-                densityGradient.z = getDensity(getIndex(x, y, z+1, dimension), pData) - getDensity(getIndex(x, y, z-1, dimension), pData);
-                densityGradient /= heightAdjust;
+                densityGradient.x = getDensity(getIndex(x + 1, y, z, dimension), pData) - getDensity(getIndex(x - 1, y, z, dimension), pData) / heightAdjust;
+                densityGradient.y = getDensity(getIndex(x, y + 1, z, dimension), pData) - getDensity(getIndex(x, y - 1, z, dimension), pData) / heightAdjust;
+                densityGradient.z = getDensity(getIndex(x, y, z + 1, dimension), pData) - getDensity(getIndex(x, y, z - 1, dimension), pData) / heightAdjust;
                 normal = glm::normalize(densityGradient);
                 setNormal(normal, getIndex(x, y, z, dimension), pData);
             }
