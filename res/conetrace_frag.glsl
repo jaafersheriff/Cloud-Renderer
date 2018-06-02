@@ -130,8 +130,7 @@ void main() {
         float currentDepth = viewNear.z/ viewNear.w;
         float farDepth = viewFar.z / viewFar.w;
         vec3 unitTex = (worldNear - center) / radius;
-        float density = 40;
-        float fNoiseSizeAdjust = 1 / density;
+        float fNoiseSizeAdjust = 1 / 40.f;
         vec3 localTexNear = worldNear * fNoiseSizeAdjust;
         vec3 localTexFar = worldFar * fNoiseSizeAdjust;
         float iSteps = length(localTexFar - localTexNear) / stepSize;
@@ -148,12 +147,8 @@ void main() {
             vec4 noiseCell = noise3D(currentTex, numOctaves);
             noiseCell.xyz += normalize(unitTex);
             noiseCell.xyz = normalize(noiseCell.xyz);
-            float lenSq = dot(unitTex, unitTex);
-            float falloff = 1.0 - lenSq;
-	        float localOpacity = noiseCell.a*falloff;
-            runningOpacity += localOpacity;
-            vec4 localLight = vec4(saturate(dot(noiseCell.xyz, vec3(0, 1, 0))*0.5 + 0.5));
-            runningLight += localLight;
+            runningOpacity += noiseCell.a* (1.0 - dot(unitTex, unitTex));
+            runningLight += vec4(saturate(dot(noiseCell.xyz, vec3(0, 1, 0))*0.5 + 0.5));
             currentTex += localTexDelta;
             unitTex += localTexDelta;
         }
