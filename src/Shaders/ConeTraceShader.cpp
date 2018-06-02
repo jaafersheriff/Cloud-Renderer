@@ -118,7 +118,7 @@ void ConeTraceShader::initNoiseMap(int dimension) {
     glm::u8vec4* pData = new glm::u8vec4[dimension*dimension*dimension];
 
     /* Populate data */
-    for (unsigned int i = 0; i < dimension*dimension*dimension; i++) {
+    for (int i = 0; i < dimension*dimension*dimension; i++) {
         float ran = (float)((rand() % 20000) - 10000) / 10000.f;
         pData[i].w = (glm::uint8)(ran * 128.0f);
     }
@@ -127,9 +127,9 @@ void ConeTraceShader::initNoiseMap(int dimension) {
     float heightAdjust = 0.5f;
     glm::vec3 normal;
     glm::vec3 densityGradient;
-    for (unsigned int z = 0; z < dimension; z++) {
-        for (unsigned int y = 0; y < dimension; y++) {
-            for (unsigned int x = 0; x < dimension; x++) {
+    for (int z = 0; z < dimension; z++) {
+        for (int y = 0; y < dimension; y++) {
+            for (int x = 0; x < dimension; x++) {
                 densityGradient.x = getDensity(getIndex(x+1, y, z, dimension), pData) - getDensity(getIndex(x-1, y, z, dimension), pData);
                 densityGradient.y = getDensity(getIndex(x, y+1, z, dimension), pData) - getDensity(getIndex(x, y-1, z, dimension), pData);
                 densityGradient.z = getDensity(getIndex(x, y, z+1, dimension), pData) - getDensity(getIndex(x, y, z-1, dimension), pData);
