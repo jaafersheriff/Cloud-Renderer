@@ -16,7 +16,7 @@ void ConeTraceShader::coneTrace(Volume *volume, float dt) {
         volume->sortBoards(Camera::getPosition());
     }
 
-    glDisable(GL_DEPTH_TEST);
+    CHECK_GL_CALL(glDisable(GL_DEPTH_TEST));
 
     bind();
     bindVolume(volume);
@@ -30,24 +30,25 @@ void ConeTraceShader::coneTrace(Volume *volume, float dt) {
     loadFloat(getUniform("vctLodOffset"), vctLodOffset);
     loadFloat(getUniform("vctDownScaling"), vctDownScaling);
 
-    /* Bind noise map params */
+    /* Bind noise map and params */
+    CHECK_GL_CALL(glActiveTexture(GL_TEXTURE0 + noiseMapId));
+    CHECK_GL_CALL(glBindTexture(GL_TEXTURE_3D, noiseMapId));
+    loadInt(getUniform("noisemap"), noiseMapId);
     loadFloat(getUniform("g_stepSize"), g_stepSize);
     loadFloat(getUniform("g_noiseOpacity"), g_noiseOpacity);
-    loadInt(getUniform("octaves"), octaves);
-    loadFloat(getUniform("frequency"), frequency);
-    loadFloat(getUniform("persistence"), persistence);
+    loadInt(getUniform("octaves"), numOctaves);
+    loadFloat(getUniform("frequency"), freqStep);
+    loadFloat(getUniform("persistence"), persStep);
 
-    glm::vec4 Octaves[4];
-    static float totaltime = 0;
-    totaltime += dt * 100.f;
-    for (int i = 0; i < 4; i++)
-    {
-        Octaves[i].x = -(float)(totaltime*0.0001);
-        Octaves[i].y = 0;
-        Octaves[i].z = 0;
-        Octaves[i].w = 0;
+    /* Octaves offsets */
+    totalTime += dt * 0.01f;
+    std::vector<glm::vec3> octaveOffsets(numOctaves, glm::vec3(0.f));
+    for (int i = 0; i < numOctaves; i++) {
+        octaveOffsets[i].x = -(float)(totalTime);
+        octaveOffsets[i].y = -(float)(totalTime);
+        octaveOffsets[i].z = -(float)(totalTime);
     }
-    glUniformMatrix4fv(getUniform("g_OctaveOffsets"), 1, GL_FALSE, &Octaves[0].x);
+    loadVector(getUniform("g_OctaveOffsets"), octaveOffsets.data()[0]);
 
     /* Bind quad */
     CHECK_GL_CALL(glBindVertexArray(Library::quad->vaoId));
@@ -74,7 +75,6 @@ void ConeTraceShader::coneTrace(Volume *volume, float dt) {
 
         /* Cone trace! */
         CHECK_GL_CALL(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
-
     }
 
     /* Wrap up shader */
@@ -82,17 +82,13 @@ void ConeTraceShader::coneTrace(Volume *volume, float dt) {
     unbindVolume();
     unbind();
 
-    glEnable(GL_DEPTH_TEST);
+    CHECK_GL_CALL(glEnable(GL_DEPTH_TEST));
 }
 
 void ConeTraceShader::bindVolume(Volume *volume) {
     CHECK_GL_CALL(glActiveTexture(GL_TEXTURE0 + volume->volId));
     CHECK_GL_CALL(glBindTexture(GL_TEXTURE_3D, volume->volId));
     loadInt(getUniform("volumeTexture"), volume->volId);
-
-    CHECK_GL_CALL(glActiveTexture(GL_TEXTURE0 + noiseMapId));
-    CHECK_GL_CALL(glBindTexture(GL_TEXTURE_3D, noiseMapId));
-    loadInt(getUniform("noisemap"), noiseMapId);
 
     loadVector(getUniform("xBounds"), volume->position.x + volume->xBounds);
     loadVector(getUniform("yBounds"), volume->position.y + volume->yBounds);

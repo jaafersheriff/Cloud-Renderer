@@ -25,7 +25,7 @@ uniform float vctLodOffset;
 uniform float vctDownScaling;
 
 uniform sampler3D noisemap;
-uniform mat4 g_OctaveOffsets;
+uniform vec3 g_OctaveOffsets;
 uniform float g_stepSize;
 uniform float g_noiseOpacity;
 uniform vec4 g_directional;
@@ -99,7 +99,7 @@ vec4 Noise3D(vec3 uv, int octaves) {
     float freq = 1;
     float pers = 1;
     for (int i = 0; i < octaves; i++) {
-        uvOffset = uv + g_OctaveOffsets[i].xyz;
+        uvOffset = uv + g_OctaveOffsets[i];
         octaveVal = texture(noisemap, uvOffset*freq);
         noiseVal += pers * octaveVal;
         freq *= frequency;

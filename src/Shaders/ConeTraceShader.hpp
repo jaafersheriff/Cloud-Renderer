@@ -14,9 +14,9 @@ class ConeTraceShader : public Shader {
         /* Noise map parameters */
         float g_stepSize = 0.01;
         float g_noiseOpacity = 4.0;
-        int octaves = 4;
-        float frequency = 3;
-        float persistence = 0.5;
+        int numOctaves = 4;
+        float freqStep = 3;
+        float persStep = 0.5;
 
         /* Cone trace parameters */
         int vctSteps = 16;
@@ -35,6 +35,7 @@ class ConeTraceShader : public Shader {
         float getDensity(int, glm::u8vec4 *);
         void setNormal(glm::vec3, int, glm::u8vec4 *);
         GLuint noiseMapId;
+        float totalTime = 0.f;
 };
 
 #endif
