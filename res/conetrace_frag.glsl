@@ -138,7 +138,6 @@ void main() {
         iSteps = min(iSteps, MAX_STEPS - 2) + 2;
         vec3 currentTex = localTexNear;
         vec3 localTexDelta = (localTexFar - localTexNear) / (iSteps - 1);
-        float depthDelta = (farDepth - currentDepth) / (iSteps - 1);
         float opacityAdjust = noiseOpacity / (iSteps - 1);
         float lightAdjust = 1.0 / (iSteps - 1);
         float lifePower = 0;
@@ -157,7 +156,6 @@ void main() {
             runningLight += localLight;
             currentTex += localTexDelta;
             unitTex += localTexDelta;
-            currentDepth += depthDelta;
         }
 
         float alpha = 1 - pow(length(fragTex - vec2(0.5,0.5))*2.0,1);
@@ -192,7 +190,7 @@ void main() {
             color.rgb *= indirect.xyz; 
         }
         else {
-            color = vec4(indirect.xyz, 1);
+            color = indirect;
         }
     }
 }
