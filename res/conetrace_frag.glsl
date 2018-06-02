@@ -139,28 +139,22 @@ void main() {
         vec3 localTexDelta = (localTexFar - localTexNear) / (iSteps - 1);
         float opacityAdjust = noiseOpacity / (iSteps - 1);
         float lightAdjust = 1.0 / (iSteps - 1);
-        float lifePower = 0;
         float runningOpacity = 0;
-        vec4 runningLight = vec4(0, 0, 0, 0);
-        float depthFade = 1.0;
+        float runningLight = 0;
         for (int i = 0; i < iSteps; i++) {
             vec4 noiseCell = noise3D(currentTex, numOctaves);
             noiseCell.xyz += normalize(unitTex);
             noiseCell.xyz = normalize(noiseCell.xyz);
             runningOpacity += noiseCell.a* (1.0 - dot(unitTex, unitTex));
-            runningLight += vec4(saturate(dot(noiseCell.xyz, vec3(0, 1, 0))*0.5 + 0.5));
+            runningLight += saturate(dot(noiseCell.xyz, vec3(0, 1, 0))*0.5 + 0.5);
             currentTex += localTexDelta;
             unitTex += localTexDelta;
         }
 
-        float alpha = 1 - pow(length(fragTex - vec2(0.5,0.5))*2.0,1);
-        vec3 partcolor = vec3(lifePower,lifePower, lifePower)+vec3(0.5,0.5,0.5);
-        partcolor.r = saturate(partcolor.r);
-        partcolor.g = saturate(partcolor.g);
-        partcolor.b = saturate(partcolor.b);
-        vec4 col = (vec4(partcolor, 1)* runningLight*lightAdjust)*0.9 + 0.2;
+        float col = 0.2 + (0.45 * runningLight * lightAdjust);
+        float alpha = 1 - length(fragTex - vec2(0.5)) * 2;
         runningOpacity = saturate(runningOpacity*opacityAdjust);
-        color = vec4(col.rgb, runningOpacity*alpha);
+        color = vec4(vec3(col), runningOpacity*alpha);
     }
 
     if (doConeTrace) {
