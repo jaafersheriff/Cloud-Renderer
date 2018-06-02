@@ -12,8 +12,8 @@ class ConeTraceShader : public Shader {
         void coneTrace(Volume *, float);
 
         /* Noise map parameters */
-        float g_stepSize = 0.01;
-        float g_noiseOpacity = 4.0;
+        float stepSize = 0.01;
+        float noiseOpacity = 4.0;
         int numOctaves = 4;
         float freqStep = 3;
         float persStep = 0.5;

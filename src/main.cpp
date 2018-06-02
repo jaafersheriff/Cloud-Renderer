@@ -279,8 +279,8 @@ void runImGuiPanes() {
     ImGui::End();
 
     ImGui::Begin("Noise");
-    ImGui::SliderFloat("Step size", &coneShader->g_stepSize, 0.001f, 10.f);
-    ImGui::SliderFloat("Noise opacity", &coneShader->g_noiseOpacity, 0.1f, 100.f);
+    ImGui::SliderFloat("Step size", &coneShader->stepSize, 0.001f, 10.f);
+    ImGui::SliderFloat("Noise opacity", &coneShader->noiseOpacity, 0.1f, 100.f);
     ImGui::SliderInt("Octaves", &coneShader->numOctaves, 1, 100);
     ImGui::SliderFloat("Frequency", &coneShader->freqStep, 0.01f, 100.f);
     ImGui::SliderFloat("Persistence", &coneShader->persStep, 0.01f, 100.f);
