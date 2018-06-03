@@ -44,7 +44,7 @@ ivec3 calculateVoxelIndex(vec3 pos) {
 }
 
 void main() {
-    float radius = scale/2;
+    float radius = scale;
 
     /* Spherical distance - 1 at center of billboard, 0 at edges */
     float sphereContrib = (distance(center, fragPos)/radius);
