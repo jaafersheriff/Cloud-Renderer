@@ -36,7 +36,7 @@ void VoxelShader::render(CloudVolume *volume, glm::mat4 P, glm::mat4 V) {
     }
 
     /* Render individual voxels */
-    for (auto v : volume->voxelData) {
+    for (const auto &v : volume->voxelData) {
         if (v.data.r || v.data.g || v.data.b || v.data.a) {
             if ((disableBlack && glm::vec3(v.data) == glm::vec3(0.f)) ||
                 (disableWhite && v.data == glm::vec4(1.f))) {

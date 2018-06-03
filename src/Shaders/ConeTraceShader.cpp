@@ -65,7 +65,7 @@ void ConeTraceShader::coneTrace(CloudVolume *volume, float dt) {
     Vi = glm::transpose(Vi);
     loadMatrix(getUniform("Vi"), &Vi);
 
-    for (auto cloudBoard : volume->cloudBoards) {
+    for (const auto &cloudBoard : volume->cloudBoards) {
         /* Cone trace from the camera's perspective */
         loadVector(getUniform("center"), volume->position + cloudBoard.position);
         loadFloat(getUniform("scale"), cloudBoard.scale.x);

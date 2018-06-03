@@ -64,7 +64,7 @@ void VoxelizeShader::firstVoxelize(CloudVolume *volume) {
     firstVoxelizer->loadMatrix(firstVoxelizer->getUniform("Vi"), &Vi);
     firstVoxelizer->loadVector(firstVoxelizer->getUniform("lightPos"), Light::spatial.position);
 
-    for (auto cloudBoard : volume->cloudBoards) {
+    for (const auto &cloudBoard : volume->cloudBoards) {
         /* Bind billboard */
         firstVoxelizer->loadVector(firstVoxelizer->getUniform("center"), volume->position + cloudBoard.position);
         firstVoxelizer->loadFloat(firstVoxelizer->getUniform("scale"), cloudBoard.scale.x);
