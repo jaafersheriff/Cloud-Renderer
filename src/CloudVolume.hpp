@@ -21,7 +21,6 @@ class CloudVolume {
         void sortBoards(glm::vec3);
         void updateVoxelData();
         void clearGPU();
-        void clearCPU();
 
         glm::vec3 position;                 // cloud object position
         std::vector<Spatial> cloudBoards;   // billboard spatials in relation to cloud spatial

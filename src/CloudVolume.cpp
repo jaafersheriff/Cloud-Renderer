@@ -66,15 +66,6 @@ void CloudVolume::clearGPU() {
     }
 }
 
-/* Reset CPU representation of volume */
-void CloudVolume::clearCPU() {
-    for (unsigned int i = 0; i < voxelData.size(); i++) {
-        voxelData[i].spatial.position = glm::vec3(0.f);
-        voxelData[i].spatial.scale = glm::vec3(0.f);
-        voxelData[i].data = glm::vec4(0.f);
-    }
-}
-
 void CloudVolume::updateVoxelData() {
     /* Pull volume data out of GPU */
     std::vector<float> buffer(voxelData.size() * 4);
@@ -89,21 +80,26 @@ void CloudVolume::updateVoxelData() {
         (zBounds.y - zBounds.x) / dimension);
     voxelCount = 0;
     for (unsigned int i = 0; i < voxelData.size(); i++) {
+        /* Reset data first */
+        voxelData[i].spatial.position = glm::vec3(0.f);
+        voxelData[i].spatial.scale = glm::vec3(0.f);
+        voxelData[i].data = glm::vec4(0.f);
+
+        /* Update voxel data if data exists */
         float r = buffer[4*i + 0];
         float g = buffer[4*i + 1];
         float b = buffer[4*i + 2];
         float a = buffer[4*i + 3];
-        /* Update voxel data if data exists */
         if (r || g || b || a) {
             voxelCount++;
             glm::ivec3 in = get3DIndices(4*i);       // voxel index 
             glm::vec3 wPos = reverseVoxelIndex(in);  // world space
             voxelData[i].spatial.position = this->position + wPos;
             voxelData[i].spatial.scale = voxelSize;
-            voxelData[i].data.x = r;
-            voxelData[i].data.y = g;
-            voxelData[i].data.z = b;
-            voxelData[i].data.w = a;
+            voxelData[i].data.r = r;
+            voxelData[i].data.g = g;
+            voxelData[i].data.b = b;
+            voxelData[i].data.a = a;
         }
     }
 }

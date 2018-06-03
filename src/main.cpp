@@ -123,7 +123,6 @@ int main() {
 
         /* Voxelize from the light's perspective */
         if (lightVoxelize) {
-            volume->clearCPU();
             voxelizeShader->voxelize(volume);
         }
         /* Cone trace from the camera's perspective */
@@ -244,15 +243,6 @@ void runImGuiPanes() {
     ImGui::SliderFloat2("YBounds", glm::value_ptr(volume->yBounds), minBounds, maxBounds);
     ImGui::SliderFloat2("ZBounds", glm::value_ptr(volume->zBounds), minBounds, maxBounds);
     ImGui::Checkbox("Light Voxelize!", &lightVoxelize);
-    if (ImGui::Button("Single voxelize")) {
-        volume->clearCPU();
-        voxelizeShader->voxelize(volume);
-    }
-    if (ImGui::Button("Clear")) {
-        volume->clearGPU();
-        volume->clearCPU();
-        voxelizeShader->clearPositionMap();
-    }
     ImGui::End();
 
     ImGui::Begin("Voxels");
