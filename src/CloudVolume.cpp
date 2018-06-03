@@ -37,15 +37,15 @@ CloudVolume::CloudVolume(int dim, glm::vec2 bounds, glm::vec3 position, int mips
 }
 
 /* Add a billboard */
-void CloudVolume::addCloudBoard(Spatial s) {
+void CloudVolume::addCloudBoard(Spatial &s) {
     this->cloudBoards.push_back(s);
 }
 
 /* Sort billboards by distance to a point */
 void CloudVolume::sortBoards(glm::vec3 orig) {
-    for (int i = 0; i < cloudBoards.size(); i++) {
+    for (unsigned int i = 0; i < cloudBoards.size(); i++) {
         int minIdx = i;
-        for (int j = i + 1; j < cloudBoards.size(); j++) {
+        for (unsigned int j = i + 1; j < cloudBoards.size(); j++) {
             if (glm::distance(cloudBoards[minIdx].position, orig) < glm::distance(cloudBoards[j].position, orig)) {
                 minIdx = j;
             }
@@ -100,7 +100,10 @@ void CloudVolume::updateVoxelData() {
             glm::vec3 wPos = reverseVoxelIndex(in);  // world space
             voxelData[i].spatial.position = this->position + wPos;
             voxelData[i].spatial.scale = voxelSize;
-            voxelData[i].data = glm::vec4(r, g, b, a);
+            voxelData[i].data.x = r;
+            voxelData[i].data.y = g;
+            voxelData[i].data.z = b;
+            voxelData[i].data.w = a;
         }
     }
 }

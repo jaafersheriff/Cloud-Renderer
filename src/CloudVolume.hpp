@@ -17,7 +17,7 @@ class CloudVolume {
 
         CloudVolume(int, glm::vec2, glm::vec3, int);
 
-        void addCloudBoard(Spatial);
+        void addCloudBoard(Spatial &);
         void sortBoards(glm::vec3);
         void updateVoxelData();
         void clearGPU();
