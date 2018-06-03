@@ -12,45 +12,37 @@ VoxelizeShader::VoxelizeShader(const std::string &r, const std::string &v, const
     secondVoxelizer = new Shader(r, v, f2);
 
     /* Create position map */
-    initPositionMap(Window::width, Window::height);
+    initPositionFBO(Window::width, Window::height);
 }
 
 void VoxelizeShader::voxelize(CloudVolume *volume) {
     /* Resize position map if window was resized */
     if (Window::width != positionMap->width || Window::height != positionMap->height) {
-        resizePositionMap(Window::width, Window::height);
+        resizePositionFBO(Window::width, Window::height);
     }
 
     /* Reset volume and position map */
     volume->clearGPU();
     clearPositionMap();
 
-    /* Disable quad visualization */
-    CHECK_GL_CALL(glDisable(GL_DEPTH_TEST));
-    CHECK_GL_CALL(glDisable(GL_CULL_FACE));
-    CHECK_GL_CALL(glDepthMask(GL_FALSE));
-    CHECK_GL_CALL(glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE));
-
     /* Voxelize */
     firstVoxelize(volume);
     secondVoxelize(volume);
-
-    /* Reset state */
-    CHECK_GL_CALL(glEnable(GL_DEPTH_TEST));
-    CHECK_GL_CALL(glEnable(GL_CULL_FACE));
-    CHECK_GL_CALL(glDepthMask(GL_TRUE));
-    CHECK_GL_CALL(glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE));
 }
 
 /* First voxelize pass 
  * Render all billboards and initialize black voxels
- * Write out nearest voxel positions to position map */
+ * Write out nearest voxel positions to position FBO */
 void VoxelizeShader::firstVoxelize(CloudVolume *volume) {
+    /* Bind position FBO */
+    CHECK_GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, positionFBO));
+    CHECK_GL_CALL(glClearColor(0.f, 0.f, 0.f, 0.f));
+    CHECK_GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+
     firstVoxelizer->bind();
 
     /* Bind volume and position map */
     bindVolume(firstVoxelizer, volume);
-    bindPositionMap();
 
     /* Bind quad */
     CHECK_GL_CALL(glBindVertexArray(Library::quad->vaoId));
@@ -76,27 +68,33 @@ void VoxelizeShader::firstVoxelize(CloudVolume *volume) {
 
         /* Draw billboard */
         CHECK_GL_CALL(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
-
-        /* Solves concurrency issues */
-        CHECK_GL_CALL(glFlush());
     }
 
     /* Wrap up shader */
     CHECK_GL_CALL(glBindVertexArray(0));
     unbindVolume();
-    unbindPositionMap();
     firstVoxelizer->unbind();
+
+    CHECK_GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 }
 
 /* Second voxelize pass 
  * Render position map 
  * Highlight voxels nearest to light */
 void VoxelizeShader::secondVoxelize(CloudVolume *volume) {
+    /* Disable quad visualization */
+    CHECK_GL_CALL(glDisable(GL_DEPTH_TEST));
+    CHECK_GL_CALL(glDisable(GL_CULL_FACE));
+    CHECK_GL_CALL(glDepthMask(GL_FALSE));
+    CHECK_GL_CALL(glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE));
+
     secondVoxelizer->bind();
 
-    /* Bind volume and position map */
+    /* Bind volume */
     bindVolume(secondVoxelizer, volume);
-    bindPositionMap();
+
+    /* Bind position FBO */
+    CHECK_GL_CALL(glBindImageTexture(1, positionMap->textureId, 0, GL_TRUE, 0, GL_READ_WRITE, GL_RGBA32F));
 
     /* Bind quad */
     CHECK_GL_CALL(glBindVertexArray(Library::quad->vaoId));
@@ -119,9 +117,15 @@ void VoxelizeShader::secondVoxelize(CloudVolume *volume) {
 
     /* Wrap up shader*/
     CHECK_GL_CALL(glBindVertexArray(0));
+    CHECK_GL_CALL(glBindImageTexture(1, 0, 0, GL_TRUE, 0, GL_READ_WRITE, GL_RGBA32F));
     unbindVolume();
-    unbindPositionMap();
     secondVoxelizer->unbind();
+
+    /* Reset state */
+    CHECK_GL_CALL(glEnable(GL_DEPTH_TEST));
+    CHECK_GL_CALL(glEnable(GL_CULL_FACE));
+    CHECK_GL_CALL(glDepthMask(GL_TRUE));
+    CHECK_GL_CALL(glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE));
 }
 
 void VoxelizeShader::bindVolume(Shader *shader, CloudVolume *volume) {
@@ -140,34 +144,33 @@ void VoxelizeShader::unbindVolume() {
     CHECK_GL_CALL(glActiveTexture(GL_TEXTURE0));
 }
 
-
-void VoxelizeShader::bindPositionMap() {
-    CHECK_GL_CALL(glBindImageTexture(1, positionMap->textureId, 0, GL_TRUE, 0, GL_READ_WRITE, GL_RGBA32F));
-}
-
-void VoxelizeShader::unbindPositionMap() {
-    CHECK_GL_CALL(glBindImageTexture(1, 0, 0, GL_TRUE, 0, GL_READ_WRITE, GL_RGBA32F));
-}
-
-void VoxelizeShader::initPositionMap(const int width, const int height) {
+void VoxelizeShader::initPositionFBO(const int width, const int height) {
     positionMap = new Texture();
     positionMap->width = width;
     positionMap->height = height;
+
+    /* Generate FBO */
+    CHECK_GL_CALL(glGenFramebuffers(1, &positionFBO));
+    CHECK_GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, positionFBO));
 
     /* Generate the texture */
     CHECK_GL_CALL(glGenTextures(1, &positionMap->textureId));
     CHECK_GL_CALL(glBindTexture(GL_TEXTURE_2D, positionMap->textureId));
     CHECK_GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, positionMap->width, positionMap->height, 0, GL_RGBA, GL_FLOAT, NULL));
 
+    /* Texture params */
     CHECK_GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
     CHECK_GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
     CHECK_GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
     CHECK_GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
 
+    /* Bind texture to FBO */
+    CHECK_GL_CALL(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, positionMap->textureId, 0));
+
     CHECK_GL_CALL(glBindTexture(GL_TEXTURE_2D, 0));
 }
 
-void VoxelizeShader::resizePositionMap(const int width, const int height) {
+void VoxelizeShader::resizePositionFBO(const int width, const int height) {
     positionMap->width = width;
     positionMap->height = height;
     CHECK_GL_CALL(glBindTexture(GL_TEXTURE_2D, positionMap->textureId));

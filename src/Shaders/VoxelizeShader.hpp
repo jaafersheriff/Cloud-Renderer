@@ -18,6 +18,7 @@ class VoxelizeShader {
         void voxelize(CloudVolume *);
 
         /* 2D position FBO */
+        GLuint positionFBO;
         Texture * positionMap;
         void clearPositionMap();
 
@@ -28,10 +29,8 @@ class VoxelizeShader {
         void bindVolume(Shader *, CloudVolume *);
         void unbindVolume();
 
-        void initPositionMap(const int, const int);
-        void resizePositionMap(const int, const int);
-        void bindPositionMap();
-        void unbindPositionMap();
+        void initPositionFBO(const int, const int);
+        void resizePositionFBO(const int, const int);
 };
 
 #endif

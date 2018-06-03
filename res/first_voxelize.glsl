@@ -12,16 +12,14 @@ in vec3 fragNor;
 uniform vec3 center;
 uniform float scale;
 
+uniform vec3 lightPos;
+
 layout(binding=0, rgba16f) uniform image3D volume;
 uniform int voxelDim;
 uniform vec2 xBounds;
 uniform vec2 yBounds;
 uniform vec2 zBounds;
 uniform float stepSize;
-
-uniform vec3 lightPos;
-
-layout(binding=1, rgba32f) uniform image2D positionMap;
 
 out vec4 color;
 
@@ -51,28 +49,21 @@ void main() {
     sphereContrib = sqrt(max(0, 1 - sphereContrib * sphereContrib));
     color = vec4(sphereContrib);
 
-    if (sphereContrib > 0.f) {
-        ivec2 texCoords = ivec2(gl_FragCoord.xy);
-        vec3 dir = normalize(fragNor); 
-        float dist = radius * sphereContrib;
-        vec4 nearestPos = imageLoad(positionMap, texCoords);
-        if (nearestPos.a < 1.f) {
-            nearestPos = vec4(FLT_MAX, FLT_MAX, FLT_MAX, 0.f);
-        }
-
-        /* Write to volume in spherical shape from billboard to light source */
-        vec3 start = fragPos - dir * dist;
-        for(float i = 0; i < 2*dist; i += stepSize) {
-            vec3 worldPos = start + dir * i;
-            ivec3 voxelIndex = calculateVoxelIndex(worldPos);
-            imageAtomicAdd(volume, voxelIndex, f16vec4(0, 0, 0, 1));
-
-            /* Keep track of nearest voxel position */
-            if (distance(worldPos, lightPos) < distance(nearestPos.xyz, lightPos)) {
-                nearestPos = vec4(worldPos, 1.f);
-            }
-        }
-        /* Write nearest voxel position to position map */
-        imageStore(positionMap, texCoords, nearestPos);
+    if (sphereContrib < 0.01f) {
+        discard;
     }
+
+    /* Write to volume in spherical shape from billboard to light source */
+    vec3 dir = normalize(fragNor); 
+    float dist = radius * sphereContrib;
+    vec3 start = fragPos - dir * dist;
+    for(float i = 0; i < 2*dist; i += stepSize) {
+        vec3 worldPos = start + dir * i;
+        ivec3 voxelIndex = calculateVoxelIndex(worldPos);
+        // imageAtomicAdd(volume, voxelIndex, f16vec4(1, 0, 0, 1));
+        imageStore(volume, voxelIndex, vec4(0, 0, 0, 1));
+    }
+
+    /* Write nearest voxel position to position FBO */
+    color = vec4(fragPos + dir * dist, 1);
 }
