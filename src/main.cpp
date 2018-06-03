@@ -26,15 +26,17 @@ int Window::width = 1280;
 int Window::height = 720;
 
 /* Volume */
-int I_VOLUME_BOARDS = 200;
-glm::vec3 I_VOLUME_POSITION = glm::vec3(5.f, 0.f, 0.f);
-glm::vec2 I_VOLUME_BOUNDS = glm::vec2(-20.f, 20.f);
-int I_VOLUME_DIMENSION = 32;
-int I_VOLUME_MIPS = 4;
+const int I_VOLUME_BOARDS = 200;
+const glm::vec3 I_VOLUME_POSITION = glm::vec3(5.f, 0.f, 0.f);
+const glm::vec2 I_VOLUME_BOUNDS = glm::vec2(-5.f, 5.f);
+const int I_VOLUME_DIMENSION = 32;
+const int I_VOLUME_MIPS = 4;
 CloudVolume *volume;
 
 /* Light */
-Spatial Light::spatial = Spatial(glm::vec3(5.f, 20.f, -5.f), glm::vec3(1.f), glm::vec3(0.f));
+const glm::vec3 I_LIGHT_POSITION = glm::vec3(5.f, 20.f, -5.f);
+const glm::vec3 I_LIGHT_SCALE = glm::vec3(1.f);
+Spatial Light::spatial = Spatial(I_LIGHT_POSITION, I_LIGHT_SCALE, glm::vec3(0.f));
 glm::mat4 Light::V(1.f);
 
 /* Library things */
@@ -73,11 +75,11 @@ int main() {
     }
 
     /* Create volume */
-    volume = new CloudVolume(I_VOLUME_DIMENSION, glm::vec2(-5.f, 5.f), I_VOLUME_POSITION, I_VOLUME_MIPS);
+    volume = new CloudVolume(I_VOLUME_DIMENSION, I_VOLUME_BOUNDS, I_VOLUME_POSITION, I_VOLUME_MIPS);
     for (int i = 0; i < I_VOLUME_BOARDS; i++) {
         volume->addCloudBoard(Spatial(
-            Util::genRandomVec3(-3.f, 3.f),
-            glm::vec3(Util::genRandom(1.f, 4.f)),
+            Util::genRandomVec3(-2.5f, 2.5f),
+            glm::vec3(Util::genRandom(1.f, 2.5f)),
             glm::vec3(0.f)                      // rotation
         ));
     }
@@ -209,12 +211,13 @@ void runImGuiPanes() {
     static glm::vec2 ranPos = glm::vec2(-3.f, 3.f);
     static glm::vec2 ranScale = glm::vec2(1.f, 3.f);
     bool changing = false;
+    static int numBoards = I_VOLUME_BOARDS;
     changing |= ImGui::SliderFloat2("Random Offset", glm::value_ptr(ranPos), -5.f, 5.f);
-    changing |= ImGui::SliderFloat2("Random Scale", glm::value_ptr(ranScale), 1.f, 10.f);
-    changing |= ImGui::SliderInt("Number billboards", &I_VOLUME_BOARDS, 0, 200);
+    changing |= ImGui::SliderFloat2("Random Scale", glm::value_ptr(ranScale), 1.f, 5.f);
+    changing |= ImGui::SliderInt("Number billboards", &numBoards, 0, 200);
     if (ImGui::Button("Reset billboards") || changing) {
         volume->cloudBoards.clear();
-        for (int i = 0; i < I_VOLUME_BOARDS; i++) {
+        for (int i = 0; i < numBoards; i++) {
             volume->addCloudBoard(Spatial(
                 Util::genRandomVec3(ranPos.x, ranPos.y),
                 glm::vec3(Util::genRandom(ranScale.x, ranScale.y)),
@@ -277,10 +280,10 @@ void runImGuiPanes() {
 
     ImGui::Begin("Noise");
     ImGui::SliderFloat("Step size", &coneShader->stepSize, 0.001f, 10.f);
-    ImGui::SliderFloat("Noise opacity", &coneShader->noiseOpacity, 0.1f, 100.f);
-    ImGui::SliderInt("Octaves", &coneShader->numOctaves, 1, 100);
-    ImGui::SliderFloat("Frequency", &coneShader->freqStep, 0.01f, 100.f);
-    ImGui::SliderFloat("Persistence", &coneShader->persStep, 0.01f, 100.f);
+    ImGui::SliderFloat("Noise opacity", &coneShader->noiseOpacity, 0.1f, 40.f);
+    ImGui::SliderInt("Octaves", &coneShader->numOctaves, 1, 10);
+    ImGui::SliderFloat("Frequency", &coneShader->freqStep, 0.01f, 10.f);
+    ImGui::SliderFloat("Persistence", &coneShader->persStep, 0.01f, 1.f);
     ImGui::Checkbox("Noise sample", &coneShader->doNoiseSample);
     ImGui::End();
 
