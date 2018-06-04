@@ -43,6 +43,9 @@ class Sun {
             spatial.scale = glm::vec3(out);
         }
 
+        static float getInnerRadius() { return innerRadius; }
+        static float getOuterRadius() { return outerRadius; }
+
     protected:
         static float innerRadius;
         static float outerRadius;

@@ -5,8 +5,17 @@
 #include "Library.hpp"
 
 void SunShader::render() {
+    CHECK_GL_CALL(glDisable(GL_DEPTH_TEST));
+
     /* Bind shader */
     bind();
+
+    /* Bind sun params */
+    loadVector(getUniform("center"), Sun::spatial.position);
+    loadVector(getUniform("innerColor"), Sun::innerColor);
+    loadFloat(getUniform("innerRadius"), Sun::getInnerRadius());
+    loadVector(getUniform("outerColor"), Sun::outerColor);
+    loadFloat(getUniform("outerRadius"), Sun::getOuterRadius());
     
     /* Bind projeciton, view, inverse view matrices */
     loadMatrix(getUniform("P"), &Camera::getP());
@@ -32,5 +41,7 @@ void SunShader::render() {
     /* Clean up */
     CHECK_GL_CALL(glBindVertexArray(0));
     unbind();
+
+    CHECK_GL_CALL(glDisable(GL_DEPTH_TEST));
 }
 
