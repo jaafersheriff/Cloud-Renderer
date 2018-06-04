@@ -18,27 +18,27 @@ class Sun {
             spatial = spat;
             V = glm::mat4(1.f);
             innerColor = inC;
-            innerRadius = inR;
             outerColor = outC;
-            outerRadius = outR;
+            setInnerRadius(inR);
+            setOuterRadius(outR);
         }
 
         static void update(glm::vec3 lookAt) {
             V = glm::lookAt(spatial.position, lookAt, glm::vec3(0, 1, 0));
         }
 
-        static void updateInnerRadius(float in) {
+        static void setInnerRadius(float in) {
             if (innerRadius + in >= 0 && innerRadius + in <= outerRadius) {
                 innerRadius += in;
             }
         }
 
-        static void updateOuterRadius(float out) {
+        static void setOuterRadius(float out) {
             if (outerRadius + out >= 0) {
                 outerRadius += out;
             }
             if (outerRadius + out <= innerRadius) {
-                updateInnerRadius(out);
+                setInnerRadius(out);
             }
             spatial.scale = glm::vec3(out);
         }

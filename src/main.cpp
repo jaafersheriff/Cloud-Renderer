@@ -3,11 +3,11 @@
 #include "Util.hpp"
 #include "Library.hpp"
 
-#include "Light.hpp"
+#include "Sun.hpp"
 #include "CloudVolume.hpp"
 
 #include "Shaders/GLSL.hpp"
-#include "Shaders/BillboardShader.hpp"
+#include "Shaders/SunShader.hpp"
 #include "Shaders/VoxelizeShader.hpp"
 #include "Shaders/VoxelShader.hpp"
 #include "Shaders/ConeTraceShader.hpp"
@@ -33,9 +33,12 @@ const int I_VOLUME_DIMENSION = 32;
 const int I_VOLUME_MIPS = 4;
 CloudVolume *volume;
 
-/* Light */
-const glm::vec3 I_LIGHT_POSITION = glm::vec3(5.f, 20.f, -5.f);
-const glm::vec3 I_LIGHT_SCALE = glm::vec3(1.f);
+/* Sun */
+const glm::vec3 I_SUN_POSITION = glm::vec3(5.f, 20.f, -5.f);
+const glm::vec3 I_SUN_INNER_COLOR = glm::vec3(1.f);
+const glm::vec3 I_SUN_OUTER_COLOR = glm::vec3(1.f, 1.f, 0.f);
+const float I_SUN_INNER_RADIUS = 1.f;
+const float I_SUN_OUTER_RADIUS = 2.f;
 
 /* Library things */
 const std::string RESOURCE_DIR("../res/");
@@ -46,14 +49,11 @@ Mesh * Library::quad;
 std::map<std::string, Texture *> Library::textures;
 
 /* Shaders */
-BillboardShader * billboardShader;
+SunShader * sunShader;
 VoxelizeShader * voxelizeShader;
 VoxelShader * voxelShader;
 ConeTraceShader * coneShader;
 Shader * debugShader;
-
-/* Render targets */
-std::vector<Spatial *> cloudsBillboards;
 
 /* ImGui functions */
 void runImGuiPanes();
@@ -72,6 +72,9 @@ int main() {
         exitError("Error initializing window");
     }
 
+    /* Create sun */
+    Sun(Spatial(I_SUN_POSITION, glm::vec3(1.f), glm::vec3(1.f)), I_SUN_INNER_COLOR, I_SUN_INNER_RADIUS, I_SUN_OUTER_COLOR, I_SUN_OUTER_RADIUS);
+
     /* Create volume */
     volume = new CloudVolume(I_VOLUME_DIMENSION, I_VOLUME_BOUNDS, I_VOLUME_POSITION, I_VOLUME_MIPS);
     for (int i = 0; i < I_VOLUME_BOARDS; i++) {
@@ -88,7 +91,7 @@ int main() {
     Library::addTexture(RESOURCE_DIR, normalTexName);
 
     /* Create shaders */
-    billboardShader = new BillboardShader(RESOURCE_DIR, "billboard_vert.glsl", "cloud_frag.glsl");
+    sunShader = new SunShader(RESOURCE_DIR, "billboard_vert.glsl", "sun_frag.glsl");
     voxelShader = new VoxelShader(RESOURCE_DIR, "voxel_vert.glsl", "voxel_frag.glsl");
     voxelizeShader = new VoxelizeShader(RESOURCE_DIR, "billboard_vert.glsl", "first_voxelize.glsl", "second_voxelize.glsl");
     coneShader = new ConeTraceShader(RESOURCE_DIR, "billboard_vert.glsl", "conetrace_frag.glsl");
@@ -101,10 +104,6 @@ int main() {
     CHECK_GL_CALL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
     Camera::update();
 
-    // add light spatial to cloud billboards so we can visualize light pos 
-    // TODO : replace with proper sun rendering
-    cloudsBillboards.push_back(&Light::spatial);
-
     while (!Window::shouldClose()) {
         /* Update context */
         Window::update();
@@ -113,7 +112,7 @@ int main() {
         Camera::update();
 
         /* Update light */
-        Light::update(volume->position);
+        Sun::update(volume->position);
 
         /* Cloud render! */
         CHECK_GL_CALL(glClearColor(0.2f, 0.3f, 0.5f, 1.f));
@@ -127,11 +126,11 @@ int main() {
         /* Cone trace from the camera's perspective */
         coneShader->coneTrace(volume, Window::timeStep);
 
-        /* Render cloud billboards */
-        billboardShader->render(cloudsBillboards, Library::textures[diffuseTexName], Library::textures[normalTexName]);
+        /* Render sun */
+        sunShader->render();
 
         /* Render Optional */
-        glm::mat4 V = lightView ? Light::V : Camera::getV();
+        glm::mat4 V = lightView ? Sun::V : Camera::getV();
         /* Draw voxels to the screen */
         if (showVoxels) {
             volume->updateVoxelData();
@@ -160,9 +159,18 @@ void runImGuiPanes() {
     }
     ImGui::End();
 
-    ImGui::Begin("Light");
-    ImGui::SliderFloat3("Position", glm::value_ptr(Light::spatial.position), -100.f, 100.f);
-    ImGui::SliderFloat("Scale", &Light::spatial.scale.x, 0.f, 10.f);
+    ImGui::Begin("Sun");
+    ImGui::SliderFloat3("Position", glm::value_ptr(Sun::spatial.position), -100.f, 100.f);
+    ImGui::SliderFloat3("Inner Color", glm::value_ptr(Sun::innerColor), 0.f, 1.f);
+    ImGui::SliderFloat3("Outer Color", glm::value_ptr(Sun::outerColor), 0.f, 1.f);
+    float innerRad = Sun::getInnerRadius();
+    float outerRad = Sun::getInnerRadius();
+    if (ImGui::SliderFloat("Inner Radius", &innerRad, 0.f, 50.f)) {
+        Sun::setInnerRadius(innerRad);
+    }
+    if (ImGui::SliderFloat("Outer Radius", &outerRad, 0.f, 50.f)) {
+        Sun::setOuterRadius(outerRad);
+    }
     static float mapSize = 0.2f;
     static bool showFullMap = false;
     static bool showSmallMap = false;
