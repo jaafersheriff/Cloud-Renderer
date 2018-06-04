@@ -1,7 +1,7 @@
 #include "ConeTraceShader.hpp"
 
 #include "Camera.hpp"
-#include "Light.hpp"
+#include "Sun.hpp"
 #include "Library.hpp"
 
 ConeTraceShader::ConeTraceShader(const std::string &r, const std::string &v, const std::string &f) :
@@ -25,7 +25,7 @@ void ConeTraceShader::coneTrace(CloudVolume *volume, float dt) {
     bind();
     bindVolume(volume);
 
-    loadVector(getUniform("lightPos"), Light::spatial.position);
+    loadVector(getUniform("lightPos"), Sun::spatial.position);
 
     /* Bind cone tracing params */
     loadBool(getUniform("doConeTrace"), doConeTrace);

@@ -34,11 +34,12 @@ const int I_VOLUME_MIPS = 4;
 CloudVolume *volume;
 
 /* Sun */
-const glm::vec3 I_SUN_POSITION = glm::vec3(5.f, 20.f, -5.f);
-const glm::vec3 I_SUN_INNER_COLOR = glm::vec3(1.f);
-const glm::vec3 I_SUN_OUTER_COLOR = glm::vec3(1.f, 1.f, 0.f);
-const float I_SUN_INNER_RADIUS = 1.f;
-const float I_SUN_OUTER_RADIUS = 2.f;
+Spatial Sun::spatial = Spatial(glm::vec3(5.f, 20.f, -5.f), glm::vec3(1.f), glm::vec3(1.f));
+glm::mat4 Sun::V = glm::mat4(1.f);
+glm::vec3 Sun::innerColor = glm::vec3(1.f);
+glm::vec3 Sun::outerColor = glm::vec3(1.f, 1.f, 0.f);
+float Sun::innerRadius = 1.f;
+float Sun::outerRadius = 2.f;
 
 /* Library things */
 const std::string RESOURCE_DIR("../res/");
@@ -72,8 +73,7 @@ int main() {
         exitError("Error initializing window");
     }
 
-    /* Create sun */
-    Sun(Spatial(I_SUN_POSITION, glm::vec3(1.f), glm::vec3(1.f)), I_SUN_INNER_COLOR, I_SUN_INNER_RADIUS, I_SUN_OUTER_COLOR, I_SUN_OUTER_RADIUS);
+    /* Init sun */
 
     /* Create volume */
     volume = new CloudVolume(I_VOLUME_DIMENSION, I_VOLUME_BOUNDS, I_VOLUME_POSITION, I_VOLUME_MIPS);
@@ -163,14 +163,8 @@ void runImGuiPanes() {
     ImGui::SliderFloat3("Position", glm::value_ptr(Sun::spatial.position), -100.f, 100.f);
     ImGui::SliderFloat3("Inner Color", glm::value_ptr(Sun::innerColor), 0.f, 1.f);
     ImGui::SliderFloat3("Outer Color", glm::value_ptr(Sun::outerColor), 0.f, 1.f);
-    float innerRad = Sun::getInnerRadius();
-    float outerRad = Sun::getInnerRadius();
-    if (ImGui::SliderFloat("Inner Radius", &innerRad, 0.f, 50.f)) {
-        Sun::setInnerRadius(innerRad);
-    }
-    if (ImGui::SliderFloat("Outer Radius", &outerRad, 0.f, 50.f)) {
-        Sun::setOuterRadius(outerRad);
-    }
+    ImGui::SliderFloat("Inner Radius", &Sun::innerRadius, 0.f, 10.f);
+    ImGui::SliderFloat("Outer Radius", &Sun::outerRadius, 0.f, 10.f);
     static float mapSize = 0.2f;
     static bool showFullMap = false;
     static bool showSmallMap = false;

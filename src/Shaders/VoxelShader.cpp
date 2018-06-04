@@ -1,7 +1,6 @@
 #include "VoxelShader.hpp"
 
 #include "Library.hpp"
-#include "Light.hpp"
 #include "Camera.hpp"
 #include "Model/Mesh.hpp"
 

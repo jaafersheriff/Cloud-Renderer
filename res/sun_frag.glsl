@@ -13,6 +13,7 @@ out vec4 color;
 
 void main() {
     float dist = distance(center, fragPos);
+
     /* Inner circle */
     if (dist < innerRadius) {
         color = vec4(innerColor, 1.0);
