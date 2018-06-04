@@ -31,9 +31,6 @@
     <ClCompile Include="Shaders\Shader.cpp">
       <Filter>src\Shaders</Filter>
     </ClCompile>
-    <ClCompile Include="Shaders\BillboardShader.cpp">
-      <Filter>src\Shaders</Filter>
-    </ClCompile>
     <ClCompile Include="ThirdParty\imgui\imgui_demo.cpp">
       <Filter>src\ThirdParty\imgui</Filter>
     </ClCompile>
@@ -57,6 +54,9 @@
     </ClCompile>
     <ClCompile Include="CloudVolume.cpp">
       <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="Shaders\SunShader.cpp">
+      <Filter>src\Shaders</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -113,9 +113,6 @@
     <ClInclude Include="Shaders\Shader.hpp">
       <Filter>src\Shaders</Filter>
     </ClInclude>
-    <ClInclude Include="Shaders\BillboardShader.hpp">
-      <Filter>src\Shaders</Filter>
-    </ClInclude>
     <ClInclude Include="stb_image.h">
       <Filter>src\ThirdParty</Filter>
     </ClInclude>
@@ -143,9 +140,6 @@
     <ClInclude Include="Spatial.hpp">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="Light.hpp">
-      <Filter>src</Filter>
-    </ClInclude>
     <ClInclude Include="Library.hpp">
       <Filter>src</Filter>
     </ClInclude>
@@ -161,14 +155,17 @@
     <ClInclude Include="CloudVolume.hpp">
       <Filter>src</Filter>
     </ClInclude>
+    <ClInclude Include="Shaders\SunShader.hpp">
+      <Filter>src\Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="Sun.hpp">
+      <Filter>src</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\CMakeLists.txt" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\res\cloud_frag.glsl">
-      <Filter>glsl</Filter>
-    </None>
     <None Include="ThirdParty\imgui\LICENSE">
       <Filter>src\ThirdParty\imgui</Filter>
     </None>
@@ -191,6 +188,9 @@
       <Filter>glsl</Filter>
     </None>
     <None Include="..\res\debug_frag.glsl">
+      <Filter>glsl</Filter>
+    </None>
+    <None Include="..\res\sun_frag.glsl">
       <Filter>glsl</Filter>
     </None>
   </ItemGroup>

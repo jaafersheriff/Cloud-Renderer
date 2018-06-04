@@ -36,8 +36,6 @@ CloudVolume *volume;
 /* Light */
 const glm::vec3 I_LIGHT_POSITION = glm::vec3(5.f, 20.f, -5.f);
 const glm::vec3 I_LIGHT_SCALE = glm::vec3(1.f);
-Spatial Light::spatial = Spatial(I_LIGHT_POSITION, I_LIGHT_SCALE, glm::vec3(0.f));
-glm::mat4 Light::V(1.f);
 
 /* Library things */
 const std::string RESOURCE_DIR("../res/");
