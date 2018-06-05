@@ -37,6 +37,7 @@ public:
     void shutDown();
 
     /* Timing */
+    static double runTime;
     static float timeStep;
     static int FPS;
 
@@ -59,12 +60,10 @@ private:
     static void keyCallback(GLFWwindow *, int, int, int, int);
     static void mouseButtonCallback(GLFWwindow *, int, int, int);
     static void characterCallback(GLFWwindow *, unsigned int);
-    static void resizeCallback(GLFWwindow *, int, int);
 
     /* Timing */
     static double lastFpsTime;
     static double lastFrameTime;
-    static double runTime;
     static int nFrames;
 
     /* ImGui */

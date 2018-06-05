@@ -123,7 +123,7 @@ int main() {
             voxelizeShader->voxelize(volume);
         }
         /* Cone trace from the camera's perspective */
-        coneShader->coneTrace(volume, Window::timeStep);
+        coneShader->coneTrace(volume);
 
         /* Render sun */
         sunShader->render();
@@ -279,12 +279,13 @@ void runImGuiPanes() {
     ImGui::End();
 
     ImGui::Begin("Noise");
+    ImGui::Checkbox("Noise sample", &coneShader->doNoiseSample);
     ImGui::SliderFloat("Step size", &coneShader->stepSize, 0.001f, 10.f);
     ImGui::SliderFloat("Noise opacity", &coneShader->noiseOpacity, 0.1f, 40.f);
     ImGui::SliderInt("Octaves", &coneShader->numOctaves, 1, 10);
     ImGui::SliderFloat("Frequency", &coneShader->freqStep, 0.01f, 10.f);
     ImGui::SliderFloat("Persistence", &coneShader->persStep, 0.01f, 1.f);
-    ImGui::Checkbox("Noise sample", &coneShader->doNoiseSample);
+    ImGui::SliderFloat3("Wind Dir", glm::value_ptr(coneShader->windVel), -0.1f, 0.1f);
     ImGui::End();
 
 }

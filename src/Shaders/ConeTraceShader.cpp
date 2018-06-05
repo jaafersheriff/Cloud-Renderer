@@ -11,7 +11,7 @@ ConeTraceShader::ConeTraceShader(const std::string &r, const std::string &v, con
     initNoiseMap(32);
 }
 
-void ConeTraceShader::coneTrace(CloudVolume *volume, float dt) {
+void ConeTraceShader::coneTrace(CloudVolume *volume) {
     if (!doConeTrace && !doNoiseSample) {
         return;
     }
@@ -47,13 +47,11 @@ void ConeTraceShader::coneTrace(CloudVolume *volume, float dt) {
     loadFloat(getUniform("persStep"), persStep);
 
     /* Per-octave samplign offset */
-    // TODO : imgui scales
-    totalTime += dt * 0.01f;
     std::vector<glm::vec3> octaveOffsets(numOctaves, glm::vec3(0.f));
     for (int i = 0; i < numOctaves; i++) {
-        octaveOffsets[i].x = glm::pow(-1, i) * (float)(totalTime);
-        octaveOffsets[i].y = glm::pow(-1, 3 * i) * (float)(totalTime);
-        octaveOffsets[i].z = glm::pow(-1, 5 * i) * (float)(totalTime);
+        octaveOffsets[i].x = windVel.x * Window::runTime;
+        octaveOffsets[i].y = windVel.y * Window::runTime;
+        octaveOffsets[i].z = windVel.z * Window::runTime;
     }
     loadVector(getUniform("octaveOffsets"), octaveOffsets.data()[0]);
 
