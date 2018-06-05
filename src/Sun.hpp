@@ -20,15 +20,24 @@ class Sun {
         static float outerRadius;
 
         static void update(CloudVolume *vol) {
-            P = glm::perspective(45.f, (float)Window::width / Window::height, 0.1f, 1000.f);
+            spatial.scale = glm::vec3(outerRadius);
 
             glm::vec3 min = glm::vec3(vol->xBounds.x, vol->yBounds.x, vol->zBounds.x);
             glm::vec3 max = glm::vec3(vol->xBounds.y, vol->yBounds.y, vol->zBounds.y);
-            glm::vec3 lookDir = glm::normalize(spatial.position - vol->position);
-            // TODO : if perspective doesn't work out, scale this by 1.1f
-            glm::vec3 lookPos = vol->position + lookDir * glm::max(glm::length(min), glm::length(max));
+
+            glm::vec3 lookDir = glm::normalize(vol->position - spatial.position);
+            float minLen = glm::length(min);
+            float maxLen = glm::length(max);
+            glm::vec3 lookPos = vol->position - lookDir * glm::max(minLen, maxLen);
             V = glm::lookAt(lookPos, vol->position, glm::vec3(0, 1, 0));
-            spatial.scale = glm::vec3(outerRadius);
+
+            // TODO : these are all working fail-safes
+            // TODO : more math here to have an accurate, tight viewport
+            float minmin = glm::min(min.x, glm::min(min.y, min.z));
+            float maxmax = glm::max(max.x, glm::max(max.y, max.z));
+            float nearPlane = 0.01f;
+            float farPlane = 2.f * glm::max(minLen, maxLen);
+            P = glm::ortho(minmin, maxmax, minmin, maxmax, nearPlane, farPlane);
         }
 };
 
