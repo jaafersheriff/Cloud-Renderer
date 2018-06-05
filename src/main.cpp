@@ -35,6 +35,7 @@ CloudVolume *volume;
 
 /* Sun */
 Spatial Sun::spatial = Spatial(glm::vec3(5.f, 20.f, -5.f), glm::vec3(1.f), glm::vec3(1.f));
+glm::mat4 Sun::P = glm::mat4(1.f);
 glm::mat4 Sun::V = glm::mat4(1.f);
 glm::vec3 Sun::innerColor = glm::vec3(1.f);
 glm::vec3 Sun::outerColor = glm::vec3(1.f, 1.f, 0.f);
@@ -112,7 +113,7 @@ int main() {
         Camera::update();
 
         /* Update light */
-        Sun::update(volume->position);
+        Sun::update(volume);
 
         /* Cloud render! */
         CHECK_GL_CALL(glClearColor(0.2f, 0.3f, 0.5f, 1.f));
@@ -130,12 +131,13 @@ int main() {
         sunShader->render();
 
         /* Render Optional */
+        glm::mat4 P = lightView ? Sun::P : Camera::getP();
         glm::mat4 V = lightView ? Sun::V : Camera::getV();
         /* Draw voxels to the screen */
         if (showVoxels) {
             volume->updateVoxelData();
             voxelShader->bind();
-            voxelShader->render(volume, Camera::getP(), V);
+            voxelShader->render(volume, P, V);
             voxelShader->unbind();
         }
 

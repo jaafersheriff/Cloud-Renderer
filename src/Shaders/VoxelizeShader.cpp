@@ -56,7 +56,7 @@ void VoxelizeShader::firstVoxelize(CloudVolume *volume) {
     CHECK_GL_CALL(glBindVertexArray(Library::quad->vaoId));
 
     /* Bind light's perspective */
-    firstVoxelizer->loadMatrix(firstVoxelizer->getUniform("P"), &Camera::getP());
+    firstVoxelizer->loadMatrix(firstVoxelizer->getUniform("P"), &Sun::P);
     firstVoxelizer->loadMatrix(firstVoxelizer->getUniform("V"), &Sun::V);
     glm::mat4 Vi = Sun::V;
     Vi[3][0] = Vi[3][1] = Vi[3][2] = 0.f;
@@ -76,9 +76,6 @@ void VoxelizeShader::firstVoxelize(CloudVolume *volume) {
 
         /* Draw billboard */
         CHECK_GL_CALL(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
-
-        /* Solves concurrency issues */
-        CHECK_GL_CALL(glFlush());
     }
 
     /* Wrap up shader */
