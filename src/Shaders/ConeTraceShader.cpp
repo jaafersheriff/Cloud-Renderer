@@ -46,7 +46,7 @@ void ConeTraceShader::coneTrace(CloudVolume *volume) {
     loadFloat(getUniform("freqStep"), freqStep);
     loadFloat(getUniform("persStep"), persStep);
 
-    /* Per-octave samplign offset */
+    /* Per-octave sampling offset */
     std::vector<glm::vec3> octaveOffsets(numOctaves, glm::vec3(0.f));
     for (int i = 0; i < numOctaves; i++) {
         octaveOffsets[i].x = windVel.x * Window::runTime;
