@@ -161,6 +161,9 @@
     <ClInclude Include="Sun.hpp">
       <Filter>src</Filter>
     </ClInclude>
+    <ClInclude Include="ThirdParty\tiny_obj_loader.h">
+      <Filter>src\ThirdParty</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\CMakeLists.txt" />

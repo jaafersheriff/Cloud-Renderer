@@ -63,6 +63,7 @@
     <ClInclude Include="ThirdParty\imgui\stb_rect_pack.h" />
     <ClInclude Include="ThirdParty\imgui\stb_textedit.h" />
     <ClInclude Include="ThirdParty\imgui\stb_truetype.h" />
+    <ClInclude Include="ThirdParty\tiny_obj_loader.h" />
     <ClInclude Include="Util.hpp" />
     <ClInclude Include="CloudVolume.hpp" />
   </ItemGroup>
