@@ -74,8 +74,6 @@ int main() {
         exitError("Error initializing window");
     }
 
-    /* Init sun */
-
     /* Create volume */
     volume = new CloudVolume(I_VOLUME_DIMENSION, I_VOLUME_BOUNDS, I_VOLUME_POSITION, I_VOLUME_MIPS);
     for (int i = 0; i < I_VOLUME_BOARDS; i++) {
