@@ -13,6 +13,7 @@ double Window::lastFpsTime = 0.0;
 double Window::lastFrameTime = 0.0;
 double Window::runTime = 0.0;
 int Window::nFrames = 0;
+int Window::totalFrames = 0;
 
 float Window::imGuiTimer = 1.f;
 bool Window::imGuiEnabled = false;
@@ -133,6 +134,7 @@ void Window::update() {
         nFrames = 0;
         lastFpsTime = runTime;
     }
+    totalFrames++;
  
     /* Update ImGui */
     imGuiTimer += timeStep;

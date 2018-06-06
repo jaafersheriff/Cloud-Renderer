@@ -27,7 +27,7 @@ int Window::height = 720;
 
 /* Volume */
 const int I_VOLUME_BOARDS = 200;
-const glm::vec3 I_VOLUME_POSITION = glm::vec3(5.f, 0.f, 0.f);
+const glm::vec3 I_VOLUME_POSITION = glm::vec3(25.f, 0.f, 0.f);
 const glm::vec2 I_VOLUME_BOUNDS = glm::vec2(-5.f, 5.f);
 const int I_VOLUME_DIMENSION = 32;
 const int I_VOLUME_MIPS = 4;
@@ -150,13 +150,10 @@ int main() {
 void runImGuiPanes() {
     ImGui::Begin("Stats");
     ImGui::Text("FPS:       %d", Window::FPS);
-    ImGui::Text("dt:        %f", Window::timeStep);
+    ImGui::Text("Avg FPS:   %0.4f", (float)Window::totalFrames / Window::runTime);
+    ImGui::Text("dt:        %0.4f", Window::timeStep);
     glm::vec3 pos = Camera::getPosition();
-    glm::vec3 look = Camera::getLookAt();
-    ImGui::Text("CamPos:    (%f, %f, %f)", pos.x, pos.y, pos.z);
-    if (ImGui::Button("Vsync")) {
-        Window::toggleVsync();
-    }
+    ImGui::Text("CamPos:    (%0.2f, %0.2f, %0.2f)", pos.x, pos.y, pos.z);
     ImGui::End();
 
     ImGui::Begin("Sun");
