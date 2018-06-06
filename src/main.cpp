@@ -133,7 +133,9 @@ int main() {
         glm::mat4 V = lightView ? Sun::V : Camera::getV();
         /* Draw voxels to the screen */
         if (showVoxels) {
-            volume->updateVoxelData();
+            if (lightVoxelize) {
+                volume->updateVoxelData();
+            }
             voxelShader->bind();
             voxelShader->render(volume, P, V);
             voxelShader->unbind();
