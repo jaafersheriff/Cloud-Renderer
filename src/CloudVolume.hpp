@@ -38,7 +38,7 @@ class CloudVolume {
         int voxelCount = 0;
     private:
         glm::ivec3 get3DIndices(int);
-        glm::vec3 reverseVoxelIndex(glm::ivec3);
+        glm::vec3 reverseVoxelIndex(const glm::ivec3 &, const glm::vec3 &);
 };
 
 #endif

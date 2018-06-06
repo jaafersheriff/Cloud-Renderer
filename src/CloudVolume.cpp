@@ -74,17 +74,13 @@ void CloudVolume::updateVoxelData() {
     CHECK_GL_CALL(glBindTexture(GL_TEXTURE_3D, 0));
 
     /* Size of voxels in world-space */
-    voxelSize = glm::vec3(
-        (xBounds.y - xBounds.x) / dimension,
-        (yBounds.y - yBounds.x) / dimension,
-        (zBounds.y - zBounds.x) / dimension);
+    glm::vec3 range = glm::vec3(
+        xBounds.y - xBounds.x,
+        yBounds.y - yBounds.x,
+        zBounds.y - zBounds.x);
+    voxelSize = range / (float)dimension;
     voxelCount = 0;
     for (unsigned int i = 0; i < voxelData.size(); i++) {
-        /* Reset data first */
-        voxelData[i].spatial.position = glm::vec3(0.f);
-        voxelData[i].spatial.scale = glm::vec3(0.f);
-        voxelData[i].data = glm::vec4(0.f);
-
         /* Update voxel data if data exists */
         float r = buffer[4*i + 0];
         float g = buffer[4*i + 1];
@@ -92,20 +88,32 @@ void CloudVolume::updateVoxelData() {
         float a = buffer[4*i + 3];
         if (r || g || b || a) {
             voxelCount++;
-            glm::ivec3 in = get3DIndices(4*i);       // voxel index 
-            glm::vec3 wPos = reverseVoxelIndex(in);  // world space
-            voxelData[i].spatial.position = this->position + wPos;
+            glm::ivec3 voxelIndex = get3DIndices(4*i);
+            voxelData[i].spatial.position = this->position + reverseVoxelIndex(voxelIndex, range);
             voxelData[i].spatial.scale = voxelSize;
             voxelData[i].data.r = r;
             voxelData[i].data.g = g;
             voxelData[i].data.b = b;
             voxelData[i].data.a = a;
         }
+        /* Otherwise reset data */
+        else {
+            voxelData[i].spatial.position.x = 0.f;
+            voxelData[i].spatial.position.y = 0.f;
+            voxelData[i].spatial.position.z = 0.f;
+            voxelData[i].spatial.scale.x = 0.f;
+            voxelData[i].spatial.scale.y = 0.f;
+            voxelData[i].spatial.scale.z = 0.f;
+            voxelData[i].data.x = 0.f;
+            voxelData[i].data.y = 0.f;
+            voxelData[i].data.z = 0.f;
+            voxelData[i].data.w = 0.f;
+        }
     }
 }
 
 // Assume 4 bytes per voxel
-glm::ivec3 CloudVolume::get3DIndices(int index) {
+glm::ivec3 CloudVolume::get3DIndices(const int index) {
 	int line = dimension * 4;
 	int slice = dimension  * line;
 	int z = index / slice;
@@ -114,14 +122,10 @@ glm::ivec3 CloudVolume::get3DIndices(int index) {
 	return glm::ivec3(x, y, z);
 }
 
-glm::vec3 CloudVolume::reverseVoxelIndex(glm::ivec3 voxelIndex) {
-    float xRange = xBounds.y - xBounds.x;
-    float yRange = yBounds.y - yBounds.x;
-    float zRange = zBounds.y - zBounds.x;
-
-    float x = float(voxelIndex.x) * xRange / dimension + xBounds.x;
-    float y = float(voxelIndex.y) * yRange / dimension + yBounds.x;
-    float z = float(voxelIndex.z) * zRange / dimension + zBounds.x;
+glm::vec3 CloudVolume::reverseVoxelIndex(const glm::ivec3 &voxelIndex, const glm::vec3 &range) {
+    float x = float(voxelIndex.x) * range.x / dimension + xBounds.x;
+    float y = float(voxelIndex.y) * range.y / dimension + yBounds.x;
+    float z = float(voxelIndex.z) * range.z / dimension + zBounds.x;
 
     return glm::vec3(x, y, z);
 }
