@@ -14,7 +14,7 @@ class VoxelShader : public Shader {
             Shader(r, v, f)
         {}
 
-        void render(CloudVolume *, glm::mat4, glm::mat4);
+        void render(const CloudVolume *, const glm::mat4 &, const glm::mat4 &);
 
         bool useOutline = true;
         bool disableBounds = false;

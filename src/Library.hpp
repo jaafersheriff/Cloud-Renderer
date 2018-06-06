@@ -5,8 +5,6 @@
 #include "Model/Mesh.hpp"
 #include "Model/Texture.hpp"
 
-#include "ThirdParty/tiny_obj_loader.h"
-
 #include <map>
 
 class Library {
@@ -20,49 +18,6 @@ public:
         /* Create meshes */
         createCube();
         createQuad();
-    }
-
-    static Mesh * addMesh(std::string res, std::string fileName) {
-        std::map<std::string, Mesh*>::iterator it = meshes.find(fileName);
-        if (it != meshes.end()) {
-            return it->second;
-        }
-
-        std::vector<tinyobj::shape_t> shapes;
-        std::vector<tinyobj::material_t> objMaterials;
-        std::string errString;
-        bool rc = tinyobj::LoadObj(shapes, objMaterials, errString, (RESOURCE_DIR + fileName).c_str());
-        if (!rc) {
-            std::cerr << errString << std::endl;
-            exit(1);
-        }
-
-        /* Create a new empty mesh */
-        Mesh *mesh = new Mesh;
-        int vertCount = 0;
-        /* For every shape in the loaded file */
-        for (unsigned int i = 0; i < shapes.size(); i++) {
-            /* Concatenate the shape's vertices, normals, and textures to the mesh */
-            mesh->vertBuf.insert(mesh->vertBuf.end(), shapes[i].mesh.positions.begin(), shapes[i].mesh.positions.end());
-            mesh->norBuf.insert(mesh->norBuf.end(), shapes[i].mesh.normals.begin(), shapes[i].mesh.normals.end());
-            mesh->texBuf.insert(mesh->texBuf.end(), shapes[i].mesh.texcoords.begin(), shapes[i].mesh.texcoords.end());
-
-            /* Concatenate the shape's indices to the new mesh
-             * Indices need to be incremented as we concatenate shapes */
-            for (unsigned int i : shapes[i].mesh.indices) {
-                mesh->eleBuf.push_back(i + vertCount);
-            }
-            vertCount += shapes[i].mesh.positions.size() / 3;
-        }
-
-        /* Copy mesh data to the gpu */
-        mesh->init();
-
-        meshes.insert(std::map<std::string, Mesh*>::value_type(fileName, mesh));
-
-        std::cout << "Loaded mesh (" << vertCount << " vertices): " << fileName << std::endl;
-
-        return mesh;
     }
 
     static void addTexture(std::string res, std::string fileName) {
