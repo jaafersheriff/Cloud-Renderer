@@ -26,8 +26,8 @@ class ConeTraceShader : public Shader {
         float vctDownScaling = 1.f;
 
         bool doSort = true;
-        bool doConeTrace = true;
-        bool doNoiseSample = true;
+        bool doConeTrace = false;
+        bool doNoiseSample = false;
 
     private:
         void bindVolume(CloudVolume *);
