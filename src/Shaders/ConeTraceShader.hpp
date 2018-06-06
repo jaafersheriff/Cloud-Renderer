@@ -21,14 +21,14 @@ class ConeTraceShader : public Shader {
 
         /* Cone trace parameters */
         int vctSteps = 16;
-        float vctConeAngle = 0.784398163f;
+        float vctConeAngle = 0.9f;
         float vctConeInitialHeight = 0.1f;
         float vctLodOffset = 0.1f;
         float vctDownScaling = 1.f;
 
         bool doSort = true;
-        bool doConeTrace = false;
-        bool doNoiseSample = false;
+        bool doConeTrace = true;
+        bool doNoiseSample = true;
 
     private:
         void bindVolume(CloudVolume *);
