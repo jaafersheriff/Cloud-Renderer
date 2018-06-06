@@ -41,6 +41,7 @@ glm::vec3 Sun::innerColor = glm::vec3(1.f);
 glm::vec3 Sun::outerColor = glm::vec3(1.f, 1.f, 0.f);
 float Sun::innerRadius = 1.f;
 float Sun::outerRadius = 2.f;
+float Sun::maxDist = 1.f;
 
 /* Library things */
 const std::string RESOURCE_DIR("../res/");

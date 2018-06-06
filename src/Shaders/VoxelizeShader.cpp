@@ -55,6 +55,7 @@ void VoxelizeShader::firstVoxelize(CloudVolume *volume) {
     Vi = glm::transpose(Vi);
     firstVoxelizer->loadMatrix(firstVoxelizer->getUniform("Vi"), &Vi);
     firstVoxelizer->loadVector(firstVoxelizer->getUniform("lightPos"), Sun::spatial.position);
+    firstVoxelizer->loadFloat(firstVoxelizer->getUniform("maxDist"), Sun::maxDist);
 
     for (const auto &cloudBoard : volume->cloudBoards) {
         /* Bind billboard */

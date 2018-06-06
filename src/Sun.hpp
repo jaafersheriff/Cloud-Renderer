@@ -19,6 +19,8 @@ class Sun {
         static float innerRadius;
         static float outerRadius;
 
+        static float maxDist;
+
         static void update(CloudVolume *vol) {
             spatial.scale = glm::vec3(outerRadius);
 
@@ -35,9 +37,8 @@ class Sun {
             // TODO : more math here to have an accurate, tight viewport
             float minmin = glm::min(min.x, glm::min(min.y, min.z));
             float maxmax = glm::max(max.x, glm::max(max.y, max.z));
-            float nearPlane = 0.01f;
-            float farPlane = 2.f * glm::max(minLen, maxLen);
-            P = glm::ortho(minmin, maxmax, minmin, maxmax, nearPlane, farPlane);
+            maxDist = 2.f * glm::max(minLen, maxLen);
+            P = glm::ortho(minmin, maxmax, minmin, maxmax, 0.01f, maxDist);
         }
 };
 
