@@ -1,14 +1,13 @@
 #include "VoxelShader.hpp"
 
 #include "Library.hpp"
-#include "Light.hpp"
 #include "Camera.hpp"
 #include "Model/Mesh.hpp"
 
 #include "glm/gtc/matrix_transform.hpp"
 
 /* Visualize voxels */
-void VoxelShader::render(CloudVolume *volume, glm::mat4 P, glm::mat4 V) {
+void VoxelShader::render(const CloudVolume *volume, const glm::mat4 &P, const glm::mat4 &V) {
     /* Bind projeciton, view, inverise view matrices */
     loadMatrix(getUniform("P"), &P);
     loadMatrix(getUniform("V"), &V);

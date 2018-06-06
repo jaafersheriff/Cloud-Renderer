@@ -3,11 +3,11 @@
 #include "Util.hpp"
 #include "Library.hpp"
 
-#include "Light.hpp"
+#include "Sun.hpp"
 #include "CloudVolume.hpp"
 
 #include "Shaders/GLSL.hpp"
-#include "Shaders/BillboardShader.hpp"
+#include "Shaders/SunShader.hpp"
 #include "Shaders/VoxelizeShader.hpp"
 #include "Shaders/VoxelShader.hpp"
 #include "Shaders/ConeTraceShader.hpp"
@@ -33,11 +33,14 @@ const int I_VOLUME_DIMENSION = 32;
 const int I_VOLUME_MIPS = 4;
 CloudVolume *volume;
 
-/* Light */
-const glm::vec3 I_LIGHT_POSITION = glm::vec3(5.f, 20.f, -5.f);
-const glm::vec3 I_LIGHT_SCALE = glm::vec3(1.f);
-Spatial Light::spatial = Spatial(I_LIGHT_POSITION, I_LIGHT_SCALE, glm::vec3(0.f));
-glm::mat4 Light::V(1.f);
+/* Sun */
+Spatial Sun::spatial = Spatial(glm::vec3(5.f, 20.f, -5.f), glm::vec3(1.f), glm::vec3(1.f));
+glm::mat4 Sun::P = glm::mat4(1.f);
+glm::mat4 Sun::V = glm::mat4(1.f);
+glm::vec3 Sun::innerColor = glm::vec3(1.f);
+glm::vec3 Sun::outerColor = glm::vec3(1.f, 1.f, 0.f);
+float Sun::innerRadius = 1.f;
+float Sun::outerRadius = 2.f;
 
 /* Library things */
 const std::string RESOURCE_DIR("../res/");
@@ -48,14 +51,11 @@ Mesh * Library::quad;
 std::map<std::string, Texture *> Library::textures;
 
 /* Shaders */
-BillboardShader * billboardShader;
+SunShader * sunShader;
 VoxelizeShader * voxelizeShader;
 VoxelShader * voxelShader;
 ConeTraceShader * coneShader;
 Shader * debugShader;
-
-/* Render targets */
-std::vector<Spatial *> cloudsBillboards;
 
 /* ImGui functions */
 void runImGuiPanes();
@@ -90,7 +90,7 @@ int main() {
     Library::addTexture(RESOURCE_DIR, normalTexName);
 
     /* Create shaders */
-    billboardShader = new BillboardShader(RESOURCE_DIR, "billboard_vert.glsl", "cloud_frag.glsl");
+    sunShader = new SunShader(RESOURCE_DIR, "billboard_vert.glsl", "sun_frag.glsl");
     voxelShader = new VoxelShader(RESOURCE_DIR, "voxel_vert.glsl", "voxel_frag.glsl");
     voxelizeShader = new VoxelizeShader(RESOURCE_DIR, "billboard_vert.glsl", "first_voxelize.glsl", "second_voxelize.glsl");
     coneShader = new ConeTraceShader(RESOURCE_DIR, "billboard_vert.glsl", "conetrace_frag.glsl");
@@ -103,10 +103,6 @@ int main() {
     CHECK_GL_CALL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
     Camera::update();
 
-    // add light spatial to cloud billboards so we can visualize light pos 
-    // TODO : replace with proper sun rendering
-    cloudsBillboards.push_back(&Light::spatial);
-
     while (!Window::shouldClose()) {
         /* Update context */
         Window::update();
@@ -115,7 +111,7 @@ int main() {
         Camera::update();
 
         /* Update light */
-        Light::update(volume->position);
+        Sun::update(volume);
 
         /* Cloud render! */
         CHECK_GL_CALL(glClearColor(0.2f, 0.3f, 0.5f, 1.f));
@@ -126,18 +122,19 @@ int main() {
             voxelizeShader->voxelize(volume);
         }
         /* Cone trace from the camera's perspective */
-        coneShader->coneTrace(volume, Window::timeStep);
+        coneShader->coneTrace(volume);
 
-        /* Render cloud billboards */
-        billboardShader->render(cloudsBillboards, Library::textures[diffuseTexName], Library::textures[normalTexName]);
+        /* Render sun */
+        sunShader->render();
 
         /* Render Optional */
-        glm::mat4 V = lightView ? Light::V : Camera::getV();
+        glm::mat4 P = lightView ? Sun::P : Camera::getP();
+        glm::mat4 V = lightView ? Sun::V : Camera::getV();
         /* Draw voxels to the screen */
         if (showVoxels) {
             volume->updateVoxelData();
             voxelShader->bind();
-            voxelShader->render(volume, Camera::getP(), V);
+            voxelShader->render(volume, P, V);
             voxelShader->unbind();
         }
 
@@ -161,9 +158,12 @@ void runImGuiPanes() {
     }
     ImGui::End();
 
-    ImGui::Begin("Light");
-    ImGui::SliderFloat3("Position", glm::value_ptr(Light::spatial.position), -100.f, 100.f);
-    ImGui::SliderFloat("Scale", &Light::spatial.scale.x, 0.f, 10.f);
+    ImGui::Begin("Sun");
+    ImGui::SliderFloat3("Position", glm::value_ptr(Sun::spatial.position), -100.f, 100.f);
+    ImGui::SliderFloat3("Inner Color", glm::value_ptr(Sun::innerColor), 0.f, 1.f);
+    ImGui::SliderFloat3("Outer Color", glm::value_ptr(Sun::outerColor), 0.f, 1.f);
+    ImGui::SliderFloat("Inner Radius", &Sun::innerRadius, 0.f, 10.f);
+    ImGui::SliderFloat("Outer Radius", &Sun::outerRadius, 0.f, 10.f);
     static float mapSize = 0.2f;
     static bool showFullMap = false;
     static bool showSmallMap = false;
@@ -269,12 +269,13 @@ void runImGuiPanes() {
     ImGui::End();
 
     ImGui::Begin("Noise");
+    ImGui::Checkbox("Noise sample", &coneShader->doNoiseSample);
     ImGui::SliderFloat("Step size", &coneShader->stepSize, 0.001f, 10.f);
     ImGui::SliderFloat("Noise opacity", &coneShader->noiseOpacity, 0.1f, 40.f);
     ImGui::SliderInt("Octaves", &coneShader->numOctaves, 1, 10);
     ImGui::SliderFloat("Frequency", &coneShader->freqStep, 0.01f, 10.f);
     ImGui::SliderFloat("Persistence", &coneShader->persStep, 0.01f, 1.f);
-    ImGui::Checkbox("Noise sample", &coneShader->doNoiseSample);
+    ImGui::SliderFloat3("Wind Dir", glm::value_ptr(coneShader->windVel), -0.1f, 0.1f);
     ImGui::End();
 
 }

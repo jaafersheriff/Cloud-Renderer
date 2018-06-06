@@ -3,7 +3,7 @@
 #include "Library.hpp"
 
 #include "Camera.hpp"
-#include "Light.hpp"
+#include "Sun.hpp"
 #include "IO/Window.hpp"
 
 VoxelizeShader::VoxelizeShader(const std::string &r, const std::string &v, const std::string &f1, const std::string &f2) {
@@ -48,13 +48,13 @@ void VoxelizeShader::firstVoxelize(CloudVolume *volume) {
     CHECK_GL_CALL(glBindVertexArray(Library::quad->vaoId));
 
     /* Bind light's perspective */
-    firstVoxelizer->loadMatrix(firstVoxelizer->getUniform("P"), &Camera::getP());
-    firstVoxelizer->loadMatrix(firstVoxelizer->getUniform("V"), &Light::V);
-    glm::mat4 Vi = Light::V;
+    firstVoxelizer->loadMatrix(firstVoxelizer->getUniform("P"), &Sun::P);
+    firstVoxelizer->loadMatrix(firstVoxelizer->getUniform("V"), &Sun::V);
+    glm::mat4 Vi = Sun::V;
     Vi[3][0] = Vi[3][1] = Vi[3][2] = 0.f;
     Vi = glm::transpose(Vi);
     firstVoxelizer->loadMatrix(firstVoxelizer->getUniform("Vi"), &Vi);
-    firstVoxelizer->loadVector(firstVoxelizer->getUniform("lightPos"), Light::spatial.position);
+    firstVoxelizer->loadVector(firstVoxelizer->getUniform("lightPos"), Sun::spatial.position);
 
     for (const auto &cloudBoard : volume->cloudBoards) {
         /* Bind billboard */

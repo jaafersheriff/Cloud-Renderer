@@ -1,7 +1,7 @@
 #include "ConeTraceShader.hpp"
 
 #include "Camera.hpp"
-#include "Light.hpp"
+#include "Sun.hpp"
 #include "Library.hpp"
 
 ConeTraceShader::ConeTraceShader(const std::string &r, const std::string &v, const std::string &f) :
@@ -11,7 +11,7 @@ ConeTraceShader::ConeTraceShader(const std::string &r, const std::string &v, con
     initNoiseMap(32);
 }
 
-void ConeTraceShader::coneTrace(CloudVolume *volume, float dt) {
+void ConeTraceShader::coneTrace(CloudVolume *volume) {
     if (!doConeTrace && !doNoiseSample) {
         return;
     }
@@ -25,7 +25,7 @@ void ConeTraceShader::coneTrace(CloudVolume *volume, float dt) {
     bind();
     bindVolume(volume);
 
-    loadVector(getUniform("lightPos"), Light::spatial.position);
+    loadVector(getUniform("lightPos"), Sun::spatial.position);
 
     /* Bind cone tracing params */
     loadBool(getUniform("doConeTrace"), doConeTrace);
@@ -47,10 +47,11 @@ void ConeTraceShader::coneTrace(CloudVolume *volume, float dt) {
     loadFloat(getUniform("persStep"), persStep);
 
     /* Per-octave samplign offset */
-    totalTime += dt * 0.01f;
     std::vector<glm::vec3> octaveOffsets(numOctaves, glm::vec3(0.f));
     for (int i = 0; i < numOctaves; i++) {
-        octaveOffsets[i].x = -(float)(totalTime);
+        octaveOffsets[i].x = windVel.x * Window::runTime;
+        octaveOffsets[i].y = windVel.y * Window::runTime;
+        octaveOffsets[i].z = windVel.z * Window::runTime;
     }
     loadVector(getUniform("octaveOffsets"), octaveOffsets.data()[0]);
 
@@ -120,13 +121,25 @@ int getIndex(int x, int y, int z, int dim) {
     return x + y * dim + z * dim * dim;
 }
 
+struct CHAR4 { char x, y, z, w; };
+
+float getDensity(int index, CHAR4* pTexels) {
+    return (float)pTexels[index].w / 128.0f;
+}
+
+void setNormal(glm::vec3 normal, int index, CHAR4* pTexels) {
+    pTexels[index].x = (char)(normal.x * 128.0f);
+    pTexels[index].y = (char)(normal.y * 128.0f);
+    pTexels[index].z = (char)(normal.z * 128.0f);
+}
+
 void ConeTraceShader::initNoiseMap(int dimension) {
-    glm::u8vec4* pData = new glm::u8vec4[dimension*dimension*dimension];
+    CHAR4* pData = new CHAR4[dimension*dimension*dimension];
 
     /* Populate data */
     for (int i = 0; i < dimension*dimension*dimension; i++) {
         float ran = (float)((rand() % 20000) - 10000) / 10000.f;
-        pData[i].w = (glm::uint8)(ran * 128.0f);
+        pData[i].w = (char)(ran * 128.0f);
     }
 
     // Generate normals from the density gradient
@@ -152,14 +165,4 @@ void ConeTraceShader::initNoiseMap(int dimension) {
     CHECK_GL_CALL(glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
     CHECK_GL_CALL(glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
     CHECK_GL_CALL(glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA8_SNORM, dimension, dimension, dimension, 0, GL_RGBA, GL_BYTE, pData));
-}
-
-float ConeTraceShader::getDensity(int index, glm::u8vec4* pTexels) {
-    return (float)pTexels[index].w / 128.0f;
-}
-
-void ConeTraceShader::setNormal(glm::vec3 normal, int index, glm::u8vec4* pTexels) {
-    pTexels[index].x = (glm::uint8)(normal.x * 128.0f);
-    pTexels[index].y = (glm::uint8)(normal.y * 128.0f);
-    pTexels[index].z = (glm::uint8)(normal.z * 128.0f);
 }

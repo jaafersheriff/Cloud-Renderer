@@ -9,7 +9,7 @@ class ConeTraceShader : public Shader {
     public:
         ConeTraceShader(const std::string &r, const std::string &v, const std::string &f);
 
-        void coneTrace(CloudVolume *, float);
+        void coneTrace(CloudVolume *);
 
         /* Noise map parameters */
         float stepSize = 0.01f;
@@ -17,6 +17,7 @@ class ConeTraceShader : public Shader {
         int numOctaves = 4;
         float freqStep = 3.f;
         float persStep = 0.5f;
+        glm::vec3 windVel = glm::vec3(0.01f, 0, 0);
 
         /* Cone trace parameters */
         int vctSteps = 16;
@@ -34,8 +35,6 @@ class ConeTraceShader : public Shader {
         void unbindVolume();
 
         void initNoiseMap(int);
-        float getDensity(int, glm::u8vec4 *);
-        void setNormal(glm::vec3, int, glm::u8vec4 *);
         GLuint noiseMapId;
         float totalTime = 0.f;
 };
