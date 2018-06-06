@@ -145,18 +145,18 @@ void VoxelizeShader::unbindVolume() {
 }
 
 void VoxelizeShader::initPositionFBO(const int width, const int height) {
-    positionMap = new Texture();
-    positionMap->width = width;
-    positionMap->height = height;
-
     /* Generate FBO */
     CHECK_GL_CALL(glGenFramebuffers(1, &positionFBO));
     CHECK_GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, positionFBO));
 
-    /* Generate the texture */
+    /* Generate color attachment texture */
+    positionMap = new Texture();
+    positionMap->width = width;
+    positionMap->height = height;
     CHECK_GL_CALL(glGenTextures(1, &positionMap->textureId));
     CHECK_GL_CALL(glBindTexture(GL_TEXTURE_2D, positionMap->textureId));
     CHECK_GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, positionMap->width, positionMap->height, 0, GL_RGBA, GL_FLOAT, NULL));
+    CHECK_GL_CALL(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, positionMap->textureId, 0));
 
     /* Texture params */
     CHECK_GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
@@ -164,18 +164,33 @@ void VoxelizeShader::initPositionFBO(const int width, const int height) {
     CHECK_GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
     CHECK_GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
 
-    /* Bind texture to FBO */
-    CHECK_GL_CALL(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, positionMap->textureId, 0));
+    /* Generate depth attachment texture */
+    depthMap = new Texture();
+    depthMap->width = width;
+    depthMap->height = height;
+    CHECK_GL_CALL(glGenRenderbuffers(1, &depthMap->textureId));
+    CHECK_GL_CALL(glBindRenderbuffer(GL_RENDERBUFFER, depthMap->textureId));
+    CHECK_GL_CALL(glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, depthMap->width, depthMap->height));
+    CHECK_GL_CALL(glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthMap->textureId));
 
-    CHECK_GL_CALL(glBindTexture(GL_TEXTURE_2D, 0));
+    /* Clean up */
+    CHECK_GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 }
 
 void VoxelizeShader::resizePositionFBO(const int width, const int height) {
+    /* Resize color attachment */
     positionMap->width = width;
     positionMap->height = height;
     CHECK_GL_CALL(glBindTexture(GL_TEXTURE_2D, positionMap->textureId));
     CHECK_GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, positionMap->width, positionMap->height, 0, GL_RGBA, GL_FLOAT, NULL));
     CHECK_GL_CALL(glBindTexture(GL_TEXTURE_2D, 0));
+
+    /* Resize depth attachment */
+    depthMap->width = width;
+    depthMap->height = height;
+    CHECK_GL_CALL(glBindRenderbuffer(GL_RENDERBUFFER, depthMap->textureId));
+    CHECK_GL_CALL(glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, depthMap->width, depthMap->height));
+    CHECK_GL_CALL(glBindRenderbuffer(GL_RENDERBUFFER, 0));
 }
 
 void VoxelizeShader::clearPositionMap() {

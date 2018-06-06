@@ -13,6 +13,7 @@ uniform vec3 center;
 uniform float scale;
 
 uniform vec3 lightPos;
+uniform float maxDist;
 
 layout(binding=0, rgba16f) uniform image3D volume;
 uniform int voxelDim;
@@ -47,7 +48,6 @@ void main() {
     /* Spherical distance - 1 at center of billboard, 0 at edges */
     float sphereContrib = (distance(center, fragPos)/radius);
     sphereContrib = sqrt(max(0, 1 - sphereContrib * sphereContrib));
-    color = vec4(sphereContrib);
 
     if (sphereContrib < 0.01f) {
         discard;
@@ -65,5 +65,7 @@ void main() {
     }
 
     /* Write nearest voxel position to position FBO */
-    color = vec4(fragPos + dir * dist, 1);
+    vec3 worldPos = fragPos + dir * dist;
+    color = vec4(worldPos, 1);
+    gl_FragDepth = distance(lightPos, worldPos) / maxDist;
 }

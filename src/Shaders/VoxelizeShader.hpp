@@ -20,6 +20,7 @@ class VoxelizeShader {
         /* 2D position FBO */
         GLuint positionFBO;
         Texture * positionMap;
+        Texture * depthMap;
         void clearPositionMap();
 
     private:
