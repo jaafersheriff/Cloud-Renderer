@@ -9,14 +9,6 @@ double Camera::phi, Camera::theta;
 glm::mat4 Camera::P, Camera::V;
 glm::vec3 Camera::position, Camera::lookAt, Camera::u, Camera::v, Camera::w;
 
-Camera::Camera(const glm::vec3 position) {
-    /* Init */
-    this->position = position;
-    phi = theta = 0.0;
-
-    update();
-}
-
 void Camera::update() {
     /* Update view angles */
     if (Mouse::isDown(0)) {
