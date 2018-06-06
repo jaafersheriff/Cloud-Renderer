@@ -1,0 +1,54 @@
+\newpage
+
+\section{Voxelization}\par
+
+\subsection{Spherical Billboards}\par
+
+Spherical billboard distribution
+
+\begin{lstlisting}[title={first\_voxelize.glsl, 55}]
+// Calculate distance from fragment to billboard center
+float dist = distance(center, fragPos);
+// Calculate linear distribution
+float distribution = distToCenter / radius;
+// Convert linear distribution to spherical
+distribution = sqrt(max(0, 1 - distribution * distribution));
+\end{lstlisting}
+
+\subsection{Position Map}\par
+Initial pos map writing
+
+\subsubsection{Concurrency}\par
+Now with concurrency
+
+\begin{lstlisting}[title={first\_voxelize.glsl, 55}]
+ivec2 texCoords = ivec2(gl_FragCoord.xy);
+vec3 dir = normalize(fragNor); 
+float dist = radius * sphereContrib;
+vec4 nearestPos = imageLoad(positionMap, texCoords);
+if (nearestPos.a < 1.f) {
+    nearestPos = vec4(FLT_MAX, FLT_MAX, FLT_MAX, 0.f);
+}
+
+/* Write to volume in spherical shape from billboard to light source */
+vec3 start = fragPos - dir * dist;
+for(float i = 0; i < 2*dist; i += stepSize) {
+    vec3 worldPos = start + dir * i;
+    ivec3 voxelIndex = calculateVoxelIndex(worldPos);
+    imageAtomicAdd(volume, voxelIndex, f16vec4(0, 0, 0, 1));
+
+    /* Keep track of nearest voxel position */
+    if (distance(worldPos, lightPos) < distance(nearestPos.xyz, lightPos)) {
+        nearestPos = vec4(worldPos, 1.f);
+    }
+}
+/* Write nearest voxel position to position map */
+imageStore(positionMap, texCoords, nearestPos);
+\end{lstlisting}
+
+\subsection{Voxel viewing debug tools}
+\subsection{Multiple Billboards}
+\subsubsection{Concurrency}
+\subsection{Optimizations}
+
+implementation (5-6 pages) where you argue in detail how you implemented what i.e. code
