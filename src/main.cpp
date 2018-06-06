@@ -276,7 +276,7 @@ void runImGuiPanes() {
     ImGui::SliderInt("Octaves", &coneShader->numOctaves, 1, 10);
     ImGui::SliderFloat("Frequency", &coneShader->freqStep, 0.01f, 10.f);
     ImGui::SliderFloat("Persistence", &coneShader->persStep, 0.01f, 1.f);
-    ImGui::SliderFloat3("Wind Dir", glm::value_ptr(coneShader->windVel), -0.1f, 0.1f);
+    ImGui::SliderFloat3("Wind Dir", glm::value_ptr(coneShader->windVel), -0.05f, 0.05f);
     ImGui::End();
 
 }
