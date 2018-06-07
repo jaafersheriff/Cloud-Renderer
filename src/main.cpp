@@ -120,15 +120,15 @@ int main() {
         CHECK_GL_CALL(glClearColor(0.2f, 0.3f, 0.5f, 1.f));
         CHECK_GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
+        /* Render sun */
+        sunShader->render();
+
         /* Voxelize from the light's perspective */
         if (lightVoxelize) {
             voxelizeShader->voxelize(volume);
         }
         /* Cone trace from the camera's perspective */
         coneShader->coneTrace(volume);
-
-        /* Render sun */
-        sunShader->render();
 
         /* Render Optional */
         glm::mat4 P = lightView ? Sun::P : Camera::getP();
