@@ -54,8 +54,8 @@ void VoxelizeShader::firstVoxelize(CloudVolume *volume) {
     Vi[3][0] = Vi[3][1] = Vi[3][2] = 0.f;
     Vi = glm::transpose(Vi);
     firstVoxelizer->loadMatrix(firstVoxelizer->getUniform("Vi"), &Vi);
-    firstVoxelizer->loadVector(firstVoxelizer->getUniform("lightPos"), Sun::spatial.position);
-    firstVoxelizer->loadFloat(firstVoxelizer->getUniform("maxDist"), Sun::maxDist);
+    firstVoxelizer->loadVector(firstVoxelizer->getUniform("lightNearPlane"), Sun::nearPlane);
+    firstVoxelizer->loadFloat(firstVoxelizer->getUniform("clipDistance"), Sun::clipDistance);
 
     for (const auto &cloudBoard : volume->cloudBoards) {
         /* Bind billboard */
@@ -66,7 +66,6 @@ void VoxelizeShader::firstVoxelize(CloudVolume *volume) {
         firstVoxelizer->loadMatrix(firstVoxelizer->getUniform("M"), &M);
         glm::mat3 N = glm::mat3(transpose(inverse(M * Vi)));
         firstVoxelizer->loadMatrix(firstVoxelizer->getUniform("N"), &N);
-
         /* Draw billboard */
         CHECK_GL_CALL(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
     }

@@ -12,8 +12,8 @@ in vec3 fragNor;
 uniform vec3 center;
 uniform float scale;
 
-uniform vec3 lightPos;
-uniform float maxDist;
+uniform vec3 lightNearPlane;
+uniform float clipDistance;
 
 layout(binding=0, rgba16f) uniform image3D volume;
 uniform int voxelDim;
@@ -67,5 +67,5 @@ void main() {
     /* Write nearest voxel position to position FBO */
     vec3 worldPos = fragPos + dir * dist;
     color = vec4(worldPos, 1);
-    gl_FragDepth = distance(lightPos, worldPos) / maxDist;
+    gl_FragDepth = distance(lightNearPlane, worldPos) / clipDistance;
 }
