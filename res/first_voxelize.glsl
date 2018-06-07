@@ -1,11 +1,5 @@
 #version 440 core
 
-#extension GL_NV_gpu_shader5: enable
-#extension GL_NV_shader_atomic_float: enable
-#extension GL_NV_shader_atomic_fp16_vector: enable
-
-#define FLT_MAX 3.402823466e+38
-
 in vec3 fragPos;
 in vec3 fragNor;
 
@@ -60,7 +54,6 @@ void main() {
     for(float i = 0; i < 2*dist; i += stepSize) {
         vec3 worldPos = start + dir * i;
         ivec3 voxelIndex = calculateVoxelIndex(worldPos);
-        // imageAtomicAdd(volume, voxelIndex, f16vec4(1, 0, 0, 1));
         imageStore(volume, voxelIndex, vec4(0, 0, 0, 1));
     }
 
