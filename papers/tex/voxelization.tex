@@ -1,54 +1,62 @@
-\newpage
+\subsection{Voxelization}\paragraph{}
+Normally a volume is populated using some provided static 3D texture data.  For our implementation we manually update every voxel ourselves. 
 
-\section{Voxelization}\par
+The goal of voxelization is to properly populate our volume. We want our voxels to have a billowing, semi-spherical, cloud-like shape. Secondly, we want to highlight the voxels nearest to the light source. 
 
-\subsection{Spherical Billboards}\par
+We do our voxelization using billboards and a multi-pass voxelization system. We also clear the entire volume and revoxelize on every frame. This will be essential if we ever add procedurally animated clouds. 
 
-Spherical billboard distribution
+\subsubsection{Spherical Billboards}\paragraph{}
+We begin by rendering many light-facing billboards. In the billboard's fragment shader we calculate a spherical distribution mapped to the face of the billboard. Using this spherical distribution, we populate a sphere in the volume. 
 
-\begin{lstlisting}[title={first\_voxelize.glsl, 55}]
-// Calculate distance from fragment to billboard center
+\begin{lstlisting}[caption={first\_voxelize.glsl, 42}]
+// Calculate distance from current fragment to billboard's center
 float dist = distance(center, fragPos);
 // Calculate linear distribution
 float distribution = distToCenter / radius;
 // Convert linear distribution to spherical
 distribution = sqrt(max(0, 1 - distribution * distribution));
+\end{lstlisting}\paragraph{}
+
+% image of spherical distribution on a billboard
+\begin{figure}
+\caption{Spherical distribution on a billboard}
+\includegraphics[width=0.5\textwidth]{res/sphereboard.png}
+\end{figure}
+
+% image of light-facing spherical billboard(s)
+% image of black voxelized sphere(s) 
+
+\subsubsection{Position Map}\paragraph{}
+When rendering these light-facing billboards, we simulatenously write the positions of the sphere into a frame buffer. 
+The resulting frame buffer gives us the world positions of the voxels nearest to the light source. 
+Initially we expected the depth test to manage overlapping spheres so we would be provided with an accurate position map. 
+However, the depth test uses rasterized geometry, and the geometry being rendered is the float billboard, not the spherical representations that we want. 
+
+To solve this, we calculate the fragment's spherical depth and manually update the depth buffer. We do this in world-space by using the light positions, the fragment's world position, and the size of the light's orthographic frustum. It would likely be more elegant to do this calculation in clip-space.
+\begin{lstlisting}[caption={first\_voxelize.glsl, 60}]
+// Calculate sphere fragment's world position 
+// This is the position on the sphere nearest to the light source
+vec3 worldPos = fragPos + billboardNormal * distribution;
+// Calculate sphere fragment's depth
+float depth = distance(lightNearPlane, worldPos) / distance(lightFarPlane, lightNearPlane);
+// Write to frame buffer
+outColor = vec4(worldPos, 1);
+gl_FragDepth = depth;
 \end{lstlisting}
 
-\subsection{Position Map}\par
-Initial pos map writing
+%img of position map
+%img of depth map
 
-\subsubsection{Concurrency}\par
-Now with concurrency
+\subsubsection{Highlighting voxels}\paragraph{}
+The last step for our voxelization technique is to higlight voxels nearest to the camera. Lucky for us, we have exactly what we need in the position map! 
+For our second voxelization pass we render a full screen quad containing the position map. We sample each fragment of the position map to get the voxel position of the voxels nearest to the light source. We then update the voxel data to highlight it. 
 
-\begin{lstlisting}[title={first\_voxelize.glsl, 55}]
-ivec2 texCoords = ivec2(gl_FragCoord.xy);
-vec3 dir = normalize(fragNor); 
-float dist = radius * sphereContrib;
-vec4 nearestPos = imageLoad(positionMap, texCoords);
-if (nearestPos.a < 1.f) {
-    nearestPos = vec4(FLT_MAX, FLT_MAX, FLT_MAX, 0.f);
-}
+Our result is a billowing spherical cloud-like structure with voxels nearest to the camera being highlighted. 
 
-/* Write to volume in spherical shape from billboard to light source */
-vec3 start = fragPos - dir * dist;
-for(float i = 0; i < 2*dist; i += stepSize) {
-    vec3 worldPos = start + dir * i;
-    ivec3 voxelIndex = calculateVoxelIndex(worldPos);
-    imageAtomicAdd(volume, voxelIndex, f16vec4(0, 0, 0, 1));
+% img of billowing cloud
 
-    /* Keep track of nearest voxel position */
-    if (distance(worldPos, lightPos) < distance(nearestPos.xyz, lightPos)) {
-        nearestPos = vec4(worldPos, 1.f);
-    }
-}
-/* Write nearest voxel position to position map */
-imageStore(positionMap, texCoords, nearestPos);
-\end{lstlisting}
+\subsubsection{Optimizations}
+Because of this, our voxels only ever have three states: inactive, active, or highlighted. To optimize our approach, our voxels use R8UI as the internal format. This bits of the red channel are flipped as necessary allowing us to have minimal data representing our volume.
+% lgiht view
+% rg 8?
 
-\subsection{Voxel viewing debug tools}
-\subsection{Multiple Billboards}
-\subsubsection{Concurrency}
-\subsection{Optimizations}
-
-implementation (5-6 pages) where you argue in detail how you implemented what i.e. code
