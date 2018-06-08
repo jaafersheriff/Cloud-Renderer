@@ -27,7 +27,7 @@ int Window::height = 720;
 
 /* Volume */
 const int I_VOLUME_BOARDS = 200;
-const glm::vec3 I_VOLUME_POSITION = glm::vec3(5.f, 0.f, 0.f);
+const glm::vec3 I_VOLUME_POSITION = glm::vec3(25.f, 0.f, 0.f);
 const glm::vec2 I_VOLUME_BOUNDS = glm::vec2(-5.f, 5.f);
 const int I_VOLUME_DIMENSION = 32;
 const int I_VOLUME_MIPS = 4;
@@ -41,7 +41,9 @@ glm::vec3 Sun::innerColor = glm::vec3(1.f);
 glm::vec3 Sun::outerColor = glm::vec3(1.f, 1.f, 0.f);
 float Sun::innerRadius = 1.f;
 float Sun::outerRadius = 2.f;
-float Sun::maxDist = 1.f;
+glm::vec3 Sun::nearPlane;
+glm::vec3 Sun::farPlane;
+float Sun::clipDistance;
 
 /* Library things */
 const std::string RESOURCE_DIR("../res/");
@@ -118,6 +120,9 @@ int main() {
         CHECK_GL_CALL(glClearColor(0.2f, 0.3f, 0.5f, 1.f));
         CHECK_GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
+        /* Render sun */
+        sunShader->render();
+
         /* Voxelize from the light's perspective */
         if (lightVoxelize) {
             voxelizeShader->voxelize(volume);
@@ -125,15 +130,14 @@ int main() {
         /* Cone trace from the camera's perspective */
         coneShader->coneTrace(volume);
 
-        /* Render sun */
-        sunShader->render();
-
         /* Render Optional */
         glm::mat4 P = lightView ? Sun::P : Camera::getP();
         glm::mat4 V = lightView ? Sun::V : Camera::getV();
         /* Draw voxels to the screen */
         if (showVoxels) {
-            volume->updateVoxelData();
+            if (lightVoxelize) {
+                volume->updateVoxelData();
+            }
             voxelShader->bind();
             voxelShader->render(volume, P, V);
             voxelShader->unbind();
@@ -150,13 +154,10 @@ int main() {
 void runImGuiPanes() {
     ImGui::Begin("Stats");
     ImGui::Text("FPS:       %d", Window::FPS);
-    ImGui::Text("dt:        %f", Window::timeStep);
+    ImGui::Text("Avg FPS:   %0.4f", (float)Window::totalFrames / Window::runTime);
+    ImGui::Text("dt:        %0.4f", Window::timeStep);
     glm::vec3 pos = Camera::getPosition();
-    glm::vec3 look = Camera::getLookAt();
-    ImGui::Text("CamPos:    (%f, %f, %f)", pos.x, pos.y, pos.z);
-    if (ImGui::Button("Vsync")) {
-        Window::toggleVsync();
-    }
+    ImGui::Text("CamPos:    (%0.2f, %0.2f, %0.2f)", pos.x, pos.y, pos.z);
     ImGui::End();
 
     ImGui::Begin("Sun");
@@ -200,7 +201,7 @@ void runImGuiPanes() {
     ImGui::End();
 
     ImGui::Begin("Billboards");
-    ImGui::Checkbox("Sort", &coneShader->doSort);
+    ImGui::Checkbox("Show", &coneShader->showQuad);
     static glm::vec3 newPos(0.f);
     static float scale = 1.f;
     ImGui::SliderFloat3("Offset", glm::value_ptr(newPos), -10.f, 10.f);

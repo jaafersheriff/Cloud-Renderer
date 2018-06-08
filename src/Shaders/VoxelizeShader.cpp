@@ -54,8 +54,8 @@ void VoxelizeShader::firstVoxelize(CloudVolume *volume) {
     Vi[3][0] = Vi[3][1] = Vi[3][2] = 0.f;
     Vi = glm::transpose(Vi);
     firstVoxelizer->loadMatrix(firstVoxelizer->getUniform("Vi"), &Vi);
-    firstVoxelizer->loadVector(firstVoxelizer->getUniform("lightPos"), Sun::spatial.position);
-    firstVoxelizer->loadFloat(firstVoxelizer->getUniform("maxDist"), Sun::maxDist);
+    firstVoxelizer->loadVector(firstVoxelizer->getUniform("lightNearPlane"), Sun::nearPlane);
+    firstVoxelizer->loadFloat(firstVoxelizer->getUniform("clipDistance"), Sun::clipDistance);
 
     for (const auto &cloudBoard : volume->cloudBoards) {
         /* Bind billboard */
@@ -66,7 +66,6 @@ void VoxelizeShader::firstVoxelize(CloudVolume *volume) {
         firstVoxelizer->loadMatrix(firstVoxelizer->getUniform("M"), &M);
         glm::mat3 N = glm::mat3(transpose(inverse(M * Vi)));
         firstVoxelizer->loadMatrix(firstVoxelizer->getUniform("N"), &N);
-
         /* Draw billboard */
         CHECK_GL_CALL(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
     }
@@ -131,7 +130,7 @@ void VoxelizeShader::secondVoxelize(CloudVolume *volume) {
 
 void VoxelizeShader::bindVolume(Shader *shader, CloudVolume *volume) {
     CHECK_GL_CALL(glActiveTexture(GL_TEXTURE0 + volume->volId));
-    CHECK_GL_CALL(glBindImageTexture(0, volume->volId, 0, GL_TRUE, 0, GL_READ_WRITE, GL_RGBA16F));
+    CHECK_GL_CALL(glBindImageTexture(0, volume->volId, 0, GL_TRUE, 0, GL_READ_WRITE, GL_RGBA8));
   
     shader->loadVector(shader->getUniform("xBounds"), volume->position.x + volume->xBounds);
     shader->loadVector(shader->getUniform("yBounds"), volume->position.y + volume->yBounds);
@@ -141,7 +140,7 @@ void VoxelizeShader::bindVolume(Shader *shader, CloudVolume *volume) {
 }
 
 void VoxelizeShader::unbindVolume() {
-    CHECK_GL_CALL(glBindImageTexture(0, 0, 0, GL_TRUE, 0, GL_READ_WRITE, GL_RGBA16F));
+    CHECK_GL_CALL(glBindImageTexture(0, 0, 0, GL_TRUE, 0, GL_READ_WRITE, GL_RGBA8));
     CHECK_GL_CALL(glActiveTexture(GL_TEXTURE0));
 }
 

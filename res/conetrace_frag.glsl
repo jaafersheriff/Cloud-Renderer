@@ -9,6 +9,7 @@ in vec2 fragTex;
 uniform mat4 V;
 uniform vec3 lightPos;
 
+uniform bool showQuad;
 uniform vec3 center;
 uniform float scale;
 
@@ -54,17 +55,17 @@ ivec3 calculateVoxelIndex(vec3 pos) {
     return ivec3(calculateVoxelLerp(pos));
 }
 
-vec4 traceCone(sampler3D voxelTexture, vec3 position, vec3 direction, int steps, float coneAngle, float coneHeight) {
+float traceCone(sampler3D voxelTexture, vec3 position, vec3 direction, int steps, float coneAngle, float coneHeight) {
     direction = normalize(direction);
     direction /= voxelDim;
     position /= voxelDim;
 
-    vec4 color = vec4(0);
+    float color = 0.f;
     for (int i = 1; i <= steps; i++) {
         float coneRadius = coneHeight * tan(coneAngle / 2.f);
         float lod = log2(max(1.f, 2.f * coneRadius));
         vec4 sampleColor = textureLod(voxelTexture, position + coneHeight * direction, lod + vctLodOffset);
-        color += sampleColor * float(i)/(steps*vctDownScaling); // TODO : linear scaling
+        color += sampleColor.x * float(i)/(steps*vctDownScaling); // TODO : linear scaling
         coneHeight += coneRadius;
     }
 
@@ -115,10 +116,17 @@ vec4 noise3D(vec3 uv, int octaves) {
 #define MAX_STEPS 8
 void main() {
     float radius = scale;
+    if (showQuad) {
+        /* Spherical distance - 1 at center of billboard, 0 at edges */
+        float sphereContrib = (distance(center, fragPos)/radius);
+        sphereContrib = sqrt(max(0, 1 - sphereContrib * sphereContrib));
+        color = vec4(sphereContrib);
+        return;
+    }
 
     /* Sample noise texture */
     if (doNoise) {
-        vec3 viewRay = normalize(vec3(V._13, V._23, V._33));
+        vec3 viewRay = normalize(vec3(V[0][2], V[1][2], V[2][2]));
         float tnear, tfar;
         if (!raySphereIntersect(fragPos, viewRay, center, radius, tnear, tfar)) {
         	discard;
@@ -172,14 +180,14 @@ void main() {
         /* Cone trace */
         vec3 voxelPosition = calculateVoxelLerp(pos);
         vec3 dir = lightPos - pos;
-        vec4 indirect = traceCone(volumeTexture, voxelPosition, dir, vctSteps, vctConeAngle, vctConeInitialHeight);
+        float indirect = traceCone(volumeTexture, voxelPosition, dir, vctSteps, vctConeAngle, vctConeInitialHeight);
 
         /* Output */
         if (doNoise) {
-            color.rgb *= indirect.xyz; 
+            color.rgb *= indirect; 
         }
         else {
-            color = indirect;
+            color = vec4(indirect);
         }
     }
 }

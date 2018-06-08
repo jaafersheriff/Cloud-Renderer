@@ -21,7 +21,7 @@ void main() {
     /* Outer circle */
     else {
         float scale = (dist - innerRadius) / (outerRadius - innerRadius);
-        if (scale > 1.f - 0.01f) {
+        if (scale > 0.99f) {
             discard;
         }
         color = vec4(outerColor * scale + innerColor * (1 - scale), 1 - scale);

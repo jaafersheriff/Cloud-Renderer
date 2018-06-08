@@ -40,6 +40,7 @@ public:
     static double runTime;
     static float timeStep;
     static int FPS;
+    static int totalFrames;
 
     /* ImGui */
     static void toggleImgui();

@@ -26,7 +26,7 @@ class ConeTraceShader : public Shader {
         float vctLodOffset = 0.1f;
         float vctDownScaling = 1.f;
 
-        bool doSort = true;
+        bool showQuad = false;
         bool doConeTrace = true;
         bool doNoiseSample = true;
 

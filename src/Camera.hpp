@@ -11,10 +11,6 @@
 
 class Camera {
     public:
-        /* Constructors */
-        Camera(const glm::vec3);
-        Camera() : Camera(glm::vec3(0.f)) { }
-
         /* Update */
         static void update();
 
