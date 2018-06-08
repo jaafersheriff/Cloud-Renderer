@@ -18,14 +18,10 @@ distribution = sqrt(max(0, 1 - distribution * distribution));
 \end{lstlisting}\paragraph{}
 
 % image of spherical distribution on a billboard
-\begin{figure}
-\caption{Spherical distribution on a billboard}
-\includegraphics[width=0.5\textwidth]{res/sphereboard.png}
-\end{figure}
-
 % image of light-facing spherical billboard(s)
 % image of black voxelized sphere(s) 
 
+\newpage
 \subsubsection{Position Map}\paragraph{}
 When rendering these light-facing billboards, we simulatenously write the positions of the sphere into a frame buffer. 
 The resulting frame buffer gives us the world positions of the voxels nearest to the light source. 
