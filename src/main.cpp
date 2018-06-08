@@ -29,7 +29,7 @@ int Window::height = 720;
 const int I_VOLUME_BOARDS = 200;
 const glm::vec3 I_VOLUME_POSITION = glm::vec3(25.f, 0.f, 0.f);
 const glm::vec2 I_VOLUME_BOUNDS = glm::vec2(-5.f, 5.f);
-const int I_VOLUME_DIMENSION = 16;
+const int I_VOLUME_DIMENSION = 32;
 const int I_VOLUME_MIPS = 4;
 CloudVolume *volume;
 
@@ -201,7 +201,6 @@ void runImGuiPanes() {
     ImGui::End();
 
     ImGui::Begin("Billboards");
-    ImGui::Checkbox("Sort", &coneShader->doSort);
     ImGui::Checkbox("Show", &coneShader->showQuad);
     static glm::vec3 newPos(0.f);
     static float scale = 1.f;
