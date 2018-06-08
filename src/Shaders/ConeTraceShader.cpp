@@ -12,12 +12,8 @@ ConeTraceShader::ConeTraceShader(const std::string &r, const std::string &v, con
 }
 
 void ConeTraceShader::coneTrace(CloudVolume *volume) {
-    if (!doConeTrace && !doNoiseSample) {
+    if (!doConeTrace && !doNoiseSample && !showQuad) {
         return;
-    }
-
-    if (doSort) {
-        volume->sortBoards(Camera::getPosition());
     }
 
     CHECK_GL_CALL(glDisable(GL_DEPTH_TEST));
@@ -26,6 +22,7 @@ void ConeTraceShader::coneTrace(CloudVolume *volume) {
     bindVolume(volume);
 
     loadVector(getUniform("lightPos"), Sun::spatial.position);
+    loadBool(getUniform("showQuad"), showQuad);
 
     /* Bind cone tracing params */
     loadBool(getUniform("doConeTrace"), doConeTrace);

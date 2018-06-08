@@ -9,6 +9,7 @@ in vec2 fragTex;
 uniform mat4 V;
 uniform vec3 lightPos;
 
+uniform bool showQuad;
 uniform vec3 center;
 uniform float scale;
 
@@ -115,6 +116,13 @@ vec4 noise3D(vec3 uv, int octaves) {
 #define MAX_STEPS 8
 void main() {
     float radius = scale;
+    if (showQuad) {
+        /* Spherical distance - 1 at center of billboard, 0 at edges */
+        float sphereContrib = (distance(center, fragPos)/radius);
+        sphereContrib = sqrt(max(0, 1 - sphereContrib * sphereContrib));
+        color = vec4(sphereContrib);
+        return;
+    }
 
     /* Sample noise texture */
     if (doNoise) {
