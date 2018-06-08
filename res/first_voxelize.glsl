@@ -9,7 +9,7 @@ uniform float scale;
 uniform vec3 lightNearPlane;
 uniform float clipDistance;
 
-layout(binding=0, rgba16f) uniform image3D volume;
+layout(binding=0, rgba8) uniform image3D volume;
 uniform int voxelDim;
 uniform vec2 xBounds;
 uniform vec2 yBounds;
@@ -54,7 +54,7 @@ void main() {
     for(float i = 0; i < 2*dist; i += stepSize) {
         vec3 worldPos = start + dir * i;
         ivec3 voxelIndex = calculateVoxelIndex(worldPos);
-        imageStore(volume, voxelIndex, vec4(0, 0, 0, 1));
+        imageStore(volume, voxelIndex, ivec4(0, 0, 0, 1));
     }
 
     /* Write nearest voxel position to position FBO */

@@ -23,7 +23,7 @@ CloudVolume::CloudVolume(int dim, glm::vec2 bounds, glm::vec3 position, int mips
     /* Init volume */
     CHECK_GL_CALL(glGenTextures(1, &volId));
     CHECK_GL_CALL(glBindTexture(GL_TEXTURE_3D, volId));
-    CHECK_GL_CALL(glTexStorage3D(GL_TEXTURE_3D, mips, GL_RGBA16F, dimension, dimension, dimension)); // immutable
+    CHECK_GL_CALL(glTexStorage3D(GL_TEXTURE_3D, mips, GL_RGBA8, dimension, dimension, dimension)); // immutable
 
     CHECK_GL_CALL(glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR));
     CHECK_GL_CALL(glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));

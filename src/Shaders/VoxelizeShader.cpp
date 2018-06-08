@@ -130,7 +130,7 @@ void VoxelizeShader::secondVoxelize(CloudVolume *volume) {
 
 void VoxelizeShader::bindVolume(Shader *shader, CloudVolume *volume) {
     CHECK_GL_CALL(glActiveTexture(GL_TEXTURE0 + volume->volId));
-    CHECK_GL_CALL(glBindImageTexture(0, volume->volId, 0, GL_TRUE, 0, GL_READ_WRITE, GL_RGBA16F));
+    CHECK_GL_CALL(glBindImageTexture(0, volume->volId, 0, GL_TRUE, 0, GL_READ_WRITE, GL_RGBA8));
   
     shader->loadVector(shader->getUniform("xBounds"), volume->position.x + volume->xBounds);
     shader->loadVector(shader->getUniform("yBounds"), volume->position.y + volume->yBounds);
@@ -140,7 +140,7 @@ void VoxelizeShader::bindVolume(Shader *shader, CloudVolume *volume) {
 }
 
 void VoxelizeShader::unbindVolume() {
-    CHECK_GL_CALL(glBindImageTexture(0, 0, 0, GL_TRUE, 0, GL_READ_WRITE, GL_RGBA16F));
+    CHECK_GL_CALL(glBindImageTexture(0, 0, 0, GL_TRUE, 0, GL_READ_WRITE, GL_RGBA8));
     CHECK_GL_CALL(glActiveTexture(GL_TEXTURE0));
 }
 
