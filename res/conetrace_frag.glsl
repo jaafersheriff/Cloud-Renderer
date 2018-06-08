@@ -126,7 +126,7 @@ void main() {
 
     /* Sample noise texture */
     if (doNoise) {
-        vec3 viewRay = normalize(vec3(V._13, V._23, V._33));
+        vec3 viewRay = normalize(vec3(V[0][2], V[1][2], V[2][2]));
         float tnear, tfar;
         if (!raySphereIntersect(fragPos, viewRay, center, radius, tnear, tfar)) {
         	discard;
