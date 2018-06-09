@@ -121,6 +121,10 @@ void main() {
         float sphereContrib = (distance(center, fragPos)/radius);
         sphereContrib = sqrt(max(0, 1 - sphereContrib * sphereContrib));
         color = vec4(sphereContrib);
+        if (fragTex.x < 0.01f || fragTex.y < 0.01f ||
+            fragTex.x > 0.99f || fragTex.y > 0.99f) {
+            color = vec4(1);
+        }
         return;
     }
 

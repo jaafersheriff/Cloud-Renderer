@@ -18,5 +18,5 @@ void main() {
     gl_Position = P * V * worldPos;
     fragPos = worldPos.xyz;
     fragNor = N * vertNor; 
-    fragTex = vertPos.xy + 0.5;
+    fragTex = (vertPos.xy + 1) / 2.f;
 }
