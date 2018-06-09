@@ -8,6 +8,7 @@ We do our voxelization using billboards and a multi-pass voxelization system. On
 \subsubsection{Spherical Billboards}\paragraph{}
 We begin by rendering many billboards from the light's perspective. In the billboard's fragment shader we calculate a spherical distribution mapped to the face of the billboard. Using this spherical distribution, we populate a sphere in the volume. 
 
+% Code defining inital spherical voxelization
 \begin{lstlisting}[caption={first\_voxelize.glsl, 42}]
 // Calculate distance from the current fragment to billboard's center
 float dist = distance(center, fragPos);
@@ -25,11 +26,35 @@ for(float length = 0; length < 2 * sphereDistance; length += stepSize) {
 }
 \end{lstlisting}\paragraph{}
 
-% image of spherical distribution on a billboard
-	% highlight dist
-% diagram of spherical voxelization
-% image of light-facing spherical billboard(s)
-% image of black voxelized sphere(s) 
+% Voxelization figures
+\begin{figure}[t]
+\centering
+	% Spherical distribution mapped to a billboard
+	\begin{subfigure}[t]{0.4\textwidth}
+	\includegraphics[width=\textwidth]{../res/spherebillboard.png}
+	\caption{Spherical distribution mapped to a billboard}
+	\end{subfigure}
+	~
+	% TODO : diagram
+	\begin{subfigure}[t]{0.4\textwidth}
+	\includegraphics[width=\textwidth]{../res/spherebillboard.png}
+	\caption{Diagram of spherical voxelization}
+	\end{subfigure}
+	~
+	% TODO : light-facing spherical billboard(s)
+	\begin{subfigure}[t]{0.4\textwidth}
+	\includegraphics[width=\textwidth]{../res/spherebillboard.png}
+	\caption{Light-facing billboards}
+	\end{subfigure}
+	~
+	% TODO : Voxelization of light-facing billboards
+	\begin{subfigure}[t]{0.4\textwidth}
+	\includegraphics[width=\textwidth]{../res/spherebillboard.png}
+	\caption{Spherical voxelization of billboard}
+	\end{subfigure}
+
+%\caption{Voxelization}
+\end{figure}
 
 \newpage
 \subsubsection{Position Map}\paragraph{}
