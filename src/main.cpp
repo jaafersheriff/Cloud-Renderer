@@ -85,7 +85,7 @@ int main() {
             (Util::genRandom(1.f, 2.5f)));
     }
     /* Create meshes and textures */
-    Library::init();
+    Library::init(I_VOLUME_BOARDS);
     Library::addTexture(RESOURCE_DIR, diffuseTexName);
     Library::addTexture(RESOURCE_DIR, normalTexName);
 
