@@ -4,20 +4,43 @@
 
 #include "Model/Mesh.hpp"
 #include "Model/Texture.hpp"
+#include "GLSL.hpp"
 
 #include <map>
 
 class Library {
 public:
     static Mesh * cube;
+    static Mesh * cubeInstanced;
     static Mesh * quad;
     static std::map<std::string, Mesh *> meshes;
     static std::map<std::string, Texture *> textures;
 
-    static void init() {
+    static void init(int count) {
         /* Create meshes */
-        createCube();
+        createCube(&cube);
         createQuad();
+
+        createCube(&cubeInstanced);
+        // positions vbo
+        glBindBuffer(GL_ARRAY_BUFFER, cubeInstanced->vaoId);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * count, nullptr, GL_DYNAMIC_DRAW);
+        glBindBuffer(GL_ARRAY_BUFFER, 0); 
+        glEnableVertexAttribArray(2);
+        glBindBuffer(GL_ARRAY_BUFFER, cubeInstanced->vaoId);
+        glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);	
+        glVertexAttribDivisor(2, 1);  
+
+        // data vbo
+        glBindBuffer(GL_ARRAY_BUFFER, cubeInstanced->vaoId);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec4) * count, nullptr, GL_DYNAMIC_DRAW);
+        glBindBuffer(GL_ARRAY_BUFFER, 0); 
+        glEnableVertexAttribArray(3);
+        glBindBuffer(GL_ARRAY_BUFFER, cubeInstanced->vaoId);
+        glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);	
+        glVertexAttribDivisor(3, 1);  
     }
 
     static void addTexture(std::string res, std::string fileName) {
@@ -30,9 +53,10 @@ public:
         }
     }
 
-    static void createCube() {
-        cube = new Mesh;
-        cube->vertBuf = {
+    static void createCube(Mesh **mesh) {
+        Mesh *m = new Mesh;
+        *mesh = m;
+        m->vertBuf = {
             -0.5f, -0.5f, -0.5f,
              0.5f,  0.5f, -0.5f,
              0.5f, -0.5f, -0.5f,
@@ -58,7 +82,7 @@ public:
              0.5f,  0.5f,  0.5f,
             -0.5f,  0.5f,  0.5f
         };
-        cube->norBuf = {
+        m->norBuf = {
              0,  0, -1,
              0,  0, -1,
              0,  0, -1,
@@ -84,7 +108,7 @@ public:
              0,  0,  1,
              0,  0,  1,
         };
-        cube->eleBuf = {
+        m->eleBuf = {
              0,  1,  2,
              0,  3,  1,
              4,  5,  6,
@@ -98,7 +122,7 @@ public:
             20, 21, 22,
             20, 22, 23,
         };
-        cube->init();
+        m->init();
     }
     static void createQuad() {
         quad = new Mesh;
