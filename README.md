@@ -1,5 +1,5 @@
 # Real-Time Volumetric Cloud Renderer
-![](res/logo/cloud.gif)
+![](res/readme/logo.gif)
 
 This project introduces an efficient and effective method for rendering lifelike clouds in real-time. The dynamic nature of our clouds allows them to react to other world-parameters like the position of the camera or the sun. Our clouds are conveniently parameterized to allow for flexible customization for densities, positions, sizes, etc.
 
