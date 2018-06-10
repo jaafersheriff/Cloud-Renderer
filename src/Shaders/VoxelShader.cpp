@@ -42,8 +42,8 @@ void VoxelShader::render(const CloudVolume *volume, const glm::mat4 &P, const gl
                 continue;
             }
             M = glm::mat4(1.f);
-            M *= glm::translate(glm::mat4(1.f), v.spatial.position);
-            M *= glm::scale(glm::mat4(1.f), v.spatial.scale);
+            M *= glm::translate(glm::mat4(1.f), v.position);
+            M *= glm::scale(glm::mat4(1.f), volume->voxelSize);
             loadMatrix(getUniform("M"), &M);
 
             loadVector(getUniform("voxelData"), v.data);

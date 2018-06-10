@@ -21,7 +21,7 @@ void ConeTraceShader::coneTrace(CloudVolume *volume) {
     bind();
     bindVolume(volume);
 
-    loadVector(getUniform("lightPos"), Sun::spatial.position);
+    loadVector(getUniform("lightPos"), Sun::position);
     loadBool(getUniform("showQuad"), showQuad);
 
     /* Bind cone tracing params */
@@ -66,11 +66,11 @@ void ConeTraceShader::coneTrace(CloudVolume *volume) {
     for (const auto &cloudBoard : volume->cloudBoards) {
         /* Cone trace from the camera's perspective */
         loadVector(getUniform("center"), volume->position + cloudBoard.position);
-        loadFloat(getUniform("scale"), cloudBoard.scale.x);
+        loadFloat(getUniform("scale"), cloudBoard.scale);
 
         /* Bind M N */
         glm::mat4 M = glm::translate(glm::mat4(1.f), volume->position + cloudBoard.position);
-        M *= glm::scale(glm::mat4(1.f), glm::vec3(cloudBoard.scale.x));
+        M *= glm::scale(glm::mat4(1.f), glm::vec3(cloudBoard.scale));
         loadMatrix(getUniform("M"), &M);
         glm::mat3 N = glm::mat3(transpose(inverse(M * Vi)));
         loadMatrix(getUniform("N"), &N);

@@ -4,26 +4,31 @@
 
 #include <glad/glad.h>
 
-#include "Spatial.hpp"
+#include "glm/glm.hpp"
 
 #include <vector>
 
 class CloudVolume {
     public:
         struct Voxel {
-            Spatial spatial;    // Position and scale in world-space
-            glm::vec4 data;     // Data stored in voxel
+            glm::vec3 position;
+            glm::vec4 data;
+        };
+
+        struct Billboard {
+            glm::vec3 position;
+            float scale;
         };
 
         CloudVolume(int, glm::vec2, glm::vec3, int);
 
-        void addCloudBoard(Spatial &);
+        void addCloudBoard(glm::vec3, float);
         void sortBoards(glm::vec3);
         void updateVoxelData();
         void clearGPU();
 
-        glm::vec3 position;                 // cloud object position
-        std::vector<Spatial> cloudBoards;   // billboard spatials in relation to cloud spatial
+        glm::vec3 position;                   // cloud object position
+        std::vector<Billboard> cloudBoards;   // billboard spatials in relation to cloud spatial
 
         glm::vec2 xBounds;      // Min and max x-mapping in world-space
         glm::vec2 yBounds;      // Min and max y-mapping in world-space

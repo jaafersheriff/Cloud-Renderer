@@ -44,7 +44,6 @@
     <ClInclude Include="Library.hpp" />
     <ClInclude Include="Sun.hpp" />
     <ClInclude Include="Shaders\ConeTraceShader.hpp" />
-    <ClInclude Include="Spatial.hpp" />
     <ClInclude Include="IO\Keyboard.hpp" />
     <ClInclude Include="IO\Mouse.hpp" />
     <ClInclude Include="IO\Window.hpp" />

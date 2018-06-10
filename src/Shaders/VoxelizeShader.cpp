@@ -60,9 +60,9 @@ void VoxelizeShader::firstVoxelize(CloudVolume *volume) {
     for (const auto &cloudBoard : volume->cloudBoards) {
         /* Bind billboard */
         firstVoxelizer->loadVector(firstVoxelizer->getUniform("center"), volume->position + cloudBoard.position);
-        firstVoxelizer->loadFloat(firstVoxelizer->getUniform("scale"), cloudBoard.scale.x);
+        firstVoxelizer->loadFloat(firstVoxelizer->getUniform("scale"), cloudBoard.scale);
         glm::mat4 M = glm::translate(glm::mat4(1.f), volume->position + cloudBoard.position);
-        M *= glm::scale(glm::mat4(1.f), glm::vec3(cloudBoard.scale.x));
+        M *= glm::scale(glm::mat4(1.f), glm::vec3(cloudBoard.scale));
         firstVoxelizer->loadMatrix(firstVoxelizer->getUniform("M"), &M);
         glm::mat3 N = glm::mat3(transpose(inverse(M * Vi)));
         firstVoxelizer->loadMatrix(firstVoxelizer->getUniform("N"), &N);

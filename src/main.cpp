@@ -34,7 +34,7 @@ const int I_VOLUME_MIPS = 4;
 CloudVolume *volume;
 
 /* Sun */
-Spatial Sun::spatial = Spatial(glm::vec3(5.f, 20.f, -5.f), glm::vec3(1.f), glm::vec3(1.f));
+glm::vec3 Sun::position = glm::vec3(5.f, 20.f, -5.f);
 glm::mat4 Sun::P = glm::mat4(1.f);
 glm::mat4 Sun::V = glm::mat4(1.f);
 glm::vec3 Sun::innerColor = glm::vec3(1.f);
@@ -80,13 +80,10 @@ int main() {
     /* Create volume */
     volume = new CloudVolume(I_VOLUME_DIMENSION, I_VOLUME_BOUNDS, I_VOLUME_POSITION, I_VOLUME_MIPS);
     for (int i = 0; i < I_VOLUME_BOARDS; i++) {
-        volume->addCloudBoard(Spatial(
+        volume->addCloudBoard(
             Util::genRandomVec3(-2.5f, 2.5f),
-            glm::vec3(Util::genRandom(1.f, 2.5f)),
-            glm::vec3(0.f)                      // rotation
-        ));
+            (Util::genRandom(1.f, 2.5f)));
     }
-
     /* Create meshes and textures */
     Library::init();
     Library::addTexture(RESOURCE_DIR, diffuseTexName);
@@ -161,7 +158,7 @@ void runImGuiPanes() {
     ImGui::End();
 
     ImGui::Begin("Sun");
-    ImGui::SliderFloat3("Position", glm::value_ptr(Sun::spatial.position), -100.f, 100.f);
+    ImGui::SliderFloat3("Position", glm::value_ptr(Sun::position), -100.f, 100.f);
     ImGui::SliderFloat3("Inner Color", glm::value_ptr(Sun::innerColor), 0.f, 1.f);
     ImGui::SliderFloat3("Outer Color", glm::value_ptr(Sun::outerColor), 0.f, 1.f);
     ImGui::SliderFloat("Inner Radius", &Sun::innerRadius, 0.f, 10.f);
@@ -207,7 +204,7 @@ void runImGuiPanes() {
     ImGui::SliderFloat3("Offset", glm::value_ptr(newPos), -10.f, 10.f);
     ImGui::SliderFloat("Scale", &scale, 0.1f, 10.f);
     if (ImGui::Button("Add Billboard")) {
-        volume->addCloudBoard(Spatial(newPos, glm::vec3(scale), glm::vec3(0.f)));
+        volume->addCloudBoard(newPos, scale);
     }
     static glm::vec2 ranPos = glm::vec2(-3.f, 3.f);
     static glm::vec2 ranScale = glm::vec2(1.f, 3.f);
@@ -219,18 +216,17 @@ void runImGuiPanes() {
     if (ImGui::Button("Reset billboards") || changing) {
         volume->cloudBoards.clear();
         for (int i = 0; i < numBoards; i++) {
-            volume->addCloudBoard(Spatial(
+            volume->addCloudBoard(
                 Util::genRandomVec3(ranPos.x, ranPos.y),
-                glm::vec3(Util::genRandom(ranScale.x, ranScale.y)),
-                glm::vec3(0.f)
-            ));
+                Util::genRandom(ranScale.x, ranScale.y)
+            );
         }
    }
     static int currBoard = 0;
     ImGui::SliderInt("Curr board", &currBoard, 0, volume->cloudBoards.size() - 1);
-    Spatial *s = &volume->cloudBoards[currBoard];
-    ImGui::SliderFloat3("Position", glm::value_ptr(s->position), -10.f, 10.f);
-    ImGui::SliderFloat("Cscale", &s->scale.x, 1.f, 10.f);
+    CloudVolume::Billboard *b = &volume->cloudBoards[currBoard];
+    ImGui::SliderFloat3("Position", glm::value_ptr(b->position), -10.f, 10.f);
+    ImGui::SliderFloat("Cscale", &b->scale, 1.f, 10.f);
     if (ImGui::Button("Delete") && volume->cloudBoards.size()) {
         volume->cloudBoards.erase(volume->cloudBoards.begin() + currBoard);
         currBoard = glm::max(0, currBoard - 1);

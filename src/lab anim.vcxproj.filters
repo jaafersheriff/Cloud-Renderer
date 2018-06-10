@@ -137,9 +137,6 @@
     <ClInclude Include="ThirdParty\imgui\imconfig.h">
       <Filter>src\ThirdParty\imgui</Filter>
     </ClInclude>
-    <ClInclude Include="Spatial.hpp">
-      <Filter>src</Filter>
-    </ClInclude>
     <ClInclude Include="Library.hpp">
       <Filter>src</Filter>
     </ClInclude>

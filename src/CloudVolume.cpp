@@ -5,7 +5,7 @@
 CloudVolume::CloudVolume(int dim, glm::vec2 bounds, glm::vec3 position, int mips) {
     for (int i = 0; i < dim*dim*dim; i++) {
         this->voxelData.push_back({
-            Spatial(),
+            glm::vec3(),
             glm::vec4()
             });
     }
@@ -37,8 +37,8 @@ CloudVolume::CloudVolume(int dim, glm::vec2 bounds, glm::vec3 position, int mips
 }
 
 /* Add a billboard */
-void CloudVolume::addCloudBoard(Spatial &s) {
-    this->cloudBoards.push_back(s);
+void CloudVolume::addCloudBoard(glm::vec3 p, float s) {
+    this->cloudBoards.push_back({p, s});
 }
 
 /* Sort billboards by distance to a point */
@@ -51,7 +51,7 @@ void CloudVolume::sortBoards(glm::vec3 orig) {
             }
         }
         if (i != minIdx) {
-            Spatial tmp = cloudBoards[i];
+            Billboard tmp = cloudBoards[i];
             cloudBoards[i] = cloudBoards[minIdx];
             cloudBoards[minIdx] = tmp;
         }
@@ -89,8 +89,7 @@ void CloudVolume::updateVoxelData() {
         if (r || g || b || a) {
             voxelCount++;
             glm::ivec3 voxelIndex = get3DIndices(4*i);
-            voxelData[i].spatial.position = this->position + reverseVoxelIndex(voxelIndex, range);
-            voxelData[i].spatial.scale = voxelSize;
+            voxelData[i].position = this->position + reverseVoxelIndex(voxelIndex, range);
             voxelData[i].data.r = r;
             voxelData[i].data.g = g;
             voxelData[i].data.b = b;
@@ -98,12 +97,9 @@ void CloudVolume::updateVoxelData() {
         }
         /* Otherwise reset data */
         else {
-            voxelData[i].spatial.position.x = 0.f;
-            voxelData[i].spatial.position.y = 0.f;
-            voxelData[i].spatial.position.z = 0.f;
-            voxelData[i].spatial.scale.x = 0.f;
-            voxelData[i].spatial.scale.y = 0.f;
-            voxelData[i].spatial.scale.z = 0.f;
+            voxelData[i].position.x = 0.f;
+            voxelData[i].position.y = 0.f;
+            voxelData[i].position.z = 0.f;
             voxelData[i].data.x = 0.f;
             voxelData[i].data.y = 0.f;
             voxelData[i].data.z = 0.f;
