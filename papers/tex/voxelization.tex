@@ -35,7 +35,7 @@ for(float length = 0; length < 2 * sphereDistance; length += stepSize) {
 	\caption{Spherical distribution mapped to a billboard}
 	\end{subfigure}
 	~
-	% TODO : light-facing spherical billboard(s)
+	% light-facing spherical billboard(s)
 	\begin{subfigure}[t]{0.48\textwidth}
 	\includegraphics[width=\textwidth]{../res/lightfacing.png}
 	\caption{Light-facing billboards}
@@ -47,7 +47,7 @@ for(float length = 0; length < 2 * sphereDistance; length += stepSize) {
 	\caption{Diagram of spherical voxelization}
 	\end{subfigure}
 	~
-	% TODO : Voxelization of light-facing billboards
+	% Voxelization of light-facing billboards
 	\begin{subfigure}[t]{0.48\textwidth}
 	\includegraphics[width=\textwidth]{../res/voxelize1.png}
 	\caption{Spherical voxelization of billboard}
@@ -75,8 +75,22 @@ outColor = vec4(nearPos, 1);
 gl_FragDepth = depth;
 \end{lstlisting}
 
-%img of position map
-%img of depth map
+% Position map
+\begin{figure}[t]
+\centering
+	% Spherical distribution mapped to a billboard
+	\begin{subfigure}[t]{0.48\textwidth}
+	\includegraphics[width=\textwidth]{../res/spherebillboard.png}
+	\caption{Spherical distribution mapped to a billboard}
+	\end{subfigure}
+	~
+	% light-facing spherical billboard(s)
+	\begin{subfigure}[t]{0.48\textwidth}
+	\includegraphics[width=\textwidth]{../res/lightfacing.png}
+	\caption{Light-facing billboards}
+	\end{subfigure}
+\caption{First voxelization pass of 4 billboards}
+\end{figure}
 
 \subsubsection{Highlighting voxels}\paragraph{}
 The last step for our voxelization technique is to higlight voxels nearest to the camera. Lucky for us, we have exactly what we need in the position map! 
