@@ -155,6 +155,9 @@ void runImGuiPanes() {
     ImGui::Text("dt:        %0.4f", Window::timeStep);
     glm::vec3 pos = Camera::getPosition();
     ImGui::Text("CamPos:    (%0.2f, %0.2f, %0.2f)", pos.x, pos.y, pos.z);
+    if (ImGui::Button("Vsnyc")) {
+        Window::toggleVsync();
+    }
     ImGui::End();
 
     ImGui::Begin("Sun");
