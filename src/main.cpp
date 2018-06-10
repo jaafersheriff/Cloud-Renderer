@@ -185,7 +185,6 @@ void runImGuiPanes() {
         debugShader->loadMatrix(debugShader->getUniform("V"), &M);
         debugShader->loadMatrix(debugShader->getUniform("Vi"), &M);
         debugShader->loadMatrix(debugShader->getUniform("N"), &M);
-        M *= glm::scale(glm::mat4(1.f), glm::vec3(2.f));
         debugShader->loadMatrix(debugShader->getUniform("M"), &M);
         CHECK_GL_CALL(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
         CHECK_GL_CALL(glBindVertexArray(0));
