@@ -36,22 +36,26 @@ CloudVolume::CloudVolume(int dim, glm::vec2 bounds, glm::vec3 position, int mips
 
 /* Add a billboard */
 void CloudVolume::addCloudBoard(glm::vec3 p, float s) {
-    this->cloudBoards.push_back({p, s});
+    this->billboardPositions.push_back(p);
+    this->billboardScales.push_back(s);
 }
 
 /* Sort billboards by distance to a point */
 void CloudVolume::sortBoards(glm::vec3 orig) {
-    for (unsigned int i = 0; i < cloudBoards.size(); i++) {
+    for (unsigned int i = 0; i < billboardPositions.size(); i++) {
         int minIdx = i;
-        for (unsigned int j = i + 1; j < cloudBoards.size(); j++) {
-            if (glm::distance(cloudBoards[minIdx].position, orig) < glm::distance(cloudBoards[j].position, orig)) {
+        for (unsigned int j = i + 1; j < billboardPositions.size(); j++) {
+            if (glm::distance(billboardPositions[minIdx], orig) < glm::distance(billboardPositions[j], orig)) {
                 minIdx = j;
             }
         }
         if (i != minIdx) {
-            Billboard tmp = cloudBoards[i];
-            cloudBoards[i] = cloudBoards[minIdx];
-            cloudBoards[minIdx] = tmp;
+            glm::vec3 tmpPos = billboardPositions[i];
+            billboardPositions[i] = billboardPositions[minIdx];
+            billboardPositions[minIdx] = tmpPos;
+            float tmpScale = billboardScales[i];
+            billboardScales[i] = billboardScales[minIdx];
+            billboardScales[minIdx] = tmpScale;
         }
     }
 }

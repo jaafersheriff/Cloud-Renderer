@@ -193,5 +193,8 @@
     <None Include="..\res\sun_frag.glsl">
       <Filter>glsl</Filter>
     </None>
+    <None Include="..\res\billboard_vert_instanced.glsl">
+      <Filter>glsl</Filter>
+    </None>
   </ItemGroup>
 </Project>

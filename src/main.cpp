@@ -54,6 +54,9 @@ Mesh * Library::cubeInstanced;
 GLuint Library::cubeInstancedPositionVBO;
 GLuint Library::cubeInstancedDataVBO;
 Mesh * Library::quad;
+Mesh * Library::quadInstanced;
+GLuint Library::quadInstancedPositionVBO;
+GLuint Library::quadInstancedScaleVBO;
 std::map<std::string, Texture *> Library::textures;
 
 /* Shaders */
@@ -95,8 +98,8 @@ int main() {
     /* Create shaders */
     sunShader = new SunShader(RESOURCE_DIR, "billboard_vert.glsl", "sun_frag.glsl");
     voxelShader = new VoxelShader(RESOURCE_DIR, "voxel_vert.glsl", "voxel_frag.glsl");
-    voxelizeShader = new VoxelizeShader(RESOURCE_DIR, "billboard_vert.glsl", "first_voxelize.glsl", "second_voxelize.glsl");
-    coneShader = new ConeTraceShader(RESOURCE_DIR, "billboard_vert.glsl", "conetrace_frag.glsl");
+    voxelizeShader = new VoxelizeShader(RESOURCE_DIR, "billboard_vert_instanced.glsl", "billboard_vert.glsl", "first_voxelize.glsl", "second_voxelize.glsl");
+    coneShader = new ConeTraceShader(RESOURCE_DIR, "billboard_vert_instanced.glsl", "conetrace_frag.glsl");
     debugShader = new Shader(RESOURCE_DIR, "billboard_vert.glsl", "debug_frag.glsl");
 
     /* Init rendering state */
@@ -220,7 +223,8 @@ void runImGuiPanes() {
     changing |= ImGui::SliderFloat2("Random Scale", glm::value_ptr(ranScale), 1.f, 5.f);
     changing |= ImGui::SliderInt("Number billboards", &numBoards, 0, 200);
     if (ImGui::Button("Reset billboards") || changing) {
-        volume->cloudBoards.clear();
+        volume->billboardPositions.clear();
+        volume->billboardScales.clear();
         for (int i = 0; i < numBoards; i++) {
             volume->addCloudBoard(
                 Util::genRandomVec3(ranPos.x, ranPos.y),
@@ -229,12 +233,14 @@ void runImGuiPanes() {
         }
    }
     static int currBoard = 0;
-    ImGui::SliderInt("Curr board", &currBoard, 0, volume->cloudBoards.size() - 1);
-    CloudVolume::Billboard *b = &volume->cloudBoards[currBoard];
-    ImGui::SliderFloat3("Position", glm::value_ptr(b->position), -10.f, 10.f);
-    ImGui::SliderFloat("Cscale", &b->scale, 1.f, 10.f);
-    if (ImGui::Button("Delete") && volume->cloudBoards.size()) {
-        volume->cloudBoards.erase(volume->cloudBoards.begin() + currBoard);
+    ImGui::SliderInt("Curr board", &currBoard, 0, volume->billboardPositions.size() - 1);
+    glm::vec3 *currPos = &volume->billboardPositions[currBoard];
+    float *currScale = &volume->billboardScales[currBoard];
+    ImGui::SliderFloat3("Position", glm::value_ptr(*currPos), -10.f, 10.f);
+    ImGui::SliderFloat("Cscale", currScale, 1.f, 10.f);
+    if (ImGui::Button("Delete") && volume->billboardPositions.size()) {
+        volume->billboardPositions.erase(volume->billboardPositions.begin() + currBoard);
+        volume->billboardScales.erase(volume->billboardScales.begin() + currBoard);
         currBoard = glm::max(0, currBoard - 1);
     }
     ImGui::End();

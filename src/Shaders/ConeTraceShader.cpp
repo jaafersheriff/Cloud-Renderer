@@ -23,6 +23,7 @@ void ConeTraceShader::coneTrace(CloudVolume *volume) {
 
     loadVector(getUniform("lightPos"), Sun::position);
     loadBool(getUniform("showQuad"), showQuad);
+    loadVector(getUniform("volumePosition"), volume->position);
 
     /* Bind cone tracing params */
     loadBool(getUniform("doConeTrace"), doConeTrace);
@@ -52,9 +53,6 @@ void ConeTraceShader::coneTrace(CloudVolume *volume) {
     }
     loadVector(getUniform("octaveOffsets"), octaveOffsets.data()[0]);
 
-    /* Bind quad */
-    CHECK_GL_CALL(glBindVertexArray(Library::quad->vaoId));
-
     /* Bind P V Vi*/
     loadMatrix(getUniform("P"), &Camera::getP());
     loadMatrix(getUniform("V"), &Camera::getV());
@@ -63,21 +61,14 @@ void ConeTraceShader::coneTrace(CloudVolume *volume) {
     Vi = glm::transpose(Vi);
     loadMatrix(getUniform("Vi"), &Vi);
 
-    for (const auto &cloudBoard : volume->cloudBoards) {
-        /* Cone trace from the camera's perspective */
-        loadVector(getUniform("center"), volume->position + cloudBoard.position);
-        loadFloat(getUniform("scale"), cloudBoard.scale);
+    /* Bind quad */
+    CHECK_GL_CALL(glBindVertexArray(Library::quadInstanced->vaoId));
+    CHECK_GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, Library::quadInstancedPositionVBO));
+    CHECK_GL_CALL(glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * volume->billboardPositions.size(), &volume->billboardPositions[0], GL_DYNAMIC_DRAW));
+    CHECK_GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, Library::quadInstancedScaleVBO));
+    CHECK_GL_CALL(glBufferData(GL_ARRAY_BUFFER, sizeof(float) * volume->billboardScales.size(), &volume->billboardScales[0], GL_DYNAMIC_DRAW));
 
-        /* Bind M N */
-        glm::mat4 M = glm::translate(glm::mat4(1.f), volume->position + cloudBoard.position);
-        M *= glm::scale(glm::mat4(1.f), glm::vec3(cloudBoard.scale));
-        loadMatrix(getUniform("M"), &M);
-        glm::mat3 N = glm::mat3(transpose(inverse(M * Vi)));
-        loadMatrix(getUniform("N"), &N);
-
-        /* Cone trace! */
-        CHECK_GL_CALL(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
-    }
+    CHECK_GL_CALL(glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, volume->billboardPositions.size()));
 
     /* Wrap up shader */
     CHECK_GL_CALL(glBindVertexArray(0));

@@ -10,11 +10,6 @@
 
 class CloudVolume {
     public:
-        struct Billboard {
-            glm::vec3 position;
-            float scale;
-        };
-
         CloudVolume(int, glm::vec2, glm::vec3, int);
 
         void addCloudBoard(glm::vec3, float);
@@ -23,7 +18,6 @@ class CloudVolume {
         void clearGPU();
 
         glm::vec3 position;                   // cloud object position
-        std::vector<Billboard> cloudBoards;   // billboard spatials in relation to cloud spatial
 
         glm::vec2 xBounds;      // Min and max x-mapping in world-space
         glm::vec2 yBounds;      // Min and max y-mapping in world-space
@@ -31,6 +25,9 @@ class CloudVolume {
         int dimension;          // Voxels per dimension 
         glm::vec3 voxelSize;    // World-size of individual voxels
         int levels;             // Mipmap levels
+
+        std::vector<glm::vec3> billboardPositions;
+        std::vector<float> billboardScales;
 
         std::vector<glm::vec3> voxelPositions;
         std::vector<glm::vec4> voxelData;

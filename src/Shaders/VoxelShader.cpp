@@ -21,7 +21,7 @@ void VoxelShader::render(const CloudVolume *volume, const glm::mat4 &P, const gl
     //     glm::vec3 min(volume->xBounds.x, volume->yBounds.x, volume->zBounds.x);
     //     glm::vec3 max(volume->xBounds.y, volume->yBounds.y, volume->zBounds.y);
     //     glm::vec3 scale(max - min);
-    //     M = glm::mat4(1.f);
+    //     glm::mat4 = glm::mat4(1.f);
     //     M *= glm::translate(glm::mat4(1.f), volume->position + min + scale / 2.f);
     //     M *= glm::scale(glm::mat4(1.f), scale);
     //     loadMatrix(getUniform("M"), &M);

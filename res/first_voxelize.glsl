@@ -3,8 +3,8 @@
 in vec3 fragPos;
 in vec3 fragNor;
 
-uniform vec3 center;
-uniform float scale;
+flat in vec3 center;
+flat in float scale;
 
 uniform vec3 lightNearPlane;
 uniform float clipDistance;

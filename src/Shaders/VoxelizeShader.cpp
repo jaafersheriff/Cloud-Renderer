@@ -6,10 +6,10 @@
 #include "Sun.hpp"
 #include "IO/Window.hpp"
 
-VoxelizeShader::VoxelizeShader(const std::string &r, const std::string &v, const std::string &f1, const std::string &f2) {
+VoxelizeShader::VoxelizeShader(const std::string &r, const std::string &v1, const std::string &v2, const std::string &f1, const std::string &f2) {
     /* Initialize first and second pass shaders */
-    firstVoxelizer = new Shader(r, v, f1);
-    secondVoxelizer = new Shader(r, v, f2);
+    firstVoxelizer = new Shader(r, v1, f1);
+    secondVoxelizer = new Shader(r, v2, f2);
 
     /* Create position map */
     initPositionFBO(Window::width, Window::height);
@@ -44,9 +44,6 @@ void VoxelizeShader::firstVoxelize(CloudVolume *volume) {
     /* Bind volume and position map */
     bindVolume(firstVoxelizer, volume);
 
-    /* Bind quad */
-    CHECK_GL_CALL(glBindVertexArray(Library::quad->vaoId));
-
     /* Bind light's perspective */
     firstVoxelizer->loadMatrix(firstVoxelizer->getUniform("P"), &Sun::P);
     firstVoxelizer->loadMatrix(firstVoxelizer->getUniform("V"), &Sun::V);
@@ -56,19 +53,16 @@ void VoxelizeShader::firstVoxelize(CloudVolume *volume) {
     firstVoxelizer->loadMatrix(firstVoxelizer->getUniform("Vi"), &Vi);
     firstVoxelizer->loadVector(firstVoxelizer->getUniform("lightNearPlane"), Sun::nearPlane);
     firstVoxelizer->loadFloat(firstVoxelizer->getUniform("clipDistance"), Sun::clipDistance);
+    firstVoxelizer->loadVector(firstVoxelizer->getUniform("volumePosition"), volume->position);
 
-    for (const auto &cloudBoard : volume->cloudBoards) {
-        /* Bind billboard */
-        firstVoxelizer->loadVector(firstVoxelizer->getUniform("center"), volume->position + cloudBoard.position);
-        firstVoxelizer->loadFloat(firstVoxelizer->getUniform("scale"), cloudBoard.scale);
-        glm::mat4 M = glm::translate(glm::mat4(1.f), volume->position + cloudBoard.position);
-        M *= glm::scale(glm::mat4(1.f), glm::vec3(cloudBoard.scale));
-        firstVoxelizer->loadMatrix(firstVoxelizer->getUniform("M"), &M);
-        glm::mat3 N = glm::mat3(transpose(inverse(M * Vi)));
-        firstVoxelizer->loadMatrix(firstVoxelizer->getUniform("N"), &N);
-        /* Draw billboard */
-        CHECK_GL_CALL(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
-    }
+    /* Bind quad */
+    CHECK_GL_CALL(glBindVertexArray(Library::quadInstanced->vaoId));
+    CHECK_GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, Library::quadInstancedPositionVBO));
+    CHECK_GL_CALL(glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * volume->billboardPositions.size(), &volume->billboardPositions[0], GL_DYNAMIC_DRAW));
+    CHECK_GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, Library::quadInstancedScaleVBO));
+    CHECK_GL_CALL(glBufferData(GL_ARRAY_BUFFER, sizeof(float) * volume->billboardScales.size(), &volume->billboardScales[0], GL_DYNAMIC_DRAW));
+
+    CHECK_GL_CALL(glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, volume->billboardPositions.size()));
 
     /* Wrap up shader */
     CHECK_GL_CALL(glBindVertexArray(0));

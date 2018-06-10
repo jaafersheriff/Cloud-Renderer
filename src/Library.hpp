@@ -14,17 +14,17 @@ public:
     static GLuint cubeInstancedPositionVBO;
     static GLuint cubeInstancedDataVBO;
     static Mesh * quad;
+    static Mesh * quadInstanced;
+    static GLuint quadInstancedPositionVBO;
+    static GLuint quadInstancedScaleVBO;
     static std::map<std::string, Mesh *> meshes;
     static std::map<std::string, Texture *> textures;
 
     static void init(int count) {
         /* Create meshes */
         createCube(&cube);
-        createQuad();
-
         createCube(&cubeInstanced);
         glBindVertexArray(cubeInstanced->vaoId);
-        // positions vbo
         glGenBuffers(1, &cubeInstancedPositionVBO);
         glBindBuffer(GL_ARRAY_BUFFER, cubeInstancedPositionVBO);
         glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * count, nullptr, GL_DYNAMIC_DRAW);
@@ -34,8 +34,6 @@ public:
         glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
         glBindBuffer(GL_ARRAY_BUFFER, 0);	
         glVertexAttribDivisor(2, 1);  
-
-        // data vbo
         glGenBuffers(1, &cubeInstancedDataVBO);
         glBindBuffer(GL_ARRAY_BUFFER, cubeInstancedDataVBO);
         glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec4) * count, nullptr, GL_DYNAMIC_DRAW);
@@ -43,6 +41,28 @@ public:
         glEnableVertexAttribArray(3);
         glBindBuffer(GL_ARRAY_BUFFER, cubeInstancedDataVBO);
         glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);	
+        glVertexAttribDivisor(3, 1);  
+
+        createQuad(&quad);
+        createQuad(&quadInstanced);
+        glBindVertexArray(quadInstanced->vaoId);
+        glGenBuffers(1, &quadInstancedPositionVBO);
+        glBindBuffer(GL_ARRAY_BUFFER, quadInstancedPositionVBO);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * count, nullptr, GL_DYNAMIC_DRAW);
+        glBindBuffer(GL_ARRAY_BUFFER, 0); 
+        glEnableVertexAttribArray(2);
+        glBindBuffer(GL_ARRAY_BUFFER, quadInstancedPositionVBO);
+        glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);	
+        glVertexAttribDivisor(2, 1);  
+        glGenBuffers(1, &quadInstancedScaleVBO);
+        glBindBuffer(GL_ARRAY_BUFFER, quadInstancedScaleVBO);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(float) * count, nullptr, GL_DYNAMIC_DRAW);
+        glBindBuffer(GL_ARRAY_BUFFER, 0); 
+        glEnableVertexAttribArray(3);
+        glBindBuffer(GL_ARRAY_BUFFER, quadInstancedScaleVBO);
+        glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, sizeof(float), (void*)0);
         glBindBuffer(GL_ARRAY_BUFFER, 0);	
         glVertexAttribDivisor(3, 1);  
     }
@@ -128,21 +148,22 @@ public:
         };
         m->init();
     }
-    static void createQuad() {
-        quad = new Mesh;
-        quad->vertBuf = {
+    static void createQuad(Mesh **mesh) {
+        Mesh *m = new Mesh;
+        *mesh = m;
+        m->vertBuf = {
             -1.f, -1.f,  0.f,
              1.f, -1.f,  0.f,
             -1.f,  1.f,  0.f,
              1.f,  1.f,  0.f
         };
-        quad->norBuf = {
+        m->norBuf = {
             0.f, 0.f, 1.f,
             0.f, 0.f, 1.f,
             0.f, 0.f, 1.f,
             0.f, 0.f, 1.f
         };
-        quad->init();
+        m->init();
     }
 };
 
