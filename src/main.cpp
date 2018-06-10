@@ -215,7 +215,7 @@ void runImGuiPanes() {
     static int numBoards = I_VOLUME_BOARDS;
     changing |= ImGui::SliderFloat2("Random Offset", glm::value_ptr(ranPos), -5.f, 5.f);
     changing |= ImGui::SliderFloat2("Random Scale", glm::value_ptr(ranScale), 1.f, 5.f);
-    changing |= ImGui::SliderInt("Number billboards", &numBoards, 0, 200);
+    changing |= ImGui::SliderInt("Number billboards", &numBoards, 0, I_VOLUME_BOARDS);
     if (ImGui::Button("Reset billboards") || changing) {
         volume->cloudBoards.clear();
         for (int i = 0; i < numBoards; i++) {
