@@ -10,11 +10,6 @@
 
 class CloudVolume {
     public:
-        struct Voxel {
-            glm::vec3 position;
-            glm::vec4 data;
-        };
-
         struct Billboard {
             glm::vec3 position;
             float scale;
@@ -37,7 +32,8 @@ class CloudVolume {
         glm::vec3 voxelSize;    // World-size of individual voxels
         int levels;             // Mipmap levels
 
-        std::vector<Voxel> voxelData;
+        std::vector<glm::vec3> voxelPositions;
+        std::vector<glm::vec4> voxelData;
 
         GLuint volId;
         int voxelCount = 0;

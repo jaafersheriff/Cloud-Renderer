@@ -50,6 +50,9 @@ const std::string RESOURCE_DIR("../res/");
 const std::string diffuseTexName("cloud.png");
 const std::string normalTexName("cloudmap.png");
 Mesh * Library::cube;
+Mesh * Library::cubeInstanced;
+GLuint Library::cubeInstancedPositionVBO;
+GLuint Library::cubeInstancedDataVBO;
 Mesh * Library::quad;
 std::map<std::string, Texture *> Library::textures;
 

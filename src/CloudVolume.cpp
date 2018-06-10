@@ -4,10 +4,8 @@
 
 CloudVolume::CloudVolume(int dim, glm::vec2 bounds, glm::vec3 position, int mips) {
     for (int i = 0; i < dim*dim*dim; i++) {
-        this->voxelData.push_back({
-            glm::vec3(),
-            glm::vec4()
-            });
+        this->voxelPositions.push_back(glm::vec3());
+        this->voxelData.push_back(glm::vec4());
     }
     this->dimension = dim;
     this->position = position;
@@ -89,21 +87,21 @@ void CloudVolume::updateVoxelData() {
         if (r || g || b || a) {
             voxelCount++;
             glm::ivec3 voxelIndex = get3DIndices(4*i);
-            voxelData[i].position = this->position + reverseVoxelIndex(voxelIndex, range);
-            voxelData[i].data.r = r;
-            voxelData[i].data.g = g;
-            voxelData[i].data.b = b;
-            voxelData[i].data.a = a;
+            voxelPositions[i] = this->position + reverseVoxelIndex(voxelIndex, range);
+            voxelData[i].r = r;
+            voxelData[i].g = g;
+            voxelData[i].b = b;
+            voxelData[i].a = a;
         }
         /* Otherwise reset data */
         else {
-            voxelData[i].position.x = 0.f;
-            voxelData[i].position.y = 0.f;
-            voxelData[i].position.z = 0.f;
-            voxelData[i].data.x = 0.f;
-            voxelData[i].data.y = 0.f;
-            voxelData[i].data.z = 0.f;
-            voxelData[i].data.w = 0.f;
+            voxelPositions[i].x = 0.f;
+            voxelPositions[i].y = 1000000.f;
+            voxelPositions[i].z = 0.f;
+            voxelData[i].x = 0.f;
+            voxelData[i].y = 0.f;
+            voxelData[i].z = 0.f;
+            voxelData[i].w = 0.f;
         }
     }
 }

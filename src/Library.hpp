@@ -4,7 +4,6 @@
 
 #include "Model/Mesh.hpp"
 #include "Model/Texture.hpp"
-#include "GLSL.hpp"
 
 #include <map>
 
@@ -12,6 +11,8 @@ class Library {
 public:
     static Mesh * cube;
     static Mesh * cubeInstanced;
+    static GLuint cubeInstancedPositionVBO;
+    static GLuint cubeInstancedDataVBO;
     static Mesh * quad;
     static std::map<std::string, Mesh *> meshes;
     static std::map<std::string, Texture *> textures;
@@ -22,23 +23,26 @@ public:
         createQuad();
 
         createCube(&cubeInstanced);
+        glBindVertexArray(cubeInstanced->vaoId);
         // positions vbo
-        glBindBuffer(GL_ARRAY_BUFFER, cubeInstanced->vaoId);
+        glGenBuffers(1, &cubeInstancedPositionVBO);
+        glBindBuffer(GL_ARRAY_BUFFER, cubeInstancedPositionVBO);
         glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * count, nullptr, GL_DYNAMIC_DRAW);
         glBindBuffer(GL_ARRAY_BUFFER, 0); 
         glEnableVertexAttribArray(2);
-        glBindBuffer(GL_ARRAY_BUFFER, cubeInstanced->vaoId);
+        glBindBuffer(GL_ARRAY_BUFFER, cubeInstancedPositionVBO);
         glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
         glBindBuffer(GL_ARRAY_BUFFER, 0);	
         glVertexAttribDivisor(2, 1);  
 
         // data vbo
-        glBindBuffer(GL_ARRAY_BUFFER, cubeInstanced->vaoId);
+        glGenBuffers(1, &cubeInstancedDataVBO);
+        glBindBuffer(GL_ARRAY_BUFFER, cubeInstancedDataVBO);
         glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec4) * count, nullptr, GL_DYNAMIC_DRAW);
         glBindBuffer(GL_ARRAY_BUFFER, 0); 
         glEnableVertexAttribArray(3);
-        glBindBuffer(GL_ARRAY_BUFFER, cubeInstanced->vaoId);
-        glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+        glBindBuffer(GL_ARRAY_BUFFER, cubeInstancedDataVBO);
+        glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
         glBindBuffer(GL_ARRAY_BUFFER, 0);	
         glVertexAttribDivisor(3, 1);  
     }
