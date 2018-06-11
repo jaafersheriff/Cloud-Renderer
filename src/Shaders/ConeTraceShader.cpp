@@ -16,6 +16,8 @@ void ConeTraceShader::coneTrace(CloudVolume *volume) {
         return;
     }
 
+    volume->sortBoards(Camera::getPosition());
+
     CHECK_GL_CALL(glDisable(GL_DEPTH_TEST));
     bind();
     bindVolume(volume);
