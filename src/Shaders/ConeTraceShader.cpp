@@ -17,7 +17,6 @@ void ConeTraceShader::coneTrace(CloudVolume *volume) {
     }
 
     CHECK_GL_CALL(glDisable(GL_DEPTH_TEST));
-
     bind();
     bindVolume(volume);
 
@@ -44,7 +43,7 @@ void ConeTraceShader::coneTrace(CloudVolume *volume) {
     loadFloat(getUniform("freqStep"), freqStep);
     loadFloat(getUniform("persStep"), persStep);
 
-    /* Per-octave samplign offset */
+    /* Per-octave sampling offset */
     std::vector<glm::vec3> octaveOffsets(numOctaves, glm::vec3(0.f));
     for (int i = 0; i < numOctaves; i++) {
         octaveOffsets[i].x = windVel.x * Window::runTime;
@@ -61,20 +60,17 @@ void ConeTraceShader::coneTrace(CloudVolume *volume) {
     Vi = glm::transpose(Vi);
     loadMatrix(getUniform("Vi"), &Vi);
 
-    /* Bind quad */
+    /* Bind quad 
+     * No need to reupload positions and scales - that was done during voxelization */
     CHECK_GL_CALL(glBindVertexArray(Library::quadInstanced->vaoId));
-    CHECK_GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, Library::quadInstancedPositionVBO));
-    CHECK_GL_CALL(glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * volume->billboardPositions.size(), &volume->billboardPositions[0], GL_DYNAMIC_DRAW));
-    CHECK_GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, Library::quadInstancedScaleVBO));
-    CHECK_GL_CALL(glBufferData(GL_ARRAY_BUFFER, sizeof(float) * volume->billboardScales.size(), &volume->billboardScales[0], GL_DYNAMIC_DRAW));
 
+    /* Draw */
     CHECK_GL_CALL(glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, volume->billboardPositions.size()));
 
-    /* Wrap up shader */
+    /* Wrap up */
     CHECK_GL_CALL(glBindVertexArray(0));
     unbindVolume();
     unbind();
-
     CHECK_GL_CALL(glEnable(GL_DEPTH_TEST));
 }
 

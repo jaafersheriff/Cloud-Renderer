@@ -7,9 +7,9 @@
 #include "IO/Window.hpp"
 
 VoxelizeShader::VoxelizeShader(const std::string &r, const std::string &v1, const std::string &v2, const std::string &f1, const std::string &f2) {
-    /* Initialize first and second pass shaders */
-    firstVoxelizer = new Shader(r, v1, f1);
-    secondVoxelizer = new Shader(r, v2, f2);
+    /* Initialize shaders */
+    firstVoxelizer  = new Shader(r, v1, f1); // instanced billboard voxelization
+    secondVoxelizer = new Shader(r, v2, f2); // full-screen position map voxelization
 
     /* Create position map */
     initPositionFBO(Window::width, Window::height);
@@ -41,7 +41,7 @@ void VoxelizeShader::firstVoxelize(CloudVolume *volume) {
 
     firstVoxelizer->bind();
 
-    /* Bind volume and position map */
+    /* Bind volume */
     bindVolume(firstVoxelizer, volume);
 
     /* Bind light's perspective */
@@ -51,24 +51,29 @@ void VoxelizeShader::firstVoxelize(CloudVolume *volume) {
     Vi[3][0] = Vi[3][1] = Vi[3][2] = 0.f;
     Vi = glm::transpose(Vi);
     firstVoxelizer->loadMatrix(firstVoxelizer->getUniform("Vi"), &Vi);
+
     firstVoxelizer->loadVector(firstVoxelizer->getUniform("lightNearPlane"), Sun::nearPlane);
     firstVoxelizer->loadFloat(firstVoxelizer->getUniform("clipDistance"), Sun::clipDistance);
     firstVoxelizer->loadVector(firstVoxelizer->getUniform("volumePosition"), volume->position);
 
     /* Bind quad */
     CHECK_GL_CALL(glBindVertexArray(Library::quadInstanced->vaoId));
+
+    /* Reupload billboard positions */
     CHECK_GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, Library::quadInstancedPositionVBO));
     CHECK_GL_CALL(glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * volume->billboardPositions.size(), &volume->billboardPositions[0], GL_DYNAMIC_DRAW));
+
+    /* Reupload billboard scales */
     CHECK_GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, Library::quadInstancedScaleVBO));
     CHECK_GL_CALL(glBufferData(GL_ARRAY_BUFFER, sizeof(float) * volume->billboardScales.size(), &volume->billboardScales[0], GL_DYNAMIC_DRAW));
 
+    /* Draw all billboards */
     CHECK_GL_CALL(glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, volume->billboardPositions.size()));
 
-    /* Wrap up shader */
+    /* Wrap up */
     CHECK_GL_CALL(glBindVertexArray(0));
     unbindVolume();
     firstVoxelizer->unbind();
-
     CHECK_GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 }
 
