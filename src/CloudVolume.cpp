@@ -64,7 +64,7 @@ void CloudVolume::sortBoards(glm::vec3 point) {
     for (unsigned int i = 0; i < billboardPositions.size(); i++) {
         int minIdx = i;
         for (unsigned int j = i + 1; j < billboardPositions.size(); j++) {
-            if (glm::distance(billboardPositions[minIdx], point) < glm::distance(billboardPositions[j], point)) {
+            if (glm::distance(this->position + billboardPositions[minIdx], point) < glm::distance(this->position + billboardPositions[j], point)) {
                 minIdx = j;
             }
         }
