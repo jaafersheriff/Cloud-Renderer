@@ -90,10 +90,12 @@ void VoxelShader::render(const CloudVolume *volume, const glm::mat4 &P, const gl
     CHECK_GL_CALL(glDrawElementsInstanced(GL_TRIANGLES, (int)cube->eleBuf.size(), GL_UNSIGNED_INT, 0, voxelPositions.size()));
 
     /* Render voxel outlines */
-    loadBool(getUniform("isOutline"), true);
-    CHECK_GL_CALL(glPolygonMode(GL_FRONT_AND_BACK, GL_LINE));
-    CHECK_GL_CALL(glDrawElementsInstanced(GL_TRIANGLES, (int)cube->eleBuf.size(), GL_UNSIGNED_INT, 0, voxelPositions.size()));
-    CHECK_GL_CALL(glPolygonMode(GL_FRONT_AND_BACK, GL_FILL));
+    if (useOutline) {
+        loadBool(getUniform("isOutline"), true);
+        CHECK_GL_CALL(glPolygonMode(GL_FRONT_AND_BACK, GL_LINE));
+        CHECK_GL_CALL(glDrawElementsInstanced(GL_TRIANGLES, (int)cube->eleBuf.size(), GL_UNSIGNED_INT, 0, voxelPositions.size()));
+        CHECK_GL_CALL(glPolygonMode(GL_FRONT_AND_BACK, GL_FILL));
+    }
 
     /* Clean up */
     CHECK_GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, 0));
