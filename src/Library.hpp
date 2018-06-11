@@ -9,10 +9,6 @@
 
 class Library {
 public:
-    static Mesh * cube;
-    static Mesh * cubeInstanced;
-    static GLuint cubeInstancedPositionVBO;
-    static GLuint cubeInstancedDataVBO;
     static Mesh * quad;
     static Mesh * quadInstanced;
     static GLuint quadInstancedPositionVBO;
@@ -22,28 +18,6 @@ public:
 
     static void init(int count) {
         /* Create meshes */
-        createCube(&cube);
-        createCube(&cubeInstanced);
-        glBindVertexArray(cubeInstanced->vaoId);
-        glGenBuffers(1, &cubeInstancedPositionVBO);
-        glBindBuffer(GL_ARRAY_BUFFER, cubeInstancedPositionVBO);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * count, nullptr, GL_DYNAMIC_DRAW);
-        glBindBuffer(GL_ARRAY_BUFFER, 0); 
-        glEnableVertexAttribArray(2);
-        glBindBuffer(GL_ARRAY_BUFFER, cubeInstancedPositionVBO);
-        glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-        glBindBuffer(GL_ARRAY_BUFFER, 0);	
-        glVertexAttribDivisor(2, 1);  
-        glGenBuffers(1, &cubeInstancedDataVBO);
-        glBindBuffer(GL_ARRAY_BUFFER, cubeInstancedDataVBO);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec4) * count, nullptr, GL_DYNAMIC_DRAW);
-        glBindBuffer(GL_ARRAY_BUFFER, 0); 
-        glEnableVertexAttribArray(3);
-        glBindBuffer(GL_ARRAY_BUFFER, cubeInstancedDataVBO);
-        glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
-        glBindBuffer(GL_ARRAY_BUFFER, 0);	
-        glVertexAttribDivisor(3, 1);  
-
         createQuad(&quad);
         createQuad(&quadInstanced);
         glBindVertexArray(quadInstanced->vaoId);
@@ -77,9 +51,8 @@ public:
         }
     }
 
-    static void createCube(Mesh **mesh) {
+    static Mesh * createCube() {
         Mesh *m = new Mesh;
-        *mesh = m;
         m->vertBuf = {
             -0.5f, -0.5f, -0.5f,
              0.5f,  0.5f, -0.5f,
@@ -147,6 +120,7 @@ public:
             20, 22, 23,
         };
         m->init();
+        return m;
     }
     static void createQuad(Mesh **mesh) {
         Mesh *m = new Mesh;
