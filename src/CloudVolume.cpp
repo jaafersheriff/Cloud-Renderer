@@ -1,5 +1,6 @@
 #include "CloudVolume.hpp"
 
+#include "Library.hpp"
 #include "Shaders/GLSL.hpp"
 
 CloudVolume::CloudVolume(int dim, glm::vec2 bounds, glm::vec3 position, int mips) {
@@ -9,29 +10,47 @@ CloudVolume::CloudVolume(int dim, glm::vec2 bounds, glm::vec3 position, int mips
     this->yBounds = bounds;
     this->zBounds = bounds;
     this->levels = mips;
-    this->voxelSize = glm::vec3(
-        (xBounds.y - xBounds.x) / dimension,
-        (yBounds.y - yBounds.x) / dimension,
-        (zBounds.y - zBounds.x) / dimension);
-
-    int numVoxels = dim * dim * dim;
-    this->voxelPositions.resize(numVoxels);
-    this->voxelData.resize(numVoxels);
 
     /* Init volume */
     CHECK_GL_CALL(glGenTextures(1, &volId));
     CHECK_GL_CALL(glBindTexture(GL_TEXTURE_3D, volId));
     CHECK_GL_CALL(glTexStorage3D(GL_TEXTURE_3D, mips, GL_RGBA8, dimension, dimension, dimension)); // immutable
-
     CHECK_GL_CALL(glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR));
     CHECK_GL_CALL(glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
-
     CHECK_GL_CALL(glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
     CHECK_GL_CALL(glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
     CHECK_GL_CALL(glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE));
-
     clearGPU();
     CHECK_GL_CALL(glBindTexture(GL_TEXTURE_3D, 0));
+
+    /* Init instanced quad */
+    int numVoxels = dim * dim * dim;
+    this->instancedQuad = Library::createQuad();
+    CHECK_GL_CALL(glBindVertexArray(instancedQuad->vaoId));
+    CHECK_GL_CALL(glGenBuffers(1, &instancedQuadPosVBO));
+    CHECK_GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, instancedQuadPosVBO));
+    CHECK_GL_CALL(glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * numVoxels, nullptr, GL_DYNAMIC_DRAW));
+    CHECK_GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, 0)); 
+    CHECK_GL_CALL(glEnableVertexAttribArray(2));
+    CHECK_GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, instancedQuadPosVBO));
+    CHECK_GL_CALL(glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0));
+    CHECK_GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, 0));	
+    CHECK_GL_CALL(glVertexAttribDivisor(2, 1)); 
+    CHECK_GL_CALL(glGenBuffers(1, &instancedQuadScaleVBO));
+    CHECK_GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, instancedQuadScaleVBO));
+    CHECK_GL_CALL(glBufferData(GL_ARRAY_BUFFER, sizeof(float) * numVoxels, nullptr, GL_DYNAMIC_DRAW));
+    CHECK_GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, 0)); 
+    CHECK_GL_CALL(glEnableVertexAttribArray(3));
+    CHECK_GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, instancedQuadScaleVBO));
+    CHECK_GL_CALL(glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, sizeof(float), (void*)0));
+    CHECK_GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, 0));	
+    CHECK_GL_CALL(glVertexAttribDivisor(3, 1));
+
+    range = glm::vec3(
+        xBounds.y - xBounds.x,
+        yBounds.y - yBounds.x,
+        zBounds.y - zBounds.x);
+    voxelSize = range / (float)dimension;
 }
 
 /* Add a billboard */
@@ -60,6 +79,17 @@ void CloudVolume::sortBoards(glm::vec3 point) {
     }
 }
 
+void CloudVolume::update() {
+    /* Reupload billboard positions and scales */
+    uploadBillboards();
+
+    range = glm::vec3(
+        xBounds.y - xBounds.x,
+        yBounds.y - yBounds.x,
+        zBounds.y - zBounds.x);
+    voxelSize = range / (float)dimension;
+}
+
 /* Reset GPU volume */
 void CloudVolume::clearGPU() {
     for (int i = 0; i < levels; i++) {
@@ -67,50 +97,8 @@ void CloudVolume::clearGPU() {
     }
 }
 
-void CloudVolume::updateVoxelData() {
-    /* Pull volume data out of GPU */
-    std::vector<float> buffer(voxelData.size() * 4);
-    CHECK_GL_CALL(glBindTexture(GL_TEXTURE_3D, volId));
-    CHECK_GL_CALL(glGetTexImage(GL_TEXTURE_3D, 0, GL_RGBA, GL_FLOAT, buffer.data()));
-    CHECK_GL_CALL(glBindTexture(GL_TEXTURE_3D, 0));
-
-    /* Size of voxels in world-space */
-    glm::vec3 range = glm::vec3(
-        xBounds.y - xBounds.x,
-        yBounds.y - yBounds.x,
-        zBounds.y - zBounds.x);
-    voxelSize = range / (float)dimension;
-    voxelCount = 0;
-    for (unsigned int i = 0; i < voxelData.size(); i++) {
-        /* Update voxel data if data exists */
-        float r = buffer[4*i + 0];
-        float g = buffer[4*i + 1];
-        float b = buffer[4*i + 2];
-        float a = buffer[4*i + 3];
-        if (r || g || b || a) {
-            voxelCount++;
-            glm::ivec3 voxelIndex = get3DIndices(4*i);
-            voxelPositions[i] = this->position + reverseVoxelIndex(voxelIndex, range);
-            voxelData[i].r = r;
-            voxelData[i].g = g;
-            voxelData[i].b = b;
-            voxelData[i].a = a;
-        }
-        /* Otherwise reset data */
-        else {
-            voxelPositions[i].x = 0.f;
-            voxelPositions[i].y = 1000000.f; // ensures instanced voxels won't be rendered
-            voxelPositions[i].z = 0.f;
-            voxelData[i].x = 0.f;
-            voxelData[i].y = 0.f;
-            voxelData[i].z = 0.f;
-            voxelData[i].w = 0.f;
-        }
-    }
-}
-
 // Assume 4 bytes per voxel
-glm::ivec3 CloudVolume::get3DIndices(const int index) {
+glm::ivec3 CloudVolume::get3DIndices(const int index) const {
 	int line = dimension * 4;
 	int slice = dimension  * line;
 	int z = index / slice;
@@ -119,10 +107,28 @@ glm::ivec3 CloudVolume::get3DIndices(const int index) {
 	return glm::ivec3(x, y, z);
 }
 
-glm::vec3 CloudVolume::reverseVoxelIndex(const glm::ivec3 &voxelIndex, const glm::vec3 &range) {
+glm::vec3 CloudVolume::reverseVoxelIndex(const glm::ivec3 &voxelIndex) const {
     float x = float(voxelIndex.x) * range.x / dimension + xBounds.x;
     float y = float(voxelIndex.y) * range.y / dimension + yBounds.x;
     float z = float(voxelIndex.z) * range.z / dimension + zBounds.x;
 
     return glm::vec3(x, y, z);
+}
+
+void CloudVolume::uploadBillboards() {
+    if (!billboardPositions.size()) {
+        return;
+    }
+    
+    CHECK_GL_CALL(glBindVertexArray(instancedQuad->vaoId));
+
+    /* Reupload billboard positions */
+    CHECK_GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, instancedQuadPosVBO));
+    CHECK_GL_CALL(glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * billboardPositions.size(), &billboardPositions[0], GL_DYNAMIC_DRAW));
+
+    /* Reupload billboard scales */
+    CHECK_GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, instancedQuadScaleVBO));
+    CHECK_GL_CALL(glBufferData(GL_ARRAY_BUFFER, sizeof(float) * billboardScales.size(), &billboardScales[0], GL_DYNAMIC_DRAW));
+
+    CHECK_GL_CALL(glBindVertexArray(0));
 }

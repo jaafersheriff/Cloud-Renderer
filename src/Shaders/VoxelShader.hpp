@@ -14,6 +14,7 @@ class VoxelShader : public Shader {
 
         void render(const CloudVolume *, const glm::mat4 &, const glm::mat4 &);
 
+        int activeVoxels = 0;
         bool useOutline = true;
         bool disableBounds = false;
         bool disableWhite = false;
@@ -25,6 +26,11 @@ class VoxelShader : public Shader {
         Mesh * cube;
         GLuint cubePositionVBO;
         GLuint cubeDataVBO;
+
+        /* Voxels */
+        void updateVoxelData(const CloudVolume *);
+        std::vector<glm::vec3> voxelPositions;
+        std::vector<glm::vec4> voxelData;
 };
 
 #endif

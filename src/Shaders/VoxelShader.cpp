@@ -10,6 +10,10 @@ VoxelShader::VoxelShader(int dimension, const std::string &r, const std::string 
     Shader(r, v, f) {
     int numVoxels = dimension * dimension * dimension;
 
+    /* Init voxel CPU vectors */
+    this->voxelPositions.resize(numVoxels);
+    this->voxelData.resize(numVoxels);
+
     /* Create instanced cube mesh */
     this->cube = Library::createCube();
 
@@ -41,6 +45,8 @@ VoxelShader::VoxelShader(int dimension, const std::string &r, const std::string 
 
 /* Visualize voxels */
 void VoxelShader::render(const CloudVolume *volume, const glm::mat4 &P, const glm::mat4 &V) {
+    updateVoxelData(volume);
+
     /* Bind projeciton, view matrices */
     loadMatrix(getUniform("P"), &P);
     loadMatrix(getUniform("V"), &V);
@@ -73,24 +79,61 @@ void VoxelShader::render(const CloudVolume *volume, const glm::mat4 &P, const gl
 
     /* Reupload voxel positions */
     CHECK_GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, cubePositionVBO));
-    CHECK_GL_CALL(glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * volume->voxelPositions.size(), &volume->voxelPositions[0], GL_DYNAMIC_DRAW));
+    CHECK_GL_CALL(glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * voxelPositions.size(), &voxelPositions[0], GL_DYNAMIC_DRAW));
 
     /* Reupload voxel data */
     CHECK_GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, cubeDataVBO));
-    CHECK_GL_CALL(glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec4) * volume->voxelData.size(), &volume->voxelData[0], GL_DYNAMIC_DRAW));
+    CHECK_GL_CALL(glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec4) * voxelData.size(), &voxelData[0], GL_DYNAMIC_DRAW));
 
     /* Render voxels */
     loadBool(getUniform("isOutline"), false);
-    CHECK_GL_CALL(glDrawElementsInstanced(GL_TRIANGLES, (int)cube->eleBuf.size(), GL_UNSIGNED_INT, 0, volume->voxelPositions.size()));
+    CHECK_GL_CALL(glDrawElementsInstanced(GL_TRIANGLES, (int)cube->eleBuf.size(), GL_UNSIGNED_INT, 0, voxelPositions.size()));
 
     /* Render voxel outlines */
     loadBool(getUniform("isOutline"), true);
     CHECK_GL_CALL(glPolygonMode(GL_FRONT_AND_BACK, GL_LINE));
-    CHECK_GL_CALL(glDrawElementsInstanced(GL_TRIANGLES, (int)cube->eleBuf.size(), GL_UNSIGNED_INT, 0, volume->voxelPositions.size()));
+    CHECK_GL_CALL(glDrawElementsInstanced(GL_TRIANGLES, (int)cube->eleBuf.size(), GL_UNSIGNED_INT, 0, voxelPositions.size()));
     CHECK_GL_CALL(glPolygonMode(GL_FRONT_AND_BACK, GL_FILL));
 
     /* Clean up */
     CHECK_GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, 0));
     CHECK_GL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
     CHECK_GL_CALL(glBindVertexArray(0));
+}
+
+void VoxelShader::updateVoxelData(const CloudVolume *volume) {
+    /* Pull volume data out of GPU */
+    std::vector<float> buffer(voxelData.size() * 4);
+    CHECK_GL_CALL(glBindTexture(GL_TEXTURE_3D, volume->volId));
+    CHECK_GL_CALL(glGetTexImage(GL_TEXTURE_3D, 0, GL_RGBA, GL_FLOAT, buffer.data()));
+    CHECK_GL_CALL(glBindTexture(GL_TEXTURE_3D, 0));
+
+    /* Size of voxels in world-space */
+    activeVoxels = 0;
+    for (unsigned int i = 0; i < voxelData.size(); i++) {
+        /* Update voxel data if data exists */
+        float r = buffer[4*i + 0];
+        float g = buffer[4*i + 1];
+        float b = buffer[4*i + 2];
+        float a = buffer[4*i + 3];
+        if (r || g || b || a) {
+            activeVoxels++;
+            glm::ivec3 voxelIndex = volume->get3DIndices(4*i);
+            voxelPositions[i] = volume->position + volume->reverseVoxelIndex(voxelIndex);
+            voxelData[i].r = r;
+            voxelData[i].g = g;
+            voxelData[i].b = b;
+            voxelData[i].a = a;
+        }
+        /* Otherwise reset data */
+        else {
+            voxelPositions[i].x = 0.f;
+            voxelPositions[i].y = 1000000.f; // ensures instanced voxels won't be rendered
+            voxelPositions[i].z = 0.f;
+            voxelData[i].x = 0.f;
+            voxelData[i].y = 0.f;
+            voxelData[i].z = 0.f;
+            voxelData[i].w = 0.f;
+        }
+    }
 }

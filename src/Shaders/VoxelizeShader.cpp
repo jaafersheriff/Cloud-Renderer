@@ -56,16 +56,8 @@ void VoxelizeShader::firstVoxelize(CloudVolume *volume) {
     firstVoxelizer->loadFloat(firstVoxelizer->getUniform("clipDistance"), Sun::clipDistance);
     firstVoxelizer->loadVector(firstVoxelizer->getUniform("volumePosition"), volume->position);
 
-    /* Bind quad */
-    CHECK_GL_CALL(glBindVertexArray(Library::quadInstanced->vaoId));
-
-    /* Reupload billboard positions */
-    CHECK_GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, Library::quadInstancedPositionVBO));
-    CHECK_GL_CALL(glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * volume->billboardPositions.size(), &volume->billboardPositions[0], GL_DYNAMIC_DRAW));
-
-    /* Reupload billboard scales */
-    CHECK_GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, Library::quadInstancedScaleVBO));
-    CHECK_GL_CALL(glBufferData(GL_ARRAY_BUFFER, sizeof(float) * volume->billboardScales.size(), &volume->billboardScales[0], GL_DYNAMIC_DRAW));
+    /* Bind instanced quad */
+    CHECK_GL_CALL(glBindVertexArray(volume->instancedQuad->vaoId));
 
     /* Draw all billboards */
     CHECK_GL_CALL(glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, volume->billboardPositions.size()));

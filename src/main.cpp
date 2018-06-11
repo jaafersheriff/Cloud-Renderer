@@ -47,12 +47,7 @@ float Sun::clipDistance;
 
 /* Library things */
 const std::string RESOURCE_DIR("../res/");
-const std::string diffuseTexName("cloud.png");
-const std::string normalTexName("cloudmap.png");
 Mesh * Library::quad;
-Mesh * Library::quadInstanced;
-GLuint Library::quadInstancedPositionVBO;
-GLuint Library::quadInstancedScaleVBO;
 std::map<std::string, Texture *> Library::textures;
 
 /* Shaders */
@@ -79,6 +74,9 @@ int main() {
         exitError("Error initializing window");
     }
 
+    /* Init library */
+    Library::init();
+
     /* Create volume */
     volume = new CloudVolume(I_VOLUME_DIMENSION, I_VOLUME_BOUNDS, I_VOLUME_POSITION, I_VOLUME_MIPS);
     for (int i = 0; i < I_VOLUME_BOARDS; i++) {
@@ -86,10 +84,6 @@ int main() {
             Util::genRandomVec3(-2.5f, 2.5f),
             (Util::genRandom(1.f, 2.5f)));
     }
-    /* Create meshes and textures */
-    Library::init(I_VOLUME_BOARDS);
-    Library::addTexture(RESOURCE_DIR, diffuseTexName);
-    Library::addTexture(RESOURCE_DIR, normalTexName);
 
     /* Create shaders */
     sunShader = new SunShader(RESOURCE_DIR, "billboard_vert.glsl", "sun_frag.glsl");
@@ -115,6 +109,9 @@ int main() {
         /* Update light */
         Sun::update(volume);
 
+        /* Update volume */
+        volume->update();
+
         /* Cloud render! */
         CHECK_GL_CALL(glClearColor(0.2f, 0.3f, 0.5f, 1.f));
         CHECK_GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
@@ -134,9 +131,6 @@ int main() {
         glm::mat4 V = lightView ? Sun::V : Camera::getV();
         /* Draw voxels to the screen */
         if (showVoxels) {
-            if (lightVoxelize) {
-                volume->updateVoxelData();
-            }
             voxelShader->bind();
             voxelShader->render(volume, P, V);
             voxelShader->unbind();
@@ -228,16 +222,18 @@ void runImGuiPanes() {
             );
         }
    }
-    static int currBoard = 0;
-    ImGui::SliderInt("Curr board", &currBoard, 0, volume->billboardPositions.size() - 1);
-    glm::vec3 *currPos = &volume->billboardPositions[currBoard];
-    float *currScale = &volume->billboardScales[currBoard];
-    ImGui::SliderFloat3("Position", glm::value_ptr(*currPos), -10.f, 10.f);
-    ImGui::SliderFloat("Cscale", currScale, 1.f, 10.f);
-    if (ImGui::Button("Delete") && volume->billboardPositions.size()) {
-        volume->billboardPositions.erase(volume->billboardPositions.begin() + currBoard);
-        volume->billboardScales.erase(volume->billboardScales.begin() + currBoard);
-        currBoard = glm::max(0, currBoard - 1);
+    if (volume->billboardPositions.size()) {
+        static int currBoard = 0;
+        ImGui::SliderInt("Curr board", &currBoard, 0, volume->billboardPositions.size() - 1);
+        glm::vec3 *currPos = &volume->billboardPositions[currBoard];
+        float *currScale = &volume->billboardScales[currBoard];
+        ImGui::SliderFloat3("Position", glm::value_ptr(*currPos), -10.f, 10.f);
+        ImGui::SliderFloat("Cscale", currScale, 1.f, 10.f);
+        if (ImGui::Button("Delete") && volume->billboardPositions.size()) {
+            volume->billboardPositions.erase(volume->billboardPositions.begin() + currBoard);
+            volume->billboardScales.erase(volume->billboardScales.begin() + currBoard);
+            currBoard = glm::max(0, currBoard - 1);
+        }
     }
     ImGui::End();
 
@@ -252,7 +248,7 @@ void runImGuiPanes() {
     ImGui::End();
 
     ImGui::Begin("Voxels");
-    ImGui::Text("Voxels in scene : %d", volume->voxelCount);
+    ImGui::Text("Voxels in scene : %d", voxelShader->activeVoxels);
     ImGui::Checkbox("Light view", &lightView);
     if (ImGui::Checkbox("Render voxels", &showVoxels)) {
         voxelShader->disableBlack = false;

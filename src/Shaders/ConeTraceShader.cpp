@@ -62,7 +62,7 @@ void ConeTraceShader::coneTrace(CloudVolume *volume) {
 
     /* Bind quad 
      * No need to reupload positions and scales - that was done during voxelization */
-    CHECK_GL_CALL(glBindVertexArray(Library::quadInstanced->vaoId));
+    CHECK_GL_CALL(glBindVertexArray(volume->instancedQuad->vaoId));
 
     /* Draw */
     CHECK_GL_CALL(glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, volume->billboardPositions.size()));

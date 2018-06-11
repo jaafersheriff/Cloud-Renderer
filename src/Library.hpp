@@ -10,35 +10,12 @@
 class Library {
 public:
     static Mesh * quad;
-    static Mesh * quadInstanced;
-    static GLuint quadInstancedPositionVBO;
-    static GLuint quadInstancedScaleVBO;
     static std::map<std::string, Mesh *> meshes;
     static std::map<std::string, Texture *> textures;
 
-    static void init(int count) {
-        /* Create meshes */
-        createQuad(&quad);
-        createQuad(&quadInstanced);
-        glBindVertexArray(quadInstanced->vaoId);
-        glGenBuffers(1, &quadInstancedPositionVBO);
-        glBindBuffer(GL_ARRAY_BUFFER, quadInstancedPositionVBO);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * count, nullptr, GL_DYNAMIC_DRAW);
-        glBindBuffer(GL_ARRAY_BUFFER, 0); 
-        glEnableVertexAttribArray(2);
-        glBindBuffer(GL_ARRAY_BUFFER, quadInstancedPositionVBO);
-        glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-        glBindBuffer(GL_ARRAY_BUFFER, 0);	
-        glVertexAttribDivisor(2, 1);  
-        glGenBuffers(1, &quadInstancedScaleVBO);
-        glBindBuffer(GL_ARRAY_BUFFER, quadInstancedScaleVBO);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(float) * count, nullptr, GL_DYNAMIC_DRAW);
-        glBindBuffer(GL_ARRAY_BUFFER, 0); 
-        glEnableVertexAttribArray(3);
-        glBindBuffer(GL_ARRAY_BUFFER, quadInstancedScaleVBO);
-        glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, sizeof(float), (void*)0);
-        glBindBuffer(GL_ARRAY_BUFFER, 0);	
-        glVertexAttribDivisor(3, 1);  
+    static void init() {
+        /* Create quads */
+        quad = createQuad();
     }
 
     static void addTexture(std::string res, std::string fileName) {
@@ -122,9 +99,9 @@ public:
         m->init();
         return m;
     }
-    static void createQuad(Mesh **mesh) {
+
+    static Mesh * createQuad() {
         Mesh *m = new Mesh;
-        *mesh = m;
         m->vertBuf = {
             -1.f, -1.f,  0.f,
              1.f, -1.f,  0.f,
@@ -138,6 +115,7 @@ public:
             0.f, 0.f, 1.f
         };
         m->init();
+        return m;
     }
 };
 
