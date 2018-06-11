@@ -22,5 +22,5 @@ void main() {
     M[3][1] = voxelPosition.y;
     M[3][2] = voxelPosition.z;
     gl_Position = P * V * M * vec4(vertPos, 1.f);
-    voxData = voxData;
+    voxData = voxelData;
 }

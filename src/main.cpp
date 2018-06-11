@@ -49,10 +49,6 @@ float Sun::clipDistance;
 const std::string RESOURCE_DIR("../res/");
 const std::string diffuseTexName("cloud.png");
 const std::string normalTexName("cloudmap.png");
-Mesh * Library::cube;
-Mesh * Library::cubeInstanced;
-GLuint Library::cubeInstancedPositionVBO;
-GLuint Library::cubeInstancedDataVBO;
 Mesh * Library::quad;
 Mesh * Library::quadInstanced;
 GLuint Library::quadInstancedPositionVBO;
@@ -97,7 +93,7 @@ int main() {
 
     /* Create shaders */
     sunShader = new SunShader(RESOURCE_DIR, "billboard_vert.glsl", "sun_frag.glsl");
-    voxelShader = new VoxelShader(RESOURCE_DIR, "voxel_vert.glsl", "voxel_frag.glsl");
+    voxelShader = new VoxelShader(volume->dimension, RESOURCE_DIR, "voxel_vert.glsl", "voxel_frag.glsl");
     voxelizeShader = new VoxelizeShader(RESOURCE_DIR, "billboard_vert_instanced.glsl", "billboard_vert.glsl", "first_voxelize.glsl", "second_voxelize.glsl");
     coneShader = new ConeTraceShader(RESOURCE_DIR, "billboard_vert_instanced.glsl", "conetrace_frag.glsl");
     debugShader = new Shader(RESOURCE_DIR, "billboard_vert.glsl", "debug_frag.glsl");
