@@ -32,11 +32,11 @@ VoxelShader::VoxelShader(int dimension, const std::string &r, const std::string 
     /* Voxel data vbo */
     CHECK_GL_CALL(glGenBuffers(1, &cubeDataVBO));
     CHECK_GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, cubeDataVBO));
-    CHECK_GL_CALL(glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec4) * numVoxels, nullptr, GL_DYNAMIC_DRAW));
+    CHECK_GL_CALL(glBufferData(GL_ARRAY_BUFFER, sizeof(float) * numVoxels, nullptr, GL_DYNAMIC_DRAW));
     CHECK_GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, 0));
     CHECK_GL_CALL(glEnableVertexAttribArray(3));
     CHECK_GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, cubeDataVBO));
-    CHECK_GL_CALL(glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0));
+    CHECK_GL_CALL(glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, sizeof(float), (void*)0));
     CHECK_GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, 0));	
     CHECK_GL_CALL(glVertexAttribDivisor(3, 1));
 
@@ -83,7 +83,7 @@ void VoxelShader::render(const CloudVolume *volume, const glm::mat4 &P, const gl
 
     /* Reupload voxel data */
     CHECK_GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, cubeDataVBO));
-    CHECK_GL_CALL(glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec4) * voxelData.size(), &voxelData[0], GL_DYNAMIC_DRAW));
+    CHECK_GL_CALL(glBufferData(GL_ARRAY_BUFFER, sizeof(float) * voxelData.size(), &voxelData[0], GL_DYNAMIC_DRAW));
 
     /* Render voxels */
     loadBool(getUniform("isOutline"), false);
@@ -105,37 +105,28 @@ void VoxelShader::render(const CloudVolume *volume, const glm::mat4 &P, const gl
 
 void VoxelShader::updateVoxelData(const CloudVolume *volume) {
     /* Pull volume data out of GPU */
-    std::vector<float> buffer(voxelData.size() * 4);
+    std::vector<float> buffer(voxelData.size());
     CHECK_GL_CALL(glBindTexture(GL_TEXTURE_3D, volume->volId));
-    CHECK_GL_CALL(glGetTexImage(GL_TEXTURE_3D, 0, GL_RGBA, GL_FLOAT, buffer.data()));
+    CHECK_GL_CALL(glGetTexImage(GL_TEXTURE_3D, 0, GL_RED, GL_FLOAT, buffer.data()));
     CHECK_GL_CALL(glBindTexture(GL_TEXTURE_3D, 0));
 
     /* Size of voxels in world-space */
     activeVoxels = 0;
     for (unsigned int i = 0; i < voxelData.size(); i++) {
         /* Update voxel data if data exists */
-        float r = buffer[4*i + 0];
-        float g = buffer[4*i + 1];
-        float b = buffer[4*i + 2];
-        float a = buffer[4*i + 3];
-        if (r || g || b || a) {
+        float r = buffer[i];
+        if (r) {
             activeVoxels++;
-            glm::ivec3 voxelIndex = volume->get3DIndices(4*i);
+            glm::ivec3 voxelIndex = volume->get3DIndices(i);
             voxelPositions[i] = volume->position + volume->reverseVoxelIndex(voxelIndex);
-            voxelData[i].r = r;
-            voxelData[i].g = g;
-            voxelData[i].b = b;
-            voxelData[i].a = a;
+            voxelData[i] = r;
         }
         /* Otherwise reset data */
         else {
             voxelPositions[i].x = 0.f;
             voxelPositions[i].y = 1000000.f; // ensures instanced voxels won't be rendered
             voxelPositions[i].z = 0.f;
-            voxelData[i].x = 0.f;
-            voxelData[i].y = 0.f;
-            voxelData[i].z = 0.f;
-            voxelData[i].w = 0.f;
+            voxelData[i] = 0.f;
         }
     }
 }

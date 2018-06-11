@@ -3,14 +3,14 @@
 layout(location = 0) in vec3 vertPos;
 layout(location = 1) in vec3 vertNor;
 layout(location = 2) in vec3 voxelPosition;
-layout(location = 3) in vec4 voxelData;
+layout(location = 3) in float voxelData;
 
 uniform mat4 P;
 uniform mat4 V;
 
 uniform vec3 voxelSize;
 
-out vec4 voxData;
+out float voxData;
 
 void main() {
     mat4 M = mat4(1.f);

@@ -62,8 +62,7 @@ void ConeTraceShader::coneTrace(CloudVolume *volume) {
     Vi = glm::transpose(Vi);
     loadMatrix(getUniform("Vi"), &Vi);
 
-    /* Bind quad 
-     * No need to reupload positions and scales - that was done during voxelization */
+    /* Bind quad */
     CHECK_GL_CALL(glBindVertexArray(volume->instancedQuad->vaoId));
 
     /* Draw */

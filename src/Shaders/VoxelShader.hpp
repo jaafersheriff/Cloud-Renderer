@@ -30,7 +30,7 @@ class VoxelShader : public Shader {
         /* Voxels */
         void updateVoxelData(const CloudVolume *);
         std::vector<glm::vec3> voxelPositions;
-        std::vector<glm::vec4> voxelData;
+        std::vector<float> voxelData;
 };
 
 #endif
