@@ -9,7 +9,7 @@ flat in float scale;
 uniform vec3 lightNearPlane;
 uniform float clipDistance;
 
-layout(binding=0, rgba8) uniform image3D volume;
+layout(binding=0, r8) uniform image3D volume;
 uniform int voxelDim;
 uniform vec2 xBounds;
 uniform vec2 yBounds;

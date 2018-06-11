@@ -14,7 +14,7 @@ CloudVolume::CloudVolume(int dim, glm::vec2 bounds, glm::vec3 position, int mips
     /* Init volume */
     CHECK_GL_CALL(glGenTextures(1, &volId));
     CHECK_GL_CALL(glBindTexture(GL_TEXTURE_3D, volId));
-    CHECK_GL_CALL(glTexStorage3D(GL_TEXTURE_3D, mips, GL_RGBA8, dimension, dimension, dimension)); // immutable
+    CHECK_GL_CALL(glTexStorage3D(GL_TEXTURE_3D, mips, GL_R8, dimension, dimension, dimension)); // immutable
     CHECK_GL_CALL(glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR));
     CHECK_GL_CALL(glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
     CHECK_GL_CALL(glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
@@ -93,17 +93,17 @@ void CloudVolume::update() {
 /* Reset GPU volume */
 void CloudVolume::clearGPU() {
     for (int i = 0; i < levels; i++) {
-        CHECK_GL_CALL(glClearTexImage(volId, i, GL_RGBA, GL_FLOAT, nullptr));
+        CHECK_GL_CALL(glClearTexImage(volId, i, GL_RED, GL_FLOAT, nullptr));
     }
 }
 
 // Assume 4 bytes per voxel
 glm::ivec3 CloudVolume::get3DIndices(const int index) const {
-	int line = dimension * 4;
+	int line = dimension;
 	int slice = dimension  * line;
 	int z = index / slice;
 	int y = (index - z * slice) / line;
-	int x = (index - z * slice - y * line) / 4;
+	int x = (index - z * slice - y * line);
 	return glm::ivec3(x, y, z);
 }
 

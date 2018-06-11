@@ -96,8 +96,6 @@ void VoxelizeShader::secondVoxelize(CloudVolume *volume) {
     secondVoxelizer->loadMatrix(secondVoxelizer->getUniform("V"), &M);
     secondVoxelizer->loadMatrix(secondVoxelizer->getUniform("Vi"), &M);
     secondVoxelizer->loadMatrix(secondVoxelizer->getUniform("N"), &M);
-
-    /* Quad goes [-0.5, 0.5], we need it to be [-1, 1] */
     secondVoxelizer->loadMatrix(secondVoxelizer->getUniform("M"), &M);
     
     /* Draw full screen quad */
@@ -121,7 +119,7 @@ void VoxelizeShader::secondVoxelize(CloudVolume *volume) {
 
 void VoxelizeShader::bindVolume(Shader *shader, CloudVolume *volume) {
     CHECK_GL_CALL(glActiveTexture(GL_TEXTURE0 + volume->volId));
-    CHECK_GL_CALL(glBindImageTexture(0, volume->volId, 0, GL_TRUE, 0, GL_READ_WRITE, GL_RGBA8));
+    CHECK_GL_CALL(glBindImageTexture(0, volume->volId, 0, GL_TRUE, 0, GL_READ_WRITE, GL_R8));
   
     shader->loadVector(shader->getUniform("xBounds"), volume->position.x + volume->xBounds);
     shader->loadVector(shader->getUniform("yBounds"), volume->position.y + volume->yBounds);
@@ -131,7 +129,7 @@ void VoxelizeShader::bindVolume(Shader *shader, CloudVolume *volume) {
 }
 
 void VoxelizeShader::unbindVolume() {
-    CHECK_GL_CALL(glBindImageTexture(0, 0, 0, GL_TRUE, 0, GL_READ_WRITE, GL_RGBA8));
+    CHECK_GL_CALL(glBindImageTexture(0, 0, 0, GL_TRUE, 0, GL_READ_WRITE, GL_R8));
     CHECK_GL_CALL(glActiveTexture(GL_TEXTURE0));
 }
 
