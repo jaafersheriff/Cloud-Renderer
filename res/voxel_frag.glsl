@@ -1,6 +1,6 @@
 #version 330 core
 
-in vec4 vData;
+in vec4 voxData;
 
 uniform bool isOutline;
 uniform float alpha;
@@ -13,6 +13,6 @@ void main() {
         return;
     }
 
-    color = vData;
+    color = voxData;
     color.a = alpha;
 }
