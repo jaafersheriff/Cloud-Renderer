@@ -47,9 +47,6 @@ float Sun::clipDistance;
 
 /* Library things */
 const std::string RESOURCE_DIR("../res/");
-const std::string diffuseTexName("cloud.png");
-const std::string normalTexName("cloudmap.png");
-Mesh * Library::cube;
 Mesh * Library::quad;
 std::map<std::string, Texture *> Library::textures;
 
@@ -77,6 +74,9 @@ int main() {
         exitError("Error initializing window");
     }
 
+    /* Init library */
+    Library::init();
+
     /* Create volume */
     volume = new CloudVolume(I_VOLUME_DIMENSION, I_VOLUME_BOUNDS, I_VOLUME_POSITION, I_VOLUME_MIPS);
     for (int i = 0; i < I_VOLUME_BOARDS; i++) {
@@ -84,16 +84,12 @@ int main() {
             Util::genRandomVec3(-2.5f, 2.5f),
             (Util::genRandom(1.f, 2.5f)));
     }
-    /* Create meshes and textures */
-    Library::init();
-    Library::addTexture(RESOURCE_DIR, diffuseTexName);
-    Library::addTexture(RESOURCE_DIR, normalTexName);
 
     /* Create shaders */
     sunShader = new SunShader(RESOURCE_DIR, "billboard_vert.glsl", "sun_frag.glsl");
-    voxelShader = new VoxelShader(RESOURCE_DIR, "voxel_vert.glsl", "voxel_frag.glsl");
-    voxelizeShader = new VoxelizeShader(RESOURCE_DIR, "billboard_vert.glsl", "first_voxelize.glsl", "second_voxelize.glsl");
-    coneShader = new ConeTraceShader(RESOURCE_DIR, "billboard_vert.glsl", "conetrace_frag.glsl");
+    voxelShader = new VoxelShader(volume->dimension, RESOURCE_DIR, "voxel_vert.glsl", "voxel_frag.glsl");
+    voxelizeShader = new VoxelizeShader(RESOURCE_DIR, "billboard_vert_instanced.glsl", "billboard_vert.glsl", "first_voxelize.glsl", "second_voxelize.glsl");
+    coneShader = new ConeTraceShader(RESOURCE_DIR, "billboard_vert_instanced.glsl", "conetrace_frag.glsl");
     debugShader = new Shader(RESOURCE_DIR, "billboard_vert.glsl", "debug_frag.glsl");
 
     /* Init rendering state */
@@ -112,6 +108,9 @@ int main() {
 
         /* Update light */
         Sun::update(volume);
+
+        /* Update volume */
+        volume->update();
 
         /* Cloud render! */
         CHECK_GL_CALL(glClearColor(0.2f, 0.3f, 0.5f, 1.f));
@@ -132,9 +131,6 @@ int main() {
         glm::mat4 V = lightView ? Sun::V : Camera::getV();
         /* Draw voxels to the screen */
         if (showVoxels) {
-            if (lightVoxelize) {
-                volume->updateVoxelData();
-            }
             voxelShader->bind();
             voxelShader->render(volume, P, V);
             voxelShader->unbind();
@@ -155,7 +151,7 @@ void runImGuiPanes() {
     ImGui::Text("dt:        %0.4f", Window::timeStep);
     glm::vec3 pos = Camera::getPosition();
     ImGui::Text("CamPos:    (%0.2f, %0.2f, %0.2f)", pos.x, pos.y, pos.z);
-    if (ImGui::Button("Vsnyc")) {
+    if (ImGui::Button("Vsync")) {
         Window::toggleVsync();
     }
     ImGui::End();
@@ -216,7 +212,8 @@ void runImGuiPanes() {
     changing |= ImGui::SliderFloat2("Random Scale", glm::value_ptr(ranScale), 1.f, 5.f);
     changing |= ImGui::SliderInt("Number billboards", &numBoards, 0, I_VOLUME_BOARDS);
     if (ImGui::Button("Reset billboards") || changing) {
-        volume->cloudBoards.clear();
+        volume->billboardPositions.clear();
+        volume->billboardScales.clear();
         for (int i = 0; i < numBoards; i++) {
             volume->addCloudBoard(
                 Util::genRandomVec3(ranPos.x, ranPos.y),
@@ -224,14 +221,18 @@ void runImGuiPanes() {
             );
         }
    }
-    static int currBoard = 0;
-    ImGui::SliderInt("Curr board", &currBoard, 0, volume->cloudBoards.size() - 1);
-    CloudVolume::Billboard *b = &volume->cloudBoards[currBoard];
-    ImGui::SliderFloat3("Position", glm::value_ptr(b->position), -10.f, 10.f);
-    ImGui::SliderFloat("Cscale", &b->scale, 1.f, 10.f);
-    if (ImGui::Button("Delete") && volume->cloudBoards.size()) {
-        volume->cloudBoards.erase(volume->cloudBoards.begin() + currBoard);
-        currBoard = glm::max(0, currBoard - 1);
+    if (volume->billboardPositions.size()) {
+        static int currBoard = 0;
+        ImGui::SliderInt("Curr board", &currBoard, 0, volume->billboardPositions.size() - 1);
+        glm::vec3 *currPos = &volume->billboardPositions[currBoard];
+        float *currScale = &volume->billboardScales[currBoard];
+        ImGui::SliderFloat3("Position", glm::value_ptr(*currPos), -10.f, 10.f);
+        ImGui::SliderFloat("Cscale", currScale, 1.f, 10.f);
+        if (ImGui::Button("Delete") && volume->billboardPositions.size()) {
+            volume->billboardPositions.erase(volume->billboardPositions.begin() + currBoard);
+            volume->billboardScales.erase(volume->billboardScales.begin() + currBoard);
+            currBoard = glm::max(0, currBoard - 1);
+        }
     }
     ImGui::End();
 
@@ -246,7 +247,7 @@ void runImGuiPanes() {
     ImGui::End();
 
     ImGui::Begin("Voxels");
-    ImGui::Text("Voxels in scene : %d", volume->voxelCount);
+    ImGui::Text("Voxels in scene : %d", voxelShader->activeVoxels);
     ImGui::Checkbox("Light view", &lightView);
     if (ImGui::Checkbox("Render voxels", &showVoxels)) {
         voxelShader->disableBlack = false;

@@ -9,15 +9,13 @@
 
 class Library {
 public:
-    static Mesh * cube;
     static Mesh * quad;
     static std::map<std::string, Mesh *> meshes;
     static std::map<std::string, Texture *> textures;
 
     static void init() {
-        /* Create meshes */
-        createCube();
-        createQuad();
+        /* Create quads */
+        quad = createQuad();
     }
 
     static void addTexture(std::string res, std::string fileName) {
@@ -30,9 +28,9 @@ public:
         }
     }
 
-    static void createCube() {
-        cube = new Mesh;
-        cube->vertBuf = {
+    static Mesh * createCube() {
+        Mesh *m = new Mesh;
+        m->vertBuf = {
             -0.5f, -0.5f, -0.5f,
              0.5f,  0.5f, -0.5f,
              0.5f, -0.5f, -0.5f,
@@ -58,7 +56,7 @@ public:
              0.5f,  0.5f,  0.5f,
             -0.5f,  0.5f,  0.5f
         };
-        cube->norBuf = {
+        m->norBuf = {
              0,  0, -1,
              0,  0, -1,
              0,  0, -1,
@@ -84,7 +82,7 @@ public:
              0,  0,  1,
              0,  0,  1,
         };
-        cube->eleBuf = {
+        m->eleBuf = {
              0,  1,  2,
              0,  3,  1,
              4,  5,  6,
@@ -98,23 +96,26 @@ public:
             20, 21, 22,
             20, 22, 23,
         };
-        cube->init();
+        m->init();
+        return m;
     }
-    static void createQuad() {
-        quad = new Mesh;
-        quad->vertBuf = {
+
+    static Mesh * createQuad() {
+        Mesh *m = new Mesh;
+        m->vertBuf = {
             -1.f, -1.f,  0.f,
              1.f, -1.f,  0.f,
             -1.f,  1.f,  0.f,
              1.f,  1.f,  0.f
         };
-        quad->norBuf = {
+        m->norBuf = {
             0.f, 0.f, 1.f,
             0.f, 0.f, 1.f,
             0.f, 0.f, 1.f,
             0.f, 0.f, 1.f
         };
-        quad->init();
+        m->init();
+        return m;
     }
 };
 

@@ -9,7 +9,7 @@
 
 class VoxelizeShader {
     public:
-        VoxelizeShader(const std::string &, const std::string &, const std::string &, const std::string &);
+        VoxelizeShader(const std::string &, const std::string &, const std::string &, const std::string &, const std::string &);
 
         Shader * firstVoxelizer;
         Shader * secondVoxelizer;

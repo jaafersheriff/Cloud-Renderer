@@ -5,13 +5,13 @@
 in vec3 fragPos;
 in vec3 fragNor;
 in vec2 fragTex;
+flat in vec3 center;
+flat in float scale;
 
 uniform mat4 V;
 uniform vec3 lightPos;
 
 uniform bool showQuad;
-uniform vec3 center;
-uniform float scale;
 
 uniform int voxelDim;
 uniform vec2 xBounds;

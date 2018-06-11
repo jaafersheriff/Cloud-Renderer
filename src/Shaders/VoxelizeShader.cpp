@@ -6,10 +6,10 @@
 #include "Sun.hpp"
 #include "IO/Window.hpp"
 
-VoxelizeShader::VoxelizeShader(const std::string &r, const std::string &v, const std::string &f1, const std::string &f2) {
-    /* Initialize first and second pass shaders */
-    firstVoxelizer = new Shader(r, v, f1);
-    secondVoxelizer = new Shader(r, v, f2);
+VoxelizeShader::VoxelizeShader(const std::string &r, const std::string &v1, const std::string &v2, const std::string &f1, const std::string &f2) {
+    /* Initialize shaders */
+    firstVoxelizer  = new Shader(r, v1, f1); // instanced billboard voxelization
+    secondVoxelizer = new Shader(r, v2, f2); // full-screen position map voxelization
 
     /* Create position map */
     initPositionFBO(Window::width, Window::height);
@@ -41,11 +41,8 @@ void VoxelizeShader::firstVoxelize(CloudVolume *volume) {
 
     firstVoxelizer->bind();
 
-    /* Bind volume and position map */
+    /* Bind volume */
     bindVolume(firstVoxelizer, volume);
-
-    /* Bind quad */
-    CHECK_GL_CALL(glBindVertexArray(Library::quad->vaoId));
 
     /* Bind light's perspective */
     firstVoxelizer->loadMatrix(firstVoxelizer->getUniform("P"), &Sun::P);
@@ -54,27 +51,21 @@ void VoxelizeShader::firstVoxelize(CloudVolume *volume) {
     Vi[3][0] = Vi[3][1] = Vi[3][2] = 0.f;
     Vi = glm::transpose(Vi);
     firstVoxelizer->loadMatrix(firstVoxelizer->getUniform("Vi"), &Vi);
+
     firstVoxelizer->loadVector(firstVoxelizer->getUniform("lightNearPlane"), Sun::nearPlane);
     firstVoxelizer->loadFloat(firstVoxelizer->getUniform("clipDistance"), Sun::clipDistance);
+    firstVoxelizer->loadVector(firstVoxelizer->getUniform("volumePosition"), volume->position);
 
-    for (const auto &cloudBoard : volume->cloudBoards) {
-        /* Bind billboard */
-        firstVoxelizer->loadVector(firstVoxelizer->getUniform("center"), volume->position + cloudBoard.position);
-        firstVoxelizer->loadFloat(firstVoxelizer->getUniform("scale"), cloudBoard.scale);
-        glm::mat4 M = glm::translate(glm::mat4(1.f), volume->position + cloudBoard.position);
-        M *= glm::scale(glm::mat4(1.f), glm::vec3(cloudBoard.scale));
-        firstVoxelizer->loadMatrix(firstVoxelizer->getUniform("M"), &M);
-        glm::mat3 N = glm::mat3(transpose(inverse(M * Vi)));
-        firstVoxelizer->loadMatrix(firstVoxelizer->getUniform("N"), &N);
-        /* Draw billboard */
-        CHECK_GL_CALL(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
-    }
+    /* Bind instanced quad */
+    CHECK_GL_CALL(glBindVertexArray(volume->instancedQuad->vaoId));
 
-    /* Wrap up shader */
+    /* Draw all billboards */
+    CHECK_GL_CALL(glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, volume->billboardPositions.size()));
+
+    /* Wrap up */
     CHECK_GL_CALL(glBindVertexArray(0));
     unbindVolume();
     firstVoxelizer->unbind();
-
     CHECK_GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 }
 
