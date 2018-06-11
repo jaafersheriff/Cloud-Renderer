@@ -17,7 +17,7 @@ class CloudVolume {
         void updateVoxelData();
         void clearGPU();
 
-        glm::vec3 position;                   // cloud object position
+        glm::vec3 position;     // cloud object position
 
         glm::vec2 xBounds;      // Min and max x-mapping in world-space
         glm::vec2 yBounds;      // Min and max y-mapping in world-space
@@ -26,9 +26,11 @@ class CloudVolume {
         glm::vec3 voxelSize;    // World-size of individual voxels
         int levels;             // Mipmap levels
 
+        /* Billboard */
         std::vector<glm::vec3> billboardPositions;
         std::vector<float> billboardScales;
 
+        /* Voxels */
         std::vector<glm::vec3> voxelPositions;
         std::vector<glm::vec4> voxelData;
 

@@ -3,20 +3,20 @@
 #include "Shaders/GLSL.hpp"
 
 CloudVolume::CloudVolume(int dim, glm::vec2 bounds, glm::vec3 position, int mips) {
-    for (int i = 0; i < dim*dim*dim; i++) {
-        this->voxelPositions.push_back(glm::vec3());
-        this->voxelData.push_back(glm::vec4());
-    }
     this->dimension = dim;
     this->position = position;
     this->xBounds = bounds;
     this->yBounds = bounds;
     this->zBounds = bounds;
+    this->levels = mips;
     this->voxelSize = glm::vec3(
         (xBounds.y - xBounds.x) / dimension,
         (yBounds.y - yBounds.x) / dimension,
         (zBounds.y - zBounds.x) / dimension);
-    this->levels = mips;
+
+    int numVoxels = dim * dim * dim;
+    this->voxelPositions.resize(numVoxels);
+    this->voxelData.resize(numVoxels);
 
     /* Init volume */
     CHECK_GL_CALL(glGenTextures(1, &volId));
@@ -35,17 +35,17 @@ CloudVolume::CloudVolume(int dim, glm::vec2 bounds, glm::vec3 position, int mips
 }
 
 /* Add a billboard */
-void CloudVolume::addCloudBoard(glm::vec3 p, float s) {
-    this->billboardPositions.push_back(p);
-    this->billboardScales.push_back(s);
+void CloudVolume::addCloudBoard(glm::vec3 pos, float scale) {
+    this->billboardPositions.push_back(pos);
+    this->billboardScales.push_back(scale);
 }
 
 /* Sort billboards by distance to a point */
-void CloudVolume::sortBoards(glm::vec3 orig) {
+void CloudVolume::sortBoards(glm::vec3 point) {
     for (unsigned int i = 0; i < billboardPositions.size(); i++) {
         int minIdx = i;
         for (unsigned int j = i + 1; j < billboardPositions.size(); j++) {
-            if (glm::distance(billboardPositions[minIdx], orig) < glm::distance(billboardPositions[j], orig)) {
+            if (glm::distance(billboardPositions[minIdx], point) < glm::distance(billboardPositions[j], point)) {
                 minIdx = j;
             }
         }
@@ -59,7 +59,6 @@ void CloudVolume::sortBoards(glm::vec3 orig) {
         }
     }
 }
-
 
 /* Reset GPU volume */
 void CloudVolume::clearGPU() {
@@ -100,7 +99,7 @@ void CloudVolume::updateVoxelData() {
         /* Otherwise reset data */
         else {
             voxelPositions[i].x = 0.f;
-            voxelPositions[i].y = 1000000.f;
+            voxelPositions[i].y = 1000000.f; // ensures instanced voxels won't be rendered
             voxelPositions[i].z = 0.f;
             voxelData[i].x = 0.f;
             voxelData[i].y = 0.f;
