@@ -1,0 +1,65 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{bold-extra}
+\usepackage{listings}
+\usepackage{color}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{subcaption}
+
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+
+\lstset{frame=tb,
+  language=C,
+  aboveskip=3mm,
+  belowskip=3mm,
+  showstringspaces=false,
+  columns=flexible,
+  captionpos=b,
+  basicstyle={\small\ttfamily},
+  numbers=none,
+  keywordstyle=\color{blue},
+  commentstyle=\color{dkgreen},
+  stringstyle=\color{mauve},
+  morekeywords={distance, sqrt, max, min, vec4, imageStore, gl_FragDepth},
+  breaklines=true,
+  breakatwhitespace=true,
+  tabsize=3
+}
+
+\begin{document}
+
+%% TITLE PAGE 
+\begin{center}
+{\scshape
+    {\LARGE California Polytechnic State University, San Luis Obispo \par}
+    \vspace{3cm}
+    {\huge\scshape\bfseries Real-Time Volumetric Cloud Rendering\par}
+    \vspace{1.5cm}
+    {\Large Jaafer Sheriff\par}
+    \vspace{0.75cm}
+    {\large Senior Project\par}
+    \vspace{2cm}
+    {\large June 2018\par}
+    \vfill
+    {\large Supervisor\\
+    Dr.~Christian Eckhardt\par}
+}
+\end{center}
+
+% ABSTRACT
+\input{abstract.tex}
+
+% TOC
+\newpage
+\tableofcontents
+
+% PAPER
+\input{intro.tex}
+\input{implementation.tex}
+\input{results.tex}
+
+\end{document}

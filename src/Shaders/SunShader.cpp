@@ -9,7 +9,7 @@ void SunShader::render() {
     bind();
 
     /* Bind sun params */
-    loadVector(getUniform("center"), Sun::spatial.position);
+    loadVector(getUniform("center"), Sun::position);
     loadVector(getUniform("innerColor"), Sun::innerColor);
     loadFloat(getUniform("innerRadius"), Sun::innerRadius);
     loadVector(getUniform("outerColor"), Sun::outerColor);
@@ -29,8 +29,8 @@ void SunShader::render() {
 
     /* M */
     glm::mat4 M = glm::mat4(1.f);
-    M *= glm::translate(glm::mat4(1.f), Sun::spatial.position);
-    M *= glm::scale(glm::mat4(1.f), Sun::spatial.scale);
+    M *= glm::translate(glm::mat4(1.f), Sun::position);
+    M *= glm::scale(glm::mat4(1.f), glm::vec3(Sun::outerRadius));
     loadMatrix(getUniform("M"), &M);
 
     /* Draw */

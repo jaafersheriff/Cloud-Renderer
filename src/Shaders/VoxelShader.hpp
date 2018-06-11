@@ -10,17 +10,27 @@
 class Mesh;
 class VoxelShader : public Shader {
     public:
-        VoxelShader(const std::string &r, const std::string &v, const std::string &f) :
-            Shader(r, v, f)
-        {}
+        VoxelShader(int count, const std::string &r, const std::string &v, const std::string &f);
 
         void render(const CloudVolume *, const glm::mat4 &, const glm::mat4 &);
 
+        int activeVoxels = 0;
         bool useOutline = true;
         bool disableBounds = false;
         bool disableWhite = false;
         bool disableBlack = false;
         float alpha = 1.f;
+
+    private:
+        /* Instanced cube mesh data */
+        Mesh * cube;
+        GLuint cubePositionVBO;
+        GLuint cubeDataVBO;
+
+        /* Voxels */
+        void updateVoxelData(const CloudVolume *);
+        std::vector<glm::vec3> voxelPositions;
+        std::vector<glm::vec4> voxelData;
 };
 
 #endif

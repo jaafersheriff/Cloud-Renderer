@@ -5,13 +5,13 @@
 in vec3 fragPos;
 in vec3 fragNor;
 in vec2 fragTex;
+flat in vec3 center;
+flat in float scale;
 
 uniform mat4 V;
 uniform vec3 lightPos;
 
 uniform bool showQuad;
-uniform vec3 center;
-uniform float scale;
 
 uniform int voxelDim;
 uniform vec2 xBounds;
@@ -121,6 +121,10 @@ void main() {
         float sphereContrib = (distance(center, fragPos)/radius);
         sphereContrib = sqrt(max(0, 1 - sphereContrib * sphereContrib));
         color = vec4(sphereContrib);
+        if (fragTex.x < 0.01f || fragTex.y < 0.01f ||
+            fragTex.x > 0.99f || fragTex.y > 0.99f) {
+            color = vec4(1);
+        }
         return;
     }
 

@@ -16,13 +16,15 @@ void ConeTraceShader::coneTrace(CloudVolume *volume) {
         return;
     }
 
-    CHECK_GL_CALL(glDisable(GL_DEPTH_TEST));
+    volume->sortBoards(Camera::getPosition());
 
+    CHECK_GL_CALL(glDisable(GL_DEPTH_TEST));
     bind();
     bindVolume(volume);
 
-    loadVector(getUniform("lightPos"), Sun::spatial.position);
+    loadVector(getUniform("lightPos"), Sun::position);
     loadBool(getUniform("showQuad"), showQuad);
+    loadVector(getUniform("volumePosition"), volume->position);
 
     /* Bind cone tracing params */
     loadBool(getUniform("doConeTrace"), doConeTrace);
@@ -43,7 +45,7 @@ void ConeTraceShader::coneTrace(CloudVolume *volume) {
     loadFloat(getUniform("freqStep"), freqStep);
     loadFloat(getUniform("persStep"), persStep);
 
-    /* Per-octave samplign offset */
+    /* Per-octave sampling offset */
     std::vector<glm::vec3> octaveOffsets(numOctaves, glm::vec3(0.f));
     for (int i = 0; i < numOctaves; i++) {
         octaveOffsets[i].x = windVel.x * Window::runTime;
@@ -51,9 +53,6 @@ void ConeTraceShader::coneTrace(CloudVolume *volume) {
         octaveOffsets[i].z = windVel.z * Window::runTime;
     }
     loadVector(getUniform("octaveOffsets"), octaveOffsets.data()[0]);
-
-    /* Bind quad */
-    CHECK_GL_CALL(glBindVertexArray(Library::quad->vaoId));
 
     /* Bind P V Vi*/
     loadMatrix(getUniform("P"), &Camera::getP());
@@ -63,27 +62,17 @@ void ConeTraceShader::coneTrace(CloudVolume *volume) {
     Vi = glm::transpose(Vi);
     loadMatrix(getUniform("Vi"), &Vi);
 
-    for (const auto &cloudBoard : volume->cloudBoards) {
-        /* Cone trace from the camera's perspective */
-        loadVector(getUniform("center"), volume->position + cloudBoard.position);
-        loadFloat(getUniform("scale"), cloudBoard.scale.x);
+    /* Bind quad 
+     * No need to reupload positions and scales - that was done during voxelization */
+    CHECK_GL_CALL(glBindVertexArray(volume->instancedQuad->vaoId));
 
-        /* Bind M N */
-        glm::mat4 M = glm::translate(glm::mat4(1.f), volume->position + cloudBoard.position);
-        M *= glm::scale(glm::mat4(1.f), glm::vec3(cloudBoard.scale.x));
-        loadMatrix(getUniform("M"), &M);
-        glm::mat3 N = glm::mat3(transpose(inverse(M * Vi)));
-        loadMatrix(getUniform("N"), &N);
+    /* Draw */
+    CHECK_GL_CALL(glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, volume->billboardPositions.size()));
 
-        /* Cone trace! */
-        CHECK_GL_CALL(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
-    }
-
-    /* Wrap up shader */
+    /* Wrap up */
     CHECK_GL_CALL(glBindVertexArray(0));
     unbindVolume();
     unbind();
-
     CHECK_GL_CALL(glEnable(GL_DEPTH_TEST));
 }
 
