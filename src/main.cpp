@@ -181,7 +181,6 @@ void runImGuiPanes() {
         debugShader->loadMatrix(debugShader->getUniform("V"), &M);
         debugShader->loadMatrix(debugShader->getUniform("Vi"), &M);
         debugShader->loadMatrix(debugShader->getUniform("N"), &M);
-        M *= glm::scale(glm::mat4(1.f), glm::vec3(2.f));
         debugShader->loadMatrix(debugShader->getUniform("M"), &M);
         CHECK_GL_CALL(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
         CHECK_GL_CALL(glBindVertexArray(0));
@@ -211,7 +210,7 @@ void runImGuiPanes() {
     static int numBoards = I_VOLUME_BOARDS;
     changing |= ImGui::SliderFloat2("Random Offset", glm::value_ptr(ranPos), -5.f, 5.f);
     changing |= ImGui::SliderFloat2("Random Scale", glm::value_ptr(ranScale), 1.f, 5.f);
-    changing |= ImGui::SliderInt("Number billboards", &numBoards, 0, 200);
+    changing |= ImGui::SliderInt("Number billboards", &numBoards, 0, I_VOLUME_BOARDS);
     if (ImGui::Button("Reset billboards") || changing) {
         volume->billboardPositions.clear();
         volume->billboardScales.clear();
