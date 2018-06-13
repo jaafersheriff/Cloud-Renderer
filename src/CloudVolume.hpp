@@ -8,42 +8,38 @@
 
 #include <vector>
 
+class Mesh;
 class CloudVolume {
     public:
-        struct Voxel {
-            glm::vec3 position;
-            glm::vec4 data;
-        };
-
-        struct Billboard {
-            glm::vec3 position;
-            float scale;
-        };
-
         CloudVolume(int, glm::vec2, glm::vec3, int);
+
+        void update();
+        void clearGPU();
 
         void addCloudBoard(glm::vec3, float);
         void sortBoards(glm::vec3);
-        void updateVoxelData();
-        void clearGPU();
 
-        glm::vec3 position;                   // cloud object position
-        std::vector<Billboard> cloudBoards;   // billboard spatials in relation to cloud spatial
+        glm::vec3 position;     // cloud object position
 
         glm::vec2 xBounds;      // Min and max x-mapping in world-space
         glm::vec2 yBounds;      // Min and max y-mapping in world-space
         glm::vec2 zBounds;      // Min and max z-mapping in world-space
         int dimension;          // Voxels per dimension 
+        glm::vec3 range;
         glm::vec3 voxelSize;    // World-size of individual voxels
         int levels;             // Mipmap levels
 
-        std::vector<Voxel> voxelData;
+        /* Billboard */
+        Mesh * instancedQuad;
+        GLuint instancedQuadPosVBO;
+        GLuint instancedQuadScaleVBO;
+        std::vector<glm::vec3> billboardPositions;
+        std::vector<float> billboardScales;
+        void uploadBillboards();
 
         GLuint volId;
-        int voxelCount = 0;
-    private:
-        glm::ivec3 get3DIndices(int);
-        glm::vec3 reverseVoxelIndex(const glm::ivec3 &, const glm::vec3 &);
+        glm::ivec3 get3DIndices(int) const;
+        glm::vec3 reverseVoxelIndex(const glm::ivec3 &) const;
 };
 
 #endif

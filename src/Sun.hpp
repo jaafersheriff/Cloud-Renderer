@@ -33,10 +33,8 @@ class Sun {
             glm::vec3 lookPos = vol->position - lookDir * glm::max(minLen, maxLen);
             V = glm::lookAt(lookPos, vol->position, glm::vec3(0, 1, 0));
 
-            // TODO : these are all working fail-safes
-            // TODO : more math here to have an accurate, tight viewport
-            float minmin = glm::min(min.x, glm::min(min.y, min.z));
-            float maxmax = glm::max(max.x, glm::max(max.y, max.z));
+            float minmin = 2.f * glm::min(min.x, glm::min(min.y, min.z));
+            float maxmax = 2.f * glm::max(max.x, glm::max(max.y, max.z));
 
             nearPlane = lookPos + lookDir * 0.01f;
             farPlane = lookPos + lookDir * 2.f * glm::max(minLen, maxLen);

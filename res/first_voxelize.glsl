@@ -3,13 +3,13 @@
 in vec3 fragPos;
 in vec3 fragNor;
 
-uniform vec3 center;
-uniform float scale;
+flat in vec3 center;
+flat in float scale;
 
 uniform vec3 lightNearPlane;
 uniform float clipDistance;
 
-layout(binding=0, rgba8) uniform image3D volume;
+layout(binding=0, r8) uniform image3D volume;
 uniform int voxelDim;
 uniform vec2 xBounds;
 uniform vec2 yBounds;
@@ -50,12 +50,12 @@ void main() {
     /* Write to volume in spherical shape from billboard to light source */
     vec3 dir = normalize(fragNor); 
     float dist = radius * sphereContrib;
-    vec3 start = fragPos - dir * dist;
-    for(float i = 0; i < 2*dist; i += stepSize) {
-        vec3 worldPos = start + dir * i;
-        ivec3 voxelIndex = calculateVoxelIndex(worldPos);
-        imageStore(volume, voxelIndex, ivec4(0, 0, 0, 1));
-    }
+    // vec3 start = fragPos - dir * dist;
+    // for(float i = 0; i < 2*dist; i += stepSize) {
+    //     vec3 worldPos = start + dir * i;
+    //     ivec3 voxelIndex = calculateVoxelIndex(worldPos);
+    //     imageStore(volume, voxelIndex, ivec4(0, 0, 0, 1));
+    // }
 
     /* Write nearest voxel position to position FBO */
     vec3 worldPos = fragPos + dir * dist;
