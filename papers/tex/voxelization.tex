@@ -51,7 +51,6 @@ for(float scale = 0; scale < 2 * sphereDistance; scale += stepSize) {
 	\includegraphics[width=\textwidth]{../res/voxelize1.png}
 	\caption{Voxelization of spherical billboards}
 	\end{subfigure}
-
 \caption{First voxelization pass of 4 billboards}
 \end{figure}
 
@@ -99,7 +98,12 @@ We sample each fragment of the position map to get the world positions of voxels
 
 The final result of our voxelization algorithm is a billowing spherical cloud-like structure with the voxels nearest to the camera being highlighted. 
 
-% TODO : img of billowing cloud
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\textwidth]{../res/billowing.png}
+\caption{Final result of voxelization}
+\end{figure}
 
 % TODO : \subsubsection{Optimizations}
 % TODO : light view
