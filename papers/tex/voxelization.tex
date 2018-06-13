@@ -61,6 +61,7 @@ During our first voxelization pass we write out the sphere's positions to the fr
 
 This method utilizes the graphics pipeline's depth test to occlude spheres any sphere that is hidden by nearer spheres.
 The depth test, however, relies on rasterized geometry in the z-buffer, and the geometry being rendered is the flat billboards, not the spherical distributions that they represent! To solve this we manually calculate and write the sphere's depth into the z-buffer. We do this in world-space using the light perspective's near and far plane. It would likely be more elegant and efficient to do this calculation in clip-space.
+% Calculating and writing to position map
 \begin{lstlisting}[caption={first\_voxelize.glsl, 60}]
 // Calculate sphere fragment's world position 
 // This is the position nearest to the light source at this fragment
@@ -96,8 +97,19 @@ The final result of the position map is a screen-sized texture containing the wo
 For our second voxelization pass we render position map to the screen on a full-sized quad. 
 We sample each fragment of the position map to get the world positions of voxels nearest to the light source, and we then update the voxel at that world position to highlight that it is on the outer layer of the cloud. 
 
-The final result of our voxelization algorithm is a billowing spherical cloud-like structure with the voxels nearest to the camera being highlighted. 
+% second voxelize
+\begin{lstlisting}[caption={second\_voxelize.glsl, 34}]
+// Get world position of voxels from position map
+vec4 worldPos = imageLoad(positionMap, ivec2(gl_FragCoord.xy));
+// Only highlight the voxel if the position map sample is valid
+if (worldPos.a >= 0.f) {
+    imageStore(volume, calculateVoxelIndex(worldPos.xyz), vec4(1));
+}
+\end{lstlisting}
 
+%
+
+The final result of our voxelization algorithm is a billowing spherical cloud-like structure with the voxels nearest to the camera being highlighted. 
 
 \begin{figure}[h]
 \centering
