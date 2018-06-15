@@ -3,6 +3,7 @@
 #include "Camera.hpp"
 #include "Sun.hpp"
 #include "Library.hpp"
+#include "Util.hpp"
 
 ConeTraceShader::ConeTraceShader(const std::string &r, const std::string &v, const std::string &f) :
     Shader(r, v, f) {
@@ -106,16 +107,16 @@ int getIndex(int x, int y, int z, int dim) {
     return x + y * dim + z * dim * dim;
 }
 
-struct CHAR4 { char x, y, z, w; };
+struct CHAR4 { char r, g, b, a; };
 
 float getDensity(int index, CHAR4* pTexels) {
-    return (float)pTexels[index].w / 128.0f;
+    return (float)pTexels[index].a / 128.0f;
 }
 
 void setNormal(glm::vec3 normal, int index, CHAR4* pTexels) {
-    pTexels[index].x = (char)(normal.x * 128.0f);
-    pTexels[index].y = (char)(normal.y * 128.0f);
-    pTexels[index].z = (char)(normal.z * 128.0f);
+    pTexels[index].r = (char)(normal.r * 128.0f);
+    pTexels[index].g = (char)(normal.g * 128.0f);
+    pTexels[index].b = (char)(normal.b * 128.0f);
 }
 
 void ConeTraceShader::initNoiseMap(int dimension) {
@@ -123,8 +124,7 @@ void ConeTraceShader::initNoiseMap(int dimension) {
 
     /* Populate data */
     for (int i = 0; i < dimension*dimension*dimension; i++) {
-        float ran = (float)((rand() % 20000) - 10000) / 10000.f;
-        pData[i].w = (char)(ran * 128.0f);
+        pData[i].a = Util::genRandom(-128.f, 128.f);
     }
 
     // Generate normals from the density gradient
@@ -145,6 +145,7 @@ void ConeTraceShader::initNoiseMap(int dimension) {
 
     CHECK_GL_CALL(glGenTextures(1, &noiseMapId));
     CHECK_GL_CALL(glBindTexture(GL_TEXTURE_3D, noiseMapId));
+    CHECK_GL_CALL(glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_REPEAT));
     CHECK_GL_CALL(glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_REPEAT));
     CHECK_GL_CALL(glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_REPEAT));
     CHECK_GL_CALL(glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
