@@ -158,8 +158,8 @@ void runImGuiPanes() {
     }
     ImGui::End();
 
-    bool showFullMap = false;
-    bool showSmallMap = false;
+    static bool showFullMap = false;
+    static bool showSmallMap = false;
     ImGui::Begin("Sun");
     {
         ImGui::SliderFloat3("Position", glm::value_ptr(Sun::position), -100.f, 100.f);
@@ -195,7 +195,7 @@ void runImGuiPanes() {
     }
     if (showSmallMap) {
         ImGui::Begin("Position Map");
-        float mapSize = 0.2f;
+        static float mapSize = 0.2f;
         ImGui::SliderFloat("Map Size", &mapSize, 0.1f, 1.f);
         ImGui::Image((ImTextureID)voxelizeShader->positionMap->textureId, ImVec2(voxelizeShader->positionMap->width*mapSize, voxelizeShader->positionMap->height*mapSize));
         ImGui::End();
@@ -252,6 +252,15 @@ void runImGuiPanes() {
         ImGui::SliderFloat2("XBounds", glm::value_ptr(volume->xBounds), minBounds, maxBounds);
         ImGui::SliderFloat2("YBounds", glm::value_ptr(volume->yBounds), minBounds, maxBounds);
         ImGui::SliderFloat2("ZBounds", glm::value_ptr(volume->zBounds), minBounds, maxBounds);
+        static float scale = 10.f;
+        if (ImGui::SliderFloat("Scale", &scale, 0.f, 50.f)) {
+            volume->xBounds.x = -scale;
+            volume->xBounds.y =  scale;
+            volume->yBounds.x = -scale;
+            volume->yBounds.y =  scale;
+            volume->zBounds.x = -scale;
+            volume->zBounds.y =  scale;
+        }
     }
     ImGui::End();
 
