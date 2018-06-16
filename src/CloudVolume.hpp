@@ -11,12 +11,23 @@
 class Mesh;
 class CloudVolume {
     public:
+        struct Billboards {
+            std::vector<glm::vec3> positions;
+            std::vector<float> scales;
+
+            int count = 0;
+            glm::vec3 minOffset = glm::vec3(-1.f);
+            glm::vec3 maxOffset = glm::vec3(1.f);
+            float minScale = 1.f;
+            float maxScale = 1.f;
+        };
+
         CloudVolume(int, glm::vec2, glm::vec3, int);
 
         void update();
         void clearGPU();
 
-        void addCloudBoard(glm::vec3, float);
+        void addCloudBoard(glm::vec3 &, float &);
         void sortBoards(glm::vec3);
 
         glm::vec3 position;     // cloud object position
@@ -29,13 +40,14 @@ class CloudVolume {
         glm::vec3 voxelSize;    // World-size of individual voxels
         int levels;             // Mipmap levels
 
-        /* Billboard */
         Mesh * instancedQuad;
         GLuint instancedQuadPosVBO;
         GLuint instancedQuadScaleVBO;
-        std::vector<glm::vec3> billboardPositions;
-        std::vector<float> billboardScales;
+        Billboards billboards;
         void uploadBillboards();
+        void regenerateBillboards(int, glm::vec3, glm::vec3, float, float);
+        void resetBillboards();
+        float fluffiness = 1.f;
 
         GLuint volId;
         glm::ivec3 get3DIndices(int) const;

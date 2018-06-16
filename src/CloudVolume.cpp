@@ -1,6 +1,7 @@
 #include "CloudVolume.hpp"
 
 #include "Library.hpp"
+#include "Util.hpp"
 #include "Shaders/GLSL.hpp"
 
 CloudVolume::CloudVolume(int dim, glm::vec2 bounds, glm::vec3 position, int mips) {
@@ -54,27 +55,28 @@ CloudVolume::CloudVolume(int dim, glm::vec2 bounds, glm::vec3 position, int mips
 }
 
 /* Add a billboard */
-void CloudVolume::addCloudBoard(glm::vec3 pos, float scale) {
-    this->billboardPositions.push_back(pos);
-    this->billboardScales.push_back(scale);
+void CloudVolume::addCloudBoard(glm::vec3 &pos, float &scale) {
+    billboards.count++;
+    billboards.positions.push_back(pos);
+    billboards.scales.push_back(scale);
 }
 
 /* Sort billboards by distance to a point */
 void CloudVolume::sortBoards(glm::vec3 point) {
-    for (unsigned int i = 0; i < billboardPositions.size(); i++) {
+    for (unsigned int i = 0; i < billboards.count; i++) {
         int minIdx = i;
-        for (unsigned int j = i + 1; j < billboardPositions.size(); j++) {
-            if (glm::distance(this->position + billboardPositions[minIdx], point) < glm::distance(this->position + billboardPositions[j], point)) {
+        for (unsigned int j = i + 1; j < billboards.count; j++) {
+            if (glm::distance(this->position + billboards.positions[minIdx], point) < glm::distance(this->position + billboards.positions[j], point)) {
                 minIdx = j;
             }
         }
         if (i != minIdx) {
-            glm::vec3 tmpPos = billboardPositions[i];
-            billboardPositions[i] = billboardPositions[minIdx];
-            billboardPositions[minIdx] = tmpPos;
-            float tmpScale = billboardScales[i];
-            billboardScales[i] = billboardScales[minIdx];
-            billboardScales[minIdx] = tmpScale;
+            glm::vec3 tmpPos = billboards.positions[i];
+            billboards.positions[i] = billboards.positions[minIdx];
+            billboards.positions[minIdx] = tmpPos;
+            float tmpScale = billboards.scales[i];
+            billboards.scales[i] = billboards.scales[minIdx];
+            billboards.scales[minIdx] = tmpScale;
         }
     }
 }
@@ -115,8 +117,27 @@ glm::vec3 CloudVolume::reverseVoxelIndex(const glm::ivec3 &voxelIndex) const {
     return glm::vec3(x, y, z);
 }
 
+void CloudVolume::regenerateBillboards(int count, glm::vec3 minOffset, glm::vec3 maxOffset, float minScale, float maxScale) {
+    billboards.minOffset = minOffset;
+    billboards.maxOffset = maxOffset;
+    billboards.minScale = minScale;
+    billboards.maxScale = maxScale;
+    billboards.positions.clear();
+    billboards.scales.clear();
+    billboards.count = 0;
+    for (int i = 0; i < count; i++) {
+        glm::vec3 position = Util::genRandomVec3(minOffset.x, maxOffset.x, minOffset.y, maxOffset.y, minOffset.z, maxOffset.z);
+        float scale = Util::genRandom(minScale, maxScale);
+        addCloudBoard(position, scale);
+    }
+}
+
+void CloudVolume::resetBillboards() {
+    regenerateBillboards(billboards.count, billboards.minOffset, billboards.maxOffset, billboards.minScale, billboards.maxScale);
+}
+
 void CloudVolume::uploadBillboards() {
-    if (!billboardPositions.size()) {
+    if (!billboards.count) {
         return;
     }
     
@@ -124,11 +145,20 @@ void CloudVolume::uploadBillboards() {
 
     /* Reupload billboard positions */
     CHECK_GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, instancedQuadPosVBO));
-    CHECK_GL_CALL(glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * billboardPositions.size(), &billboardPositions[0], GL_DYNAMIC_DRAW));
+    CHECK_GL_CALL(glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * billboards.positions.size(), &billboards.positions[0], GL_DYNAMIC_DRAW));
 
     /* Reupload billboard scales */
     CHECK_GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, instancedQuadScaleVBO));
-    CHECK_GL_CALL(glBufferData(GL_ARRAY_BUFFER, sizeof(float) * billboardScales.size(), &billboardScales[0], GL_DYNAMIC_DRAW));
+    std::vector<float> scales;
+    if (fluffiness != 1.f) {
+        for (float scale : billboards.scales) {
+            scales.push_back(scale * fluffiness);
+        }
+    }
+    else {
+        scales = billboards.scales;
+    }
+    CHECK_GL_CALL(glBufferData(GL_ARRAY_BUFFER, sizeof(float) * scales.size(), &scales[0], GL_DYNAMIC_DRAW));
 
     CHECK_GL_CALL(glBindVertexArray(0));
 }
