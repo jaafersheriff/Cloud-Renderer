@@ -14,7 +14,5 @@ void main() {
     }
 
     color.rgb = vec3(voxData);
-    if (voxData == 0.123456789f)
-        color.rgb = vec3(0.f);
     color.a = alpha;
 }

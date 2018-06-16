@@ -51,11 +51,11 @@ void main() {
     vec3 dir = normalize(fragNor); 
     float dist = radius * sphereContrib;
     vec3 start = fragPos - dir * dist;
-    for(float i = 0; i < 2*dist; i += stepSize) {
-        vec3 worldPos = start + dir * i;
-        ivec3 voxelIndex = calculateVoxelIndex(worldPos);
-        imageStore(volume, voxelIndex, vec4(0.123456789f));
-    }
+    // for(float i = 0; i < 2*dist; i += stepSize) {
+    //     vec3 worldPos = start + dir * i;
+    //     ivec3 voxelIndex = calculateVoxelIndex(worldPos);
+    //     imageStore(volume, voxelIndex, ivec4(0, 0, 0, 1));
+    // }
 
     /* Write nearest voxel position to position FBO */
     vec3 worldPos = fragPos + dir * dist;
