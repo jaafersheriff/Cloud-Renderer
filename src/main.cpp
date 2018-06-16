@@ -79,11 +79,7 @@ int main() {
 
     /* Create volume */
     volume = new CloudVolume(I_VOLUME_DIMENSION, I_VOLUME_BOUNDS, I_VOLUME_POSITION, I_VOLUME_MIPS);
-    for (int i = 0; i < I_VOLUME_BOARDS; i++) {
-        volume->addCloudBoard(
-            Util::genRandomVec3(-2.5f, 2.5f),
-            (Util::genRandom(1.f, 2.5f)));
-    }
+    volume->regenerateBillboards(I_VOLUME_BOARDS, glm::vec3(-2.5f), glm::vec3(2.5f), 1.f, 2.5);
 
     /* Create shaders */
     sunShader = new SunShader(RESOURCE_DIR, "billboard_vert.glsl", "sun_frag.glsl");
@@ -211,33 +207,29 @@ void runImGuiPanes() {
         if (ImGui::Button("Add Billboard")) {
             volume->addCloudBoard(newPos, scale);
         }
-        static glm::vec2 ranPos = glm::vec2(-3.f, 3.f);
+        static glm::vec3 minOff = glm::vec3(-3.f);
+        static glm::vec3 maxOff = glm::vec3( 3.f);
         static glm::vec2 ranScale = glm::vec2(1.f, 3.f);
-        bool changing = false;
         static int numBoards = I_VOLUME_BOARDS;
-        changing |= ImGui::SliderFloat2("Random Offset", glm::value_ptr(ranPos), -5.f, 5.f);
-        changing |= ImGui::SliderFloat2("Random Scale", glm::value_ptr(ranScale), 1.f, 5.f);
+        bool changing = false;
+        changing |= ImGui::SliderFloat3("Random Min Offset", glm::value_ptr(minOff), volume->xBounds.x, volume->xBounds.y);
+        changing |= ImGui::SliderFloat3("Random Max Offset", glm::value_ptr(maxOff), volume->xBounds.x, volume->xBounds.y);
+        changing |= ImGui::SliderFloat2("Random Scale", glm::value_ptr(ranScale), 0.f, volume->xBounds.y);
         changing |= ImGui::SliderInt("Number billboards", &numBoards, 0, I_VOLUME_BOARDS);
-        if (ImGui::Button("Reset billboards") || changing) {
-            volume->billboardPositions.clear();
-            volume->billboardScales.clear();
-            for (int i = 0; i < numBoards; i++) {
-                volume->addCloudBoard(
-                    Util::genRandomVec3(ranPos.x, ranPos.y),
-                    Util::genRandom(ranScale.x, ranScale.y)
-                );
-            }
+        if (ImGui::Button("Regenerate billboards") || changing) {
+            volume->regenerateBillboards(numBoards, minOff, maxOff, ranScale.x, ranScale.y);
         }
-        if (volume->billboardPositions.size()) {
+        if (volume->billboards.count) {
             static int currBoard = 0;
-            ImGui::SliderInt("Curr board", &currBoard, 0, volume->billboardPositions.size() - 1);
-            glm::vec3 *currPos = &volume->billboardPositions[currBoard];
-            float *currScale = &volume->billboardScales[currBoard];
+            ImGui::SliderInt("Curr board", &currBoard, 0, volume->billboards.positions.size() - 1);
+            glm::vec3 *currPos = &volume->billboards.positions[currBoard];
+            float *currScale = &volume->billboards.scales[currBoard];
             ImGui::SliderFloat3("Position", glm::value_ptr(*currPos), -10.f, 10.f);
             ImGui::SliderFloat("Cscale", currScale, 1.f, 10.f);
-            if (ImGui::Button("Delete") && volume->billboardPositions.size()) {
-                volume->billboardPositions.erase(volume->billboardPositions.begin() + currBoard);
-                volume->billboardScales.erase(volume->billboardScales.begin() + currBoard);
+            if (ImGui::Button("Delete") && volume->billboards.positions.size()) {
+                volume->billboards.positions.erase(volume->billboards.positions.begin() + currBoard);
+                volume->billboards.scales.erase(volume->billboards.scales.begin() + currBoard);
+                volume->billboards.count--;
                 currBoard = glm::max(0, currBoard - 1);
             }
         }
@@ -253,14 +245,16 @@ void runImGuiPanes() {
         ImGui::SliderFloat2("YBounds", glm::value_ptr(volume->yBounds), minBounds, maxBounds);
         ImGui::SliderFloat2("ZBounds", glm::value_ptr(volume->zBounds), minBounds, maxBounds);
         static float scale = 10.f;
-        if (ImGui::SliderFloat("Scale", &scale, 0.f, 50.f)) {
+        if (ImGui::SliderFloat("Scale", &scale, 0.f, 20.f)) {
             volume->xBounds.x = -scale;
             volume->xBounds.y =  scale;
             volume->yBounds.x = -scale;
             volume->yBounds.y =  scale;
             volume->zBounds.x = -scale;
             volume->zBounds.y =  scale;
+            volume->resetBillboards();
         }
+        ImGui::SliderFloat("Fluffiness", &volume->fluffiness, 0.f, 1.f);
     }
     ImGui::End();
 
