@@ -39,6 +39,10 @@ class Util {
         static inline glm::vec3 genRandomVec3(const float min, const float max) {
             return glm::vec3(genRandom(min, max), genRandom(min, max), genRandom(min, max));
         }
+        /* Generate random vec3 with component values [min, max] */
+        static inline glm::vec3 genRandomVec3(const float xmin, const float xmax, const float ymin, const float ymax, const float zmin, const float zmax) {
+            return glm::vec3(genRandom(xmin, xmax), genRandom(ymin, ymax), genRandom(zmin, zmax));
+        }
 
         //////////////////////////////////////////////
         //                 PRINTING                 //
