@@ -68,16 +68,18 @@ void VoxelShader::render(const CloudVolume *volume, const glm::mat4 &P, const gl
     loadFloat(getUniform("alpha"), alpha);
     loadVector(getUniform("voxelSize"), volume->voxelSize);
 
-   /* Render voxels */
-    loadBool(getUniform("isOutline"), false);
-    CHECK_GL_CALL(glDrawElementsInstanced(GL_TRIANGLES, (int)cube->eleBuf.size(), GL_UNSIGNED_INT, 0, voxelPositions.size()));
+    /* Render voxels */
+    if (!disableWhite) {
+        loadBool(getUniform("isOutline"), false);
+        CHECK_GL_CALL(glDrawElementsInstanced(GL_TRIANGLES, (int)cube->eleBuf.size(), GL_UNSIGNED_INT, 0, voxelPositions.size()));
+    }
 
     /* Render voxel outlines and bounds */
     loadBool(getUniform("isOutline"), true);
     CHECK_GL_CALL(glPolygonMode(GL_FRONT_AND_BACK, GL_LINE));
  
     /* Individual voxels */
-    if (useOutline) {
+    if (!disableWhite && useOutline) {
        CHECK_GL_CALL(glDrawElementsInstanced(GL_TRIANGLES, (int)cube->eleBuf.size(), GL_UNSIGNED_INT, 0, voxelPositions.size()));
     }
 
