@@ -263,11 +263,9 @@ void runImGuiPanes() {
         ImGui::Text("Voxels in scene : %d", voxelShader->activeVoxels);
         ImGui::Checkbox("Light view", &lightView);
         if (ImGui::Checkbox("Render voxels", &showVoxels)) {
-            voxelShader->disableBlack = false;
             voxelShader->disableWhite = false;
         }
         ImGui::Checkbox("Disable bounds", &voxelShader->disableBounds);
-        ImGui::Checkbox("Disable black", &voxelShader->disableBlack);
         ImGui::Checkbox("Disable white", &voxelShader->disableWhite);
         ImGui::Checkbox("Voxel outlines", &voxelShader->useOutline);
         ImGui::SliderFloat("Voxel alpha", &voxelShader->alpha, 0.f, 1.f);

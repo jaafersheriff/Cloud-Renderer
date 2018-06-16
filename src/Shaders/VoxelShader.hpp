@@ -18,7 +18,6 @@ class VoxelShader : public Shader {
         bool useOutline = true;
         bool disableBounds = false;
         bool disableWhite = false;
-        bool disableBlack = false;
         float alpha = 1.f;
 
     private:
