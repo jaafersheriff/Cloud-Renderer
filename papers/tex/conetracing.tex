@@ -1,14 +1,16 @@
 \newpage
 \subsection{Voxel Cone Tracing}\paragraph{}
-Now that our voxelization method is complete and our volume contains the necessary data, it is time to ray march through that data. Voxel cone tracing is an existing ray marching technique that utilizes 3D texture mips.
+The next step to render clouds is to ray march through the data. Voxel cone tracing is an existing ray marching technique that utilizes texture mips.
 
-Along with a simple ray march, voxel cone tracing keeps track of the radis of a cone encompassing the ray. That cone radius is used to sample different mip levels within the volume. The further the ray is sampling, the larger the radius, and the higher the mip level is used for sampling. 
+Along with a simple ray march, voxel cone tracing keeps track of the radius of a cone encompassing the ray. 
+The cone radius is used to sample different mip levels within the volume. 
+The further the ray is sampling, the larger the radius, and therefore the higher the mip level is used. 
 
 % TODO : image 
 
-For our voxel cone tracing method, we render the same billboards as before but this time from the camera's perspective. We use the same spherical distribution calculation to find the surface of the sphere for each billboard. This is where we start our ray march within the volume. 
+For our voxel cone tracing method, we render the same billboards as before but this time from the user-camera's perspective. We use the same spherical distribution calculation to find the surface of the sphere for each billboard. This is where we begin our cone trace through the volume. 
 
-We ray march in the direction of the light source, sampling the volume at the cone radius's respective mips as we go. The end result gives us the final shading for our clouds. 
+We cone trace in the direction of the light source, sampling the volume at higher and higher mip levels as we go. The end result gives us the final shading for our clouds. 
 % Code defining voxel cone trace 
 \begin{lstlisting}[caption={conetrace\_frag.glsl, 63}]
 vec3 startPosition = calculateVoxelPosition(sphereSurfacePosition);
@@ -37,5 +39,5 @@ float coneTrace(vec3 position, vec3 direction) {
 \caption{Cone tracing results of a single billboard}
 \end{figure}
 
-Our cone trace method is fully paramterized. The user can change the number of ray march steps, the angle of cone's tip, the start offset of the cone along the ray, and an LOD offset. 
+Our cone trace method is fully paramterized. The user can change the number of ray march steps, the angle of cone's head, and the start offset of the cone along the ray. 
 
