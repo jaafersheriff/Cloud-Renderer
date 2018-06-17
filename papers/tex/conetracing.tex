@@ -1,6 +1,6 @@
 \newpage
 \subsection{Voxel Cone Tracing}\paragraph{}
-The next step to render clouds is to ray march through the data. Voxel cone tracing is an existing ray marching technique that utilizes texture mips.
+With the volume data for this frame complete, the next step is to ray march through it. Voxel cone tracing is an existing ray marching technique that utilizes texture mips.
 
 Along with a simple ray march, voxel cone tracing keeps track of the radius of a cone encompassing the ray. 
 The cone radius is used to sample different mip levels within the volume. 
@@ -11,25 +11,35 @@ The further the ray is sampling, the larger the radius, and therefore the higher
 For our voxel cone tracing method, we render the same billboards as before but this time from the user-camera's perspective. We use the same spherical distribution calculation to find the surface of the sphere for each billboard. This is where we begin our cone trace through the volume. 
 
 We cone trace in the direction of the light source, sampling the volume at higher and higher mip levels as we go. The end result gives us the final shading for our clouds. 
+
+\newpage % for alignment
 % Code defining voxel cone trace 
 \begin{lstlisting}[caption={conetrace\_frag.glsl, 63}]
+// Start position and direction of ray march
 vec3 startPosition = calculateVoxelPosition(sphereSurfacePosition);
 vec3 direction = lightPosition - startPosition;
-float shading = coneTrace(startPosition, direction);
-...
-float coneTrace(vec3 position, vec3 direction) {
-    position /= volumeDimension;
-    direction /= volumeDimension;
 
-    float color = 0.f;
-    for (int i = 1; i <= steps; i++) {
-        float coneRadius = coneHeight * tan(coneAngle / 2.f);
-        float lod = log2(max(1.f, 2.f * coneRadius));
-        vec4 sampleColor = textureLod(volume, position + coneHeight * direction, lod + vctLodOffset);
-        color += sampleColor.r * i/steps; // Down scale sample
-        coneHeight += coneRadius;
+// Scale to volume dimension's
+position /= volumeDimension;
+direction /= volumeDimension;
+
+// Ray march
+vec3 color = vec3(0, 0, 0);
+for (int i = 1; i <= steps; i++) {
+    // Update the cone radius at this step in the ray march
+    // Cone angle is the angle of the cone's tip
+    float coneRadius = coneHeight * tan(coneAngle / 2.f);
+    // Calculate the mip level using the cone radius
+    float lod = log2(max(1.f, 2.f * coneRadius));
+    // Sample the volume 
+    vec4 sampleColor = textureLod(volume, position + coneHeight * direction, lod);
+    // Update the output if the voxel is valid
+    if (sampleColor.a > 0.f) {
+        color += sampleColor.rgb;
     }
+    coneHeight += coneRadius;
 }
+return color;
 \end{lstlisting}\paragraph{}
 
 % cone trace
