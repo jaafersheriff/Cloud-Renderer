@@ -1,7 +1,7 @@
 \subsection{Voxelization}\paragraph{}
 Normally a volume is populated using some accompanying static 3D texture data. For our implementation we manually update our voxel individually. 
 
-We want our final voxels to represent the billowing, semi-spherical shape of a cloud. We also want to highlight the voxels nearest to the light source which is essential for shading the cloud. 
+We want our final volume data to represent the billowing, semi-spherical shape of a cloud. We also want to highlight the voxels nearest to the light source which will be essential for shading the cloud. 
 
 To voxelize we clear the entire volume and rerun our full voxelization algorithm on every frame. This will be necessary if we ever add procedurally animated clouds. 
 
@@ -9,19 +9,19 @@ To voxelize we clear the entire volume and rerun our full voxelization algorithm
 We begin by rendering many billboards from the light's perspective. In the fragment shader we calculate a spherical distribution mapped to the face of the billboard. Using this distribution we populate a sphere within the volume. 
 
 % Code defining inital spherical voxelization
-\begin{lstlisting}[caption={first\_voxelize.glsl, 42}]
-// Calculate tthe distance from the center of the billboard to the current fragment
+\begin{lstlisting}[caption={first\_voxelize.glsl, 51}]
+// Calculate the distance from the center of the billboard to the current fragment
 float fragDist = distance(center, fragPos);
-// Calculate a linear distribution [0, 1]
+// Translate that distance into a linear distribution [0, 1]
 float distribution = fragDist / radius;
 // Convert the linear distribution to spherical [0, 1]
 distribution = sqrt(max(0, 1 - distribution * distribution));
-// Calculate the near point of the sphere intersecting this fragment
+// Calculate the near point on the sphere respective with this fragment
 float sphereDistance = radius * distribution;
 vec3 nearPos = fragPos + billboardNormal * sphereDistance;
 // Iterate from the front of the sphere to back 
 // Set the voxels within this line to black
-for(float scale = 0; scale < 2 * sphereDistance; scale += stepSize) {
+for (float scale = 0; scale < 2 * sphereDistance; scale += stepSize) {
 	vec3 worldPos = nearPos - billboardNormal * scale;
 	imageStore(volume, getVoxelIndex(worldPos), vec4(0,0,0,1));
 }
@@ -42,10 +42,10 @@ for(float scale = 0; scale < 2 * sphereDistance; scale += stepSize) {
 	~
 	% TODO : diagram
 	% TODO : should this be its own figure?
-	\begin{subfigure}[t]{0.48\textwidth}
-	\includegraphics[width=\textwidth]{../res/spherebillboard.png}
-	\caption{Diagram of first-voxelization pass}
-	\end{subfigure}
+	% \begin{subfigure}[t]{0.48\textwidth}
+	% \includegraphics[width=\textwidth]{../res/spherebillboard.png}
+	% \caption{Diagram of first-voxelization pass}
+	% \end{subfigure}
 	~
 	\begin{subfigure}[t]{0.48\textwidth}
 	\includegraphics[width=\textwidth]{../res/voxelize1.png}
@@ -60,11 +60,14 @@ We render the billboards from the light's perspective because we want to keep tr
 During our first voxelization pass we simultaneously write out the sphere's world positions to the frame buffer being rendered to. Once all the billboards have been rendered this frame buffer will contain the world positions of the all the voxels nearest to the light source. 
 
 This method utilizes the graphics pipeline's depth test to occlude any sphere that is hidden by nearer spheres.
-The depth test, however, relies on rasterized geometry in the z-buffer, and the geometry being rendered is the flat billboards, not the spherical distributions that they represent. To solve this we manually calculate and write the sphere's depth into the z-buffer. We do this in world-space using the light-perspective's near and far plane. It would likely be more elegant and efficient to do this calculation in clip-space.
+The depth test, however, relies on rasterized geometry in the z-buffer.
+The geometry being rendered, however, is the flat billboards and not the spherical distributions that they represent. 
+To solve this we manually calculate and write the sphere's depth into the z-buffer. We do this in world-space using the light-perspective's near and far plane. It would likely be more elegant and efficient to do this calculation in clip-space.
+
+\newpage % for alignment purposes
 % Calculating and writing to position map
-\begin{lstlisting}[caption={first\_voxelize.glsl, 60}]
-// Calculate sphere fragment's world position 
-// This is the position nearest to the light source at this fragment
+\begin{lstlisting}[caption={first\_voxelize.glsl, 61}]
+// Calculate this fragment's spherical distribution's world position 
 vec3 nearPos = fragPos + billboardNormal * sphereDistance;
 // Calculate sphere fragment's depth within the light's perspective
 float viewSize = distance(lightNearPlane, lightFarPlane);
@@ -94,20 +97,20 @@ gl_FragDepth = depth;
 The final result of the position map is a screen-sized texture containing the world positions of voxels nearest to the camera. This data can be used to highlight those voxels.
 
 \subsubsection{Highlighting voxels}\paragraph{}
-For our second voxelization pass we render the position map to the screen at full resolution. 
+For our second voxelization pass we render the position map at full resolution. 
 We sample each fragment of the position map to get the world positions of the voxels nearest to the light source, and we then update that voxel's data to highlight that it is on the outer layer of the cloud. 
 
 % second voxelize
 \begin{lstlisting}[caption={second\_voxelize.glsl, 34}]
 // Get world position of voxels from position map
 vec4 worldPos = imageLoad(positionMap, ivec2(gl_FragCoord.xy));
-// Only highlight the voxel if the position map sample is valid
-if (worldPos.a >= 0.f) {
+// Only highlight the voxel if the sample is valid
+if (worldPos.a > 0.f) {
     imageStore(volume, calculateVoxelIndex(worldPos.xyz), vec4(1));
 }
 \end{lstlisting}
 
-The final result of our voxelization algorithm is a billowing spherical cloud-like structure with the voxels nearest to the camera being highlighted. 
+The final result of our voxelization algorithm is a billowing, semi-spherical, cloud-like structure with the voxels nearest to the light source being highlighted. 
 
 \begin{figure}[h]
 \centering
@@ -117,7 +120,6 @@ The final result of our voxelization algorithm is a billowing spherical cloud-li
 
 % TODO : \subsubsection{Optimizations}
 % TODO : \subsubsection{Billboard generation}
-% TODO : light view
-% TODO : rg 8?
-% TODO : no need for first voxelization pass
+% TODO : light view discussion
+% TODO : rg 8? no need for first voxelization pass
 % TODO : concurrency
