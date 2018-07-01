@@ -276,10 +276,10 @@ void runImGuiPanes() {
     ImGui::Begin("VXGI");
     {
         ImGui::SliderInt("Steps", &coneShader->vctSteps, 1, 30);
-        ImGui::SliderFloat("Angle", &coneShader->vctConeAngle, 0.f, 3.f);
-        ImGui::SliderFloat("Height", &coneShader->vctConeInitialHeight, -0.5f, 3.f);
+        ImGui::SliderFloat("Angle", &coneShader->vctConeAngle, 0.f, 3.14f);
+        ImGui::SliderFloat("Height", &coneShader->vctConeInitialHeight, 0.0f, 1.f);
         ImGui::SliderFloat("LOD Offset", &coneShader->vctLodOffset, 0.f, 5.f);
-        ImGui::SliderFloat("Down Scaling", &coneShader->vctDownScaling, 1.f, 10.f);
+        ImGui::SliderFloat("Down Scaling", &coneShader->vctDownScaling, 0.f, 10.f);
         ImGui::Checkbox("Cone trace!", &coneShader->doConeTrace);
     }
     ImGui::End();
@@ -293,6 +293,11 @@ void runImGuiPanes() {
         ImGui::SliderFloat("Frequency", &coneShader->freqStep, 0.01f, 10.f);
         ImGui::SliderFloat("Persistence", &coneShader->persStep, 0.01f, 1.f);
         ImGui::SliderFloat3("Wind Dir", glm::value_ptr(coneShader->windVel), -0.05f, 0.05f);
+        ImGui::SliderFloat("adjustSize", &coneShader->adjustSize, 0.f, 200.f);
+        ImGui::SliderInt("minNoiseSteps", &coneShader->minNoiseSteps, 1, 5);
+        ImGui::SliderInt("maxNoiseSteps", &coneShader->maxNoiseSteps, 2, 15);
+        ImGui::SliderFloat("minColor", &coneShader->minNoiseColor, 0.0f, 1.f);
+        ImGui::SliderFloat("maxColor", &coneShader->noiseColorScale, 0.f, 1.f);
     }
     ImGui::End();
 

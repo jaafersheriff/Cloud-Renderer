@@ -35,6 +35,12 @@ uniform int numOctaves;
 uniform float freqStep;
 uniform float persStep;
 
+uniform float adjustSize;
+uniform int minNoiseSteps;
+uniform int maxNoiseSteps;
+uniform float minNoiseColor;
+uniform float noiseColorScale;
+
 out vec4 color;
 
 /* Linear map from aribtray box(?) in world space to 3D volume 
@@ -113,7 +119,6 @@ vec4 noise3D(vec3 uv, int octaves) {
     return noiseVal;
 }
 
-#define MAX_STEPS 8
 void main() {
     float radius = scale;
     if (showQuad) {
@@ -142,11 +147,11 @@ void main() {
         float currentDepth = viewNear.z/ viewNear.w;
         float farDepth = viewFar.z / viewFar.w;
         vec3 unitTex = (worldNear - center) / radius;
-        float fNoiseSizeAdjust = 1 / 40.f;
+        float fNoiseSizeAdjust = 1 / adjustSize;
         vec3 localTexNear = worldNear * fNoiseSizeAdjust;
         vec3 localTexFar = worldFar * fNoiseSizeAdjust;
         float iSteps = length(localTexFar - localTexNear) / stepSize;
-        iSteps = min(iSteps, MAX_STEPS - 2) + 2;
+        iSteps = min(iSteps, maxNoiseSteps - minNoiseSteps) + minNoiseSteps;
         vec3 currentTex = localTexNear;
         vec3 localTexDelta = (localTexFar - localTexNear) / (iSteps - 1);
         float opacityAdjust = noiseOpacity / (iSteps - 1);
@@ -156,14 +161,13 @@ void main() {
         for (int i = 0; i < iSteps; i++) {
             vec4 noiseCell = noise3D(currentTex, numOctaves);
             noiseCell.xyz += normalize(unitTex);
-            noiseCell.xyz = normalize(noiseCell.xyz);
             runningOpacity += noiseCell.a* (1.0 - dot(unitTex, unitTex));
             runningLight += saturate(dot(noiseCell.xyz, vec3(0, 1, 0))*0.5 + 0.5);
             currentTex += localTexDelta;
             unitTex += localTexDelta;
         }
 
-        float col = 0.2 + (0.45 * runningLight * lightAdjust);
+        float col = minNoiseColor + (noiseColorScale * runningLight * lightAdjust);
         float alpha = 1 - length(fragTex - vec2(0.5)) * 2;
         runningOpacity = saturate(runningOpacity*opacityAdjust);
         color = vec4(vec3(col), runningOpacity*alpha);

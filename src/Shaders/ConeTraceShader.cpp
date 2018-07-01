@@ -45,6 +45,11 @@ void ConeTraceShader::coneTrace(CloudVolume *volume) {
     loadInt(getUniform("numOctaves"), numOctaves);
     loadFloat(getUniform("freqStep"), freqStep);
     loadFloat(getUniform("persStep"), persStep);
+    loadFloat(getUniform("adjustSize"), adjustSize);
+    loadInt(getUniform("minNoiseSteps"), minNoiseSteps);
+    loadInt(getUniform("maxNoiseSteps"), maxNoiseSteps);
+    loadFloat(getUniform("minNoiseColor"), minNoiseColor);
+    loadFloat(getUniform("maxNoiseColor"), noiseColorScale);
 
     /* Per-octave sampling offset */
     std::vector<glm::vec3> octaveOffsets(numOctaves, glm::vec3(0.f));
