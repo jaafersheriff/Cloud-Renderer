@@ -260,6 +260,7 @@ void runImGuiPanes() {
 
     ImGui::Begin("Voxels");
     {
+        ImGui::Checkbox("Light Voxelize", &lightVoxelize);
         ImGui::Text("Voxels in scene : %d", voxelShader->activeVoxels);
         ImGui::Checkbox("Light view", &lightView);
         if (ImGui::Checkbox("Render voxels", &showVoxels)) {
@@ -269,18 +270,17 @@ void runImGuiPanes() {
         ImGui::Checkbox("Disable white", &voxelShader->disableWhite);
         ImGui::Checkbox("Voxel outlines", &voxelShader->useOutline);
         ImGui::SliderFloat("Voxel alpha", &voxelShader->alpha, 0.f, 1.f);
-        ImGui::Checkbox("Light Voxelize!", &lightVoxelize);
     }
     ImGui::End();
 
     ImGui::Begin("VXGI");
     {
+        ImGui::Checkbox("Cone trace", &coneShader->doConeTrace);
         ImGui::SliderInt("Steps", &coneShader->vctSteps, 1, 30);
         ImGui::SliderFloat("Angle", &coneShader->vctConeAngle, 0.f, 3.14f);
         ImGui::SliderFloat("Height", &coneShader->vctConeInitialHeight, 0.0f, 1.f);
         ImGui::SliderFloat("LOD Offset", &coneShader->vctLodOffset, 0.f, 5.f);
         ImGui::SliderFloat("Down Scaling", &coneShader->vctDownScaling, 0.f, 10.f);
-        ImGui::Checkbox("Cone trace!", &coneShader->doConeTrace);
     }
     ImGui::End();
 
