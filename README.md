@@ -14,7 +14,7 @@ TODO
 ## Development Details
 _[Devlog](http://www.jaafersheriff.com/search/label/clouds)_
 
-_[Final implementation paper](papers/senior-project.pdf)_
+_[Final implementation paper](paper/senior-project.pdf)_
 
 ## Libraries Used
 * [GLFW](http://www.glfw.org/)
