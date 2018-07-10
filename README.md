@@ -1,12 +1,10 @@
 # Real-Time Volumetric Cloud Renderer
-![logo|20%](res/readme/logo.gif)
+<img src="res/readme/logo.gif">
 
 This project introduces an efficient and effective method to render animated, lifelike clouds in real-time. Our clouds dynamically react to other world-parameters like the position of the camera or the sun. Our clouds are also conveniently parameterized to allow for flexible customization of its density, position, sizes, etc.
 
 ## Results
-![res1|10%](res/readme/r1.gif)
-
-![res2|10%](res/readme/r2.gif)
+<img src="res/readme/r1.gif" width=50%><img src="res/readme/r2.gif" width=50%>
 
 ## Method and Features
 * Interactive real-time smoke rendering
