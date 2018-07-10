@@ -4,7 +4,9 @@
 This project introduces an efficient and effective method to render animated, lifelike clouds in real-time. Our clouds dynamically react to other world-parameters like the position of the camera or the sun. Our clouds are also conveniently parameterized to allow for flexible customization of its density, position, sizes, etc.
 
 ## Results
-TODO
+![res1|10%](res/readme/r1.gif)
+
+![res2|10%](res/readme/r2.gif)
 
 ## Method and Features
 * Interactive real-time smoke rendering
