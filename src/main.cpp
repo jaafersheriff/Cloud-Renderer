@@ -46,7 +46,7 @@ glm::vec3 Sun::farPlane;
 float Sun::clipDistance;
 
 /* Library things */
-const std::string RESOURCE_DIR("../res/");
+const std::string RESOURCE_DIR("res/");
 Mesh * Library::quad;
 std::map<std::string, Texture *> Library::textures;
 
@@ -287,7 +287,7 @@ void runImGuiPanes() {
     ImGui::Begin("Noise");
     {
         ImGui::Checkbox("Noise sample", &coneShader->doNoiseSample);
-        ImGui::SliderFloat("Step size", &coneShader->stepSize, 0.001f, 10.f);
+        ImGui::SliderFloat("Step size", &coneShader->stepSize, 0.001f, 1.f);
         ImGui::SliderFloat("Noise opacity", &coneShader->noiseOpacity, 0.1f, 40.f);
         ImGui::SliderInt("Octaves", &coneShader->numOctaves, 1, 10);
         ImGui::SliderFloat("Frequency", &coneShader->freqStep, 0.01f, 10.f);
